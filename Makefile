@@ -32,7 +32,9 @@ figures:
 	for f in figures/fig*.py; do $(UV) python $$f || exit 1; done
 
 paper:
-	@echo "$@: not built yet"; exit 1
+	$(UV) cpilens report
+	$(UV) python scripts/check_numbers.py
+	cd paper && tectonic -X compile main.tex
 
 check: lint test
 
@@ -40,6 +42,7 @@ lint:
 	$(UV) ruff check .
 	$(UV) ruff format --check .
 	$(UV) mypy cpilens
+	$(UV) python scripts/check_numbers.py
 
 test:
 	$(UV) pytest -q --cov=cpilens.taxonomy --cov=cpilens.evaluate --cov=cpilens.econ \

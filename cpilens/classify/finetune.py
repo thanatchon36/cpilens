@@ -23,9 +23,10 @@ from cpilens.paths import CACHE
 
 HF = "FacebookAI/xlm-roberta-base"
 FT_DIR = CACHE / "ft"
+MAX_LEN = 64  # tokens; product texts are short
 
 
-def _batches(tok: object, texts: list[str], bs: int, max_len: int = 64):  # type: ignore[no-untyped-def]
+def _batches(tok: object, texts: list[str], bs: int, max_len: int = MAX_LEN):  # type: ignore[no-untyped-def]
     for s in range(0, len(texts), bs):
         yield tok(
             texts[s : s + bs],
@@ -87,7 +88,7 @@ def run(
                 [texts[i] for i in idx],
                 padding=True,
                 truncation=True,
-                max_length=64,
+                max_length=MAX_LEN,
                 return_tensors="pt",
             ).to(ec.DEVICE)
             with torch.autocast("cuda", dtype=torch.bfloat16):

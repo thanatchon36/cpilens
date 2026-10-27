@@ -1,0 +1,53 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2.5cm]{geometry}
+\usepackage{amsmath}
+\usepackage{libertinus} % loads unicode-math under XeTeX
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{fvextra}
+\usepackage[authoryear,round]{natbib}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{xcolor}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\graphicspath{{../figures/out/}}
+\input{numbers.tex}
+% \input is not expandable inside a tabular; this reads generated table rows
+\makeatletter\newcommand{\inputrows}[1]{\@@input #1 }\makeatother
+
+\title{How much does product classification cost in basis points?\\[0.3em]
+\large Multilingual classification of Thai product text for consumer price measurement}
+\author{Thanatchon Chongmankhong\thanks{The views expressed are the author's own and do not
+necessarily reflect those of the Bank of Thailand. This work uses only publicly available data.
+Code and derived data: \url{https://github.com/thanatchon36/cpilens}.}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\input{sections/abstract.tex}
+\end{abstract}
+
+\noindent\textbf{JEL codes:} C55, C81, E31.\quad % numbers-ok: JEL codes
+\textbf{Keywords:} consumer price index, product classification, multilingual text embeddings,
+large language models, web prices, measurement error, Thailand.
+
+\input{sections/introduction.tex}
+\input{sections/related.tex}
+\input{sections/data.tex}
+\input{sections/methods.tex}
+\input{sections/results.tex}
+\input{sections/discussion.tex}
+\input{sections/limitations.tex}
+\input{sections/conclusion.tex}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+
+\appendix
+\input{sections/appendix.tex}
+
+\end{document}

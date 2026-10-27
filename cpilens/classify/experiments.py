@@ -34,6 +34,7 @@ from cpilens.paths import RESULTS, TAXONOMY
 PREDS = RESULTS / "preds" / "embed"
 BUDGETS = (100, 250, 500, 1000, "all")
 CLASSIFIERS = ("knn", "linear", "mlp")
+MLP_HIDDEN = 512
 
 
 def classes() -> list[str]:
@@ -123,7 +124,7 @@ def run(
                     info["k"] = k
                     logits = partial(ec.knn_logits, xtr, ytr, k=k, n_classes=len(cls))
                 else:
-                    cfg = ec.TrainCfg(hidden=0 if clf == "linear" else 512)
+                    cfg = ec.TrainCfg(hidden=0 if clf == "linear" else MLP_HIDDEN)
                     logits = partial(ec.net_logits, ec.train_net(xtr, ytr, xva, yva, len(cls), cfg))
                 lva = logits(xva)
                 temp = ec.fit_temperature(lva, yva)

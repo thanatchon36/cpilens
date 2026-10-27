@@ -20,6 +20,7 @@ from cpilens.evaluate.run import CASCADE_CHEAP, LLMS
 from cpilens.paths import INTERIM, RESULTS, ROOT, TAXONOMY
 
 OUT = ROOT / "paper" / "numbers.tex"
+GENERATED = ROOT / "paper" / "generated"
 
 ALIAS = {
     "claude-haiku-5-5": "Haiku",
@@ -48,6 +49,13 @@ def pct(x: float, d: int = 1) -> str:
 def num(x: float, d: int = 0) -> str:
     """Thousands separated the LaTeX way (``76{,}269``)."""
     return f"{x:,.{d}f}".replace(",", "{,}")
+
+
+def sci(x: float) -> str:
+    """``3e-05`` -> ``$3\\times 10^{-5}$`` (powers of ten print as ``$10^{-4}$``)."""
+    mant, exp = f"{x:e}".split("e")
+    m, e = float(mant), int(exp)
+    return f"$10^{{{e}}}$" if m == 1 else f"${m:g}\\times 10^{{{e}}}$"
 
 
 def signed(x: float, d: int = 0) -> str:
@@ -177,13 +185,77 @@ def _rq4(r: Path) -> dict[str, str]:
     return m
 
 
+def _config(_: Path) -> dict[str, str]:
+    """Design constants, read from the code that uses them."""
+    import inspect
+
+    from cpilens.classify import embedclf, experiments, finetune, llm
+    from cpilens.econ import run as econ
+    from cpilens.embed import projection
+    from cpilens.evaluate import frontier, gold
+    from cpilens.label import store
+
+    def default(f: object, arg: str) -> object:
+        return inspect.signature(f).parameters[arg].default  # type: ignore[arg-type]
+
+    cfg = embedclf.TrainCfg()
+    ft = {a: default(finetune.run, a) for a in ("epochs", "bs", "lr")}
+    ks = default(embedclf.knn_tune, "ks")
+    budgets = [b for b in experiments.BUDGETS if b != "all"]
+    return {
+        "CfgBoot": num(gold.N_BOOT),
+        "CfgDraws": num(econ.N_DRAWS),
+        "CfgSeed": str(gold.SEED),
+        "CfgAlpha": f"{econ.ALPHA:g}",
+        "CfgSigmaLo": pct(econ.SIGMAS[0], 0),
+        "CfgSigmaHi": pct(econ.SIGMAS[1], 0),
+        "CfgMinFlowBp": f"{econ.MIN_FLOW_BP:g}",
+        "CfgCapUSD": f"{llm.CAP_USD:.0f}",
+        "CfgGpuUSDHour": f"{frontier.GPU_USD_PER_HOUR:.2f}",
+        "CfgMLPHidden": num(experiments.MLP_HIDDEN),
+        "CfgDropout": f"{cfg.dropout:g}",
+        "CfgLR": sci(cfg.lr),
+        "CfgWeightDecay": sci(cfg.weight_decay),
+        "CfgBatch": num(cfg.batch),
+        "CfgPatience": str(cfg.patience),
+        "CfgKs": ", ".join(str(k) for k in ks),  # type: ignore[attr-defined]
+        "CfgFtEpochs": str(ft["epochs"]),
+        "CfgFtBatch": str(ft["bs"]),
+        "CfgFtLR": sci(ft["lr"]),  # type: ignore[arg-type]
+        "CfgFtMaxLen": str(finetune.MAX_LEN),
+        "CfgFewShot": str(default(llm.few_shot, "per_label")),
+        "CfgMaxTokens": num(llm.MAX_TOKENS),
+        "CfgBudgets": ", ".join(num(b) for b in budgets),  # type: ignore[arg-type]
+        "CfgAlignK": str(projection.K),
+        "CfgGapHours": f"{store.MIN_GAP.total_seconds() / 3600:.0f}",
+        "CfgThresholds": ", ".join(f"{t:g}" for t in frontier.THRESHOLDS),
+    }
+
+
+def _names(_: Path) -> dict[str, str]:
+    """Model names (they contain digits, so they too come from code)."""
+    from cpilens.embed.encode import MODELS
+    from cpilens.viz import names
+
+    m = {f"Name{ALIAS[k]}": v for k, v in names.LLM.items()}
+    m |= {
+        "NameEfive": names.EMB["e5-large"],
+        "NameBge": names.EMB["bge-m3"],
+        "HfEfive": MODELS["e5-large"]["hf"],
+        "HfBge": MODELS["bge-m3"]["hf"],
+    }
+    from cpilens.classify.finetune import HF
+
+    return m | {"HfXlmr": HF}
+
+
 def _camel(key: str) -> str:
     return "".join(p.title() for p in key.split("_"))
 
 
 def macros(results: Path = RESULTS) -> dict[str, str]:
     m: dict[str, str] = {}
-    for part in (_data, _costs, _gold, _rq3, _rq4):
+    for part in (_config, _names, _data, _costs, _gold, _rq3, _rq4):
         m |= part(results)
     bad = [k for k in m if not k.isalpha()]
     if bad:
@@ -198,3 +270,72 @@ def write(results: Path = RESULTS, out: Path = OUT) -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text("\n".join(lines) + "\n")
     return len(m)
+
+
+# ---------------------------------------------------------------- appendix tables
+
+
+def _tex(s: str) -> str:
+    return s.replace("&", "\\&").replace("%", "\\%").replace("_", "\\_")
+
+
+def items_table(results: Path = RESULTS) -> str:
+    """Rows of the in-scope item table: code, name, COICOP 2018 class, both weight splits."""
+    scope = pl.read_csv(TAXONOMY / "thcpi_scope.csv", schema_overrides={"label": pl.Utf8})
+    cov = pl.read_csv(results / "coverage.csv", schema_overrides={"label": pl.Utf8})
+    t = scope.filter(pl.col("in_scope")).join(cov.select("label", "w_equal", "w_nnls"), on="label")
+    return "\n".join(
+        f"{r['label']} & {_tex(r['name_en'])} & {r['coicop2018'].replace(';', ', ')} & "
+        f"{r['w_equal']:.2f} & {r['w_nnls']:.2f} \\\\"
+        for r in t.iter_rows(named=True)
+    )
+
+
+def costs_table(results: Path = RESULTS) -> str:
+    """Rows of the LLM cost ledger: every billed call, by model and purpose."""
+    c = pl.read_csv(results / "llm_costs.csv")
+    g = (
+        c.with_columns(pl.col("purpose").str.split(":").list.first().alias("stage"))
+        .group_by("model", "stage")
+        .agg(
+            pl.len().alias("calls"),
+            (pl.col("input") + pl.col("cache_write") + pl.col("cache_read")).sum().alias("inp"),
+            pl.col("output").sum().alias("out"),
+            pl.col("usd").sum(),
+        )
+        .sort("model", "stage")
+    )
+    rows = [
+        f"{_tex(r['model'])} & {r['stage']} & {num(r['calls'])} & {num(r['inp'])} & "
+        f"{num(r['out'])} & {r['usd']:.2f} \\\\"
+        for r in g.iter_rows(named=True)
+    ]
+    rows.append(
+        f"\\midrule Total & & {num(c.height)} & "
+        f"{num(int((c['input'] + c['cache_write'] + c['cache_read']).sum()))} & "
+        f"{num(int(c['output'].sum()))} & {c['usd'].sum():.2f} \\\\"
+    )
+    return "\n".join(rows)
+
+
+def prompt_text() -> str:
+    """The instruction part of the LLM system prompt (the label list and examples follow)."""
+    from cpilens.classify import llm
+
+    none = pl.DataFrame(schema={"text": pl.Utf8, "label": pl.Utf8})
+    head = llm.system_prompt(none)
+    return head.split("Labels by group")[0].rstrip() + "\n"
+
+
+def write_tables(results: Path = RESULTS, out: Path = GENERATED) -> list[str]:
+    out.mkdir(parents=True, exist_ok=True)
+    made = []
+    for name, f in (("items.tex", items_table), ("costs.tex", costs_table)):
+        try:
+            text = f(results)
+        except FileNotFoundError:
+            continue
+        (out / name).write_text(f"% Generated by `cpilens report`. Do not edit.\n{text}\n")
+        made.append(name)
+    (out / "prompt.txt").write_text(prompt_text())
+    return [*made, "prompt.txt"]

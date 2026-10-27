@@ -1,0 +1,43 @@
+\section{Limitations}\label{sec:limitations}
+
+\paragraph{One labeller.} The gold labels are the author's. The second pass measures how
+consistent one person is with themselves, not how far two trained annotators would disagree,
+so the label ceiling of Section~\ref{sec:results} is optimistic. Gold labels can also be
+wrong in ways that favour a model which shares the labeller's reading of the item headings.
+
+\paragraph{The product universe is Open Food Facts.} The gold frame is the Thai-script
+products in a crowd-sourced database, not the assortment of Thai shops. It over-represents
+packaged, branded products that volunteers chose to enter, and the universe shares $n_k$ in
+the simulator are shares of that frame. A statistical office would draw the frame from its
+own scanner or web data, where the mix of items, and therefore the error in basis points,
+may differ.
+
+\paragraph{Item weights below the published cells are estimated.} TPSO publishes weights for
+its aggregates only. The equal split and the NNLS split are two transparent estimates; they
+agree on the cells but not on the items inside them. Results that depend on which item
+inside a cell carries the weight are reported under both.
+
+\paragraph{The simulator measures classification error only.} It takes official item
+relatives as the true price movements of every product and changes nothing but the
+assignment of products to items. A real web-price index would add sampling, matching,
+quality-adjustment and outlier error on top. Three modelling
+choices are assumptions rather than estimates: leaked out-of-scope products move with the
+official non-food index, an item that receives no products takes its group's measured
+movement, and the product-level dispersion of the noise variants is assumed, not
+measured.
+
+\paragraph{Official specifications are not shop listings.} The official labels come from
+TPSO's price-collection specifications. They are short and regular;
+shop and database texts are longer and noisier. The learning curve therefore
+measures the value of this kind of official label, not of labelled shop data.
+
+\paragraph{Closed models change.} The LLMs are reached through a commercial API. Model
+revisions, prices and refusal behaviour can change after the run date; every response is
+cached so that the numbers here can be reproduced, but not necessarily re-obtained. The
+official specifications are public and may have been seen in pre-training. Local compute
+is costed at an assumed price per GPU-hour.
+
+\paragraph{Not comparable to Spectrum.} Spectrum classifies euro-area web data into the
+ECOICOP 2018 subclasses \citep{bis2026spectrum}. Our taxonomy, language, product universe,
+label source and metrics differ, so our numbers are not directly comparable with theirs,
+and we do not compare them.

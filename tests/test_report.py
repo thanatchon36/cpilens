@@ -14,6 +14,7 @@ def test_formatting():
     assert numbers.pct(0.7392) == "73.9"
     assert numbers.signed(-12.6) == "\\textminus{}13"
     assert numbers.signed(-0.4) == "0"
+    assert numbers.sci(3e-5) == "$3\\times 10^{-5}$" and numbers.sci(1e-4) == "$10^{-4}$"
 
 
 def test_macros_from_results(tmp_path):
@@ -43,3 +44,17 @@ def test_macros_from_results(tmp_path):
     out = tmp_path / "numbers.tex"
     numbers.write(tmp_path, out)
     assert "\\newcommand{\\AccWHaiku}{50.0}" in out.read_text()
+
+
+def test_costs_table_sums_by_model_and_stage(tmp_path):
+    from cpilens.report import numbers
+
+    (tmp_path / "llm_costs.csv").write_text(
+        "utc,model,purpose,key,input,cache_write,cache_read,output,usd\n"
+        "t,m1,eval:m1,a,10,0,90,5,0.5\n"
+        "t,m1,eval:m1,b,10,0,90,5,0.25\n"
+        "t,m1,smoke,c,1,0,0,1,0.01\n"
+    )
+    rows = numbers.costs_table(tmp_path).split("\n")
+    assert rows[0] == "m1 & eval & 2 & 200 & 10 & 0.75 \\\\"
+    assert rows[-1] == "\\midrule Total & & 3 & 201 & 11 & 0.76 \\\\"

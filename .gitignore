@@ -17,3 +17,6 @@ __pycache__/
 htmlcov/
 .DS_Store
 results/preds/
+
+# build outputs (attached to releases)
+paper/*.pdf
