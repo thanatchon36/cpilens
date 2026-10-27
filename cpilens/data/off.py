@@ -57,10 +57,23 @@ def _select(path: Path, source: str) -> str:
                coalesce({_name("lang")},
                         list_filter(product_name, lambda x: length(trim(x.text)) > 0)[1].text)
                    AS name_main,
-               lang AS main_lang, brands, quantity, categories_tags
+               lang AS main_lang, brands, quantity, categories_tags,
+               coalesce(list_filter(images, lambda x: x.key = 'front_th')[1],
+                        list_filter(images, lambda x: x.key = 'front_en')[1],
+                        list_filter(images, lambda x: x.key LIKE 'front_%')[1]) AS front
         FROM read_parquet('{path}')
         WHERE len(list_filter(product_name, lambda x: length(trim(x.text)) > 0)) > 0
     """
+
+
+def image_url(barcode: str, source: str, key: str | None, rev: int | None) -> str | None:
+    """Front image (400 px) on the OFF/OBF image server; ``None`` if the product has none."""
+    if key is None or rev is None:
+        return None
+    code = barcode.zfill(13) if len(barcode) > 8 else barcode
+    path = "/".join([code[:3], code[3:6], code[6:9], code[9:]]) if len(code) > 8 else code
+    host = {"off": "openfoodfacts", "obf": "openbeautyfacts"}[source]
+    return f"https://images.{host}.org/images/products/{path}/{key}.{rev}.400.jpg"
 
 
 def extract(off_dir: Path = OFF_DIR, out: Path = OUT) -> Path:
@@ -68,7 +81,8 @@ def extract(off_dir: Path = OFF_DIR, out: Path = OUT) -> Path:
     parts = " UNION ALL ".join(
         _select(off_dir / f, src) for f, src in [("food.parquet", "off"), ("beauty.parquet", "obf")]
     )
-    con.sql(f"CREATE TABLE p AS SELECT * FROM ({parts}) WHERE market IS NOT NULL")
+    con.sql(f"""CREATE TABLE p AS SELECT * EXCLUDE (front), front.key AS image_key,
+                front.rev AS image_rev FROM ({parts}) WHERE market IS NOT NULL""")
     europe = ", ".join(f"'{m[3:]}'" for m in EUROPE)
     out.parent.mkdir(parents=True, exist_ok=True)
     con.sql(f"""

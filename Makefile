@@ -13,7 +13,7 @@ data:
 	$(UV) cpilens sample-gold
 
 label:
-	@echo "Phase 2: labelling app (not built yet)"; exit 1
+	$(UV) cpilens label --pass 1
 
 models eval econ figures paper:
 	@echo "$@: not built yet"; exit 1

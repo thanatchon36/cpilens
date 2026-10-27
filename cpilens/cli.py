@@ -101,7 +101,10 @@ def sample_gold() -> None:
     fr = sampling.frame(pl.read_parquet(off.OUT), lc)
     s = sampling.draw(fr, dict(zip(lc["cell"], lc["cell_weight"], strict=True)))
     GOLD.mkdir(parents=True, exist_ok=True)
-    s.select(
+    urls = [
+        off.image_url(*r) for r in s.select("barcode", "source", "image_key", "image_rev").rows()
+    ]
+    s.with_columns(pl.Series("image_url", urls, dtype=pl.Utf8)).select(
         "order",
         "barcode",
         "source",
@@ -112,11 +115,23 @@ def sample_gold() -> None:
         "name_en",
         "brands",
         "quantity",
+        "image_url",
     ).write_csv(GOLD / "sample.csv")
     typer.echo(
         f"{s.height} products ({s['double'].sum()} double-labelled) from a frame of "
         f"{fr.height}; seed {sampling.SEED}"
     )
+
+
+@app.command()
+def label(
+    pass_no: int = typer.Option(1, "--pass", help="1 = all products; 2 = blind relabel"),
+    port: int = 8765,
+) -> None:
+    """Start the local gold-labelling app (127.0.0.1 only; every label autosaves)."""
+    from cpilens.label.app import serve
+
+    serve(pass_no, port)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cpilens gold labels</title>
+<style>
+  :root { --bg:#f7f7f5; --card:#fff; --ink:#1d1d1f; --muted:#6b6b70; --line:#dcdcd8;
+          --accent:#1f5f8b; --hl:#e6f0f7; --warn:#a15c00; }
+  * { box-sizing: border-box; }
+  body { margin:0; font: 15px/1.45 system-ui, "Noto Sans Thai", sans-serif; background:var(--bg); color:var(--ink); }
+  header { display:flex; gap:16px; align-items:center; padding:10px 18px; border-bottom:1px solid var(--line); background:var(--card); }
+  header b { font-size:15px; }
+  #bar { flex:1; height:8px; background:var(--line); border-radius:4px; overflow:hidden; }
+  #bar div { height:100%; background:var(--accent); width:0; }
+  #stats { color:var(--muted); font-variant-numeric: tabular-nums; white-space:nowrap; }
+  main { display:grid; grid-template-columns: minmax(300px, 40%) 1fr; gap:18px; padding:18px; height: calc(100vh - 50px); }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:16px; overflow:auto; }
+  #name_th { font-size:24px; font-weight:600; margin:0 0 4px; }
+  #name_en { font-size:16px; color:var(--muted); margin:0 0 12px; }
+  .meta { margin:2px 0; } .meta span { color:var(--muted); display:inline-block; width:72px; }
+  #img { margin-top:12px; max-width:100%; max-height:360px; border-radius:6px; display:block; }
+  #noimg { color:var(--muted); margin-top:12px; }
+  #status { margin-top:12px; font-size:13px; color:var(--muted); }
+  #status.saved { color:var(--accent); }
+  #q { width:100%; font-size:18px; padding:9px 11px; border:1px solid var(--line); border-radius:6px; }
+  #q:focus { outline:2px solid var(--accent); }
+  #list { list-style:none; margin:10px 0 0; padding:0; }
+  #list li { padding:7px 10px; border-radius:6px; cursor:pointer; display:grid; grid-template-columns: 56px 1fr; gap:2px 10px; }
+  #list li.sel { background:var(--hl); }
+  #list .code { color:var(--muted); font-variant-numeric: tabular-nums; grid-row: span 2; }
+  #list .nm { font-weight:600; } #list .nm small { font-weight:400; color:var(--muted); }
+  #list .inc { font-size:12.5px; color:var(--muted); }
+  #list .grp { padding:10px 10px 2px; font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); cursor:default; display:block; }
+  .row { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  button { font:inherit; padding:6px 12px; border:1px solid var(--line); background:var(--card); border-radius:6px; cursor:pointer; }
+  button.on { border-color:var(--warn); color:var(--warn); font-weight:600; }
+  kbd { font: 12px ui-monospace, monospace; border:1px solid var(--line); border-bottom-width:2px; border-radius:4px; padding:0 4px; background:#fafafa; }
+  .help { font-size:12.5px; color:var(--muted); margin-top:8px; }
+  #done { display:none; padding:40px; font-size:20px; }
+</style>
+</head>
+<body>
+<header><b id="title">Gold labels</b><div id="bar"><div></div></div><span id="stats"></span></header>
+<main id="main">
+  <section class="card">
+    <p id="name_th"></p><p id="name_en"></p>
+    <p class="meta"><span>Brand</span><b id="brands"></b></p>
+    <p class="meta"><span>Quantity</span><b id="quantity"></b></p>
+    <p class="meta"><span>Barcode</span><span id="barcode" style="width:auto"></span></p>
+    <img id="img" alt="front of pack"><p id="noimg">No image</p>
+    <p id="status"></p>
+  </section>
+  <section class="card">
+    <input id="q" autocomplete="off" placeholder="พิมพ์ค้นหา / type to search (Thai or English)">
+    <div class="row">
+      <button id="unsure" title="Shift+Enter assigns as unsure">Unsure</button>
+      <button id="oos">Out of scope</button>
+      <button id="unk">Cannot tell</button>
+      <button id="prev">← Prev</button><button id="next">Next →</button>
+    </div>
+    <p class="help"><kbd>↑</kbd><kbd>↓</kbd> move · <kbd>Enter</kbd> assign · <kbd>Shift</kbd>+<kbd>Enter</kbd> assign as unsure ·
+      <kbd>Esc</kbd> clear · <kbd>PgUp</kbd>/<kbd>PgDn</kbd> previous / next product</p>
+    <ul id="list"></ul>
+  </section>
+</main>
+<div id="done">All products in this pass are labelled. Thank you. You can close this tab.</div>
+<script>
+const token = new URLSearchParams(location.search).get("token");
+let S = null, pos = 0, sel = 0, shown = [], unsure = false, t0 = 0;
+const $ = id => document.getElementById(id);
+
+function norm(s) { return (s || "").toLowerCase(); }
+function hay(l) { return norm([l.label, l.name_th, l.name_en, l.includes, ...l.aliases].join(" ")); }
+
+function render() {
+  const it = S.items[pos];
+  if (!it) return;
+  $("name_th").textContent = it.name_th || "";
+  $("name_en").textContent = it.name_en || "";
+  $("brands").textContent = it.brands || "—";
+  $("quantity").textContent = it.quantity || "—";
+  $("barcode").textContent = it.barcode;
+  if (it.image_url) { $("img").src = it.image_url; $("img").style.display = "block"; $("noimg").style.display = "none"; }
+  else { $("img").style.display = "none"; $("noimg").textContent = "No image"; $("noimg").style.display = "block"; }
+  const d = S.done[it.order];
+  $("status").textContent = d ? `Labelled in this pass: ${d.label}${d.unsure ? " (unsure)" : ""} — assigning again replaces it` : "";
+  $("status").className = d ? "saved" : "";
+  unsure = false; $("unsure").classList.remove("on");
+  $("q").value = ""; filter(); $("q").focus();
+  t0 = performance.now();
+  stats();
+}
+
+function stats() {
+  const n = S.items.length, k = S.items.filter(i => S.done[i.order]).length;
+  $("bar").firstElementChild.style.width = (n ? 100 * k / n : 0) + "%";
+  const secs = Object.values(S.secs || {});
+  const avg = secs.length ? secs.reduce((a, b) => a + b, 0) / secs.length : 0;
+  const eta = avg ? Math.round(avg * (n - k) / 60) : null;
+  $("stats").textContent = `${k} / ${n} · item ${pos + 1}` + (avg ? ` · ${avg.toFixed(1)} s each · ~${eta} min left` : "");
+}
+
+function filter() {
+  const toks = norm($("q").value).split(/\s+/).filter(Boolean);
+  const ul = $("list"); ul.innerHTML = ""; shown = [];
+  let last = null;
+  for (const l of S.labels) {
+    if (toks.length && !toks.every(t => l._hay.includes(t))) continue;
+    if (!toks.length && l.group !== last) {
+      const g = document.createElement("li"); g.className = "grp"; g.textContent = l.group.replace(/_/g, " ");
+      ul.appendChild(g); last = l.group;
+    }
+    const li = document.createElement("li");
+    li.innerHTML = `<span class="code">${l.label}</span><span class="nm">${l.name_th} <small>${l.name_en}</small></span><span class="inc">${l.includes}</span>`;
+    li.onclick = () => assign(l.label, unsure);
+    li.dataset.idx = shown.length; shown.push({l, li}); ul.appendChild(li);
+  }
+  sel = 0; highlight();
+}
+
+function highlight() {
+  shown.forEach((s, i) => s.li.classList.toggle("sel", i === sel));
+  if (shown[sel]) shown[sel].li.scrollIntoView({block: "nearest"});
+}
+
+async function assign(label, isUnsure) {
+  const it = S.items[pos], seconds = (performance.now() - t0) / 1000;
+  const r = await fetch("/api/label", {method: "POST", headers: {"Content-Type": "application/json", "X-Token": token},
+    body: JSON.stringify({order: it.order, label, unsure: !!isUnsure, seconds})});
+  if (!r.ok) { $("status").textContent = "NOT SAVED — " + (await r.text()); $("status").className = ""; return; }
+  S.done[it.order] = {label, unsure: !!isUnsure};
+  S.secs[it.order] = Math.min(seconds, 120);
+  const nxt = S.items.findIndex((i, j) => j > pos && !S.done[i.order]);
+  const any = S.items.findIndex(i => !S.done[i.order]);
+  if (nxt >= 0) { pos = nxt; render(); } else if (any >= 0) { pos = any; render(); }
+  else { $("main").style.display = "none"; $("done").style.display = "block"; stats(); }
+}
+
+function go(d) { pos = Math.max(0, Math.min(S.items.length - 1, pos + d)); render(); }
+
+$("q").addEventListener("input", filter);
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowDown") { sel = Math.min(shown.length - 1, sel + 1); highlight(); e.preventDefault(); }
+  else if (e.key === "ArrowUp") { sel = Math.max(0, sel - 1); highlight(); e.preventDefault(); }
+  else if (e.key === "Enter" && shown[sel]) { assign(shown[sel].l.label, e.shiftKey || unsure); e.preventDefault(); }
+  else if (e.key === "Escape") { $("q").value = ""; filter(); }
+  else if (e.key === "PageDown") { go(1); e.preventDefault(); }
+  else if (e.key === "PageUp") { go(-1); e.preventDefault(); }
+});
+$("img").onerror = () => { $("img").style.display = "none"; $("noimg").textContent = "Image failed to load"; $("noimg").style.display = "block"; };
+$("unsure").onclick = () => { unsure = !unsure; $("unsure").classList.toggle("on", unsure); $("q").focus(); };
+$("oos").onclick = () => assign("OOS", unsure);
+$("unk").onclick = () => assign("UNK", unsure);
+$("prev").onclick = () => go(-1); $("next").onclick = () => go(1);
+
+fetch("/api/init").then(r => r.json()).then(j => {
+  S = j; S.secs = {};
+  S.labels.forEach(l => l._hay = hay(l));
+  $("title").textContent = `Gold labels · pass ${S.pass}`;
+  if (!S.items.length) { $("main").style.display = "none"; $("done").style.display = "block";
+    $("done").textContent = S.pass === 2 ? "No products ready for pass 2 yet (each needs a pass-1 label at least 48 hours old)." : "Sample is empty."; return; }
+  const first = S.items.findIndex(i => !S.done[i.order]);
+  pos = first >= 0 ? first : 0; render();
+});
+</script>
+</body>
+</html>
