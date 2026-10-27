@@ -1,16 +1,31 @@
 \section{Limitations}\label{sec:limitations}
 
-\paragraph{One labeller.} The gold labels are the author's. The second pass measures how
-consistent one person is with themselves, not how far two trained annotators would disagree,
-so the label ceiling of Section~\ref{sec:results} is optimistic. Gold labels can also be
-wrong in ways that favour a model which shares the labeller's reading of the item headings.
+\paragraph{The reference text is the office's, not the shop's.} The reference labels come
+from TPSO's price-collection specifications: short, regular descriptions written by the
+office for its own collection. Shop and database texts are longer, noisier and more varied.
+Accuracy on the reference set is therefore accuracy on the office's vocabulary; a classifier
+deployed on web or scanner data would face harder text, and the learning curve measures the
+value of official labels, not of labelled shop data. The specifications are public and may
+have been seen by the LLMs in pre-training.
 
-\paragraph{The product universe is Open Food Facts.} The gold frame is the Thai-script
-products in a crowd-sourced database, not the assortment of Thai shops. It over-represents
-packaged, branded products that volunteers chose to enter, and the universe shares $n_k$ in
-the simulator are shares of that frame. A statistical office would draw the frame from its
-own scanner or web data, where the mix of items, and therefore the error in basis points,
-may differ.
+\paragraph{Two items cannot be evaluated.} Ready-to-eat food, the heaviest in-scope item,
+and sugar and confectionery have no specifications in the published file. Their
+classification error is unknown, the simulator holds them at official values, and the
+basis-point figures cover \RefWeightEqual\% of the headline weight rather than
+\InScopeWeightEqual\%. Items with few specifications have wide intervals.
+
+\paragraph{No human label ceiling.} The original design included a sample of Thai products
+labelled by hand with a blind second pass, to measure how consistent a labeller is and to
+set that against the human error rate Spectrum reports
+\citep[p.~15]{bis2026spectrum}. No such labels were collected, so this paper does not
+measure the label ceiling and takes the official labels as correct. Official codes can be
+wrong or ambiguous too; a method that disagrees with the office is occasionally right.
+
+\paragraph{The product universe is assumed.} The reference set is a list, not a stream of
+products, so the shares $n_k$ in the simulator are assumptions. Section~\ref{sec:sim}
+reports two: products in proportion to CPI weights, and in proportion to the office's list.
+A real web or scanner stream has its own mix, and the error in basis points scales with it;
+the hand-labelled product sample of the original design would have measured it.
 
 \paragraph{Item weights below the published cells are estimated.} TPSO publishes weights for
 its aggregates only. The equal split and the NNLS split are two transparent estimates; they
@@ -20,22 +35,15 @@ inside a cell carries the weight are reported under both.
 \paragraph{The simulator measures classification error only.} It takes official item
 relatives as the true price movements of every product and changes nothing but the
 assignment of products to items. A real web-price index would add sampling, matching,
-quality-adjustment and outlier error on top. Three modelling
-choices are assumptions rather than estimates: leaked out-of-scope products move with the
-official non-food index, an item that receives no products takes its group's measured
-movement, and the product-level dispersion of the noise variants is assumed, not
-measured.
-
-\paragraph{Official specifications are not shop listings.} The official labels come from
-TPSO's price-collection specifications. They are short and regular;
-shop and database texts are longer and noisier. The learning curve therefore
-measures the value of this kind of official label, not of labelled shop data.
+quality-adjustment and outlier error on top. Three modelling choices are assumptions rather
+than estimates: leaked out-of-scope products move with the official non-food index, an item
+that receives no products takes its group's measured movement, and the product-level
+dispersion of the noise variants is assumed, not measured.
 
 \paragraph{Closed models change.} The LLMs are reached through a commercial API. Model
 revisions, prices and refusal behaviour can change after the run date; every response is
-cached so that the numbers here can be reproduced, but not necessarily re-obtained. The
-official specifications are public and may have been seen in pre-training. Local compute
-is costed at an assumed price per GPU-hour.
+cached so that the numbers here can be reproduced, but not necessarily re-obtained. Local
+compute is costed at an assumed price per GPU-hour.
 
 \paragraph{Not comparable to Spectrum.} Spectrum classifies euro-area web data into the
 ECOICOP 2018 subclasses \citep{bis2026spectrum}. Our taxonomy, language, product universe,

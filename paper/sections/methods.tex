@@ -44,9 +44,8 @@ cost; total spend was capped at USD~\CfgCapUSD{} and came to USD~\LLMSpendUSD.
 \paragraph{Cascade.} A cheap classifier answers when its calibrated confidence is at least a
 threshold $t$; otherwise the product is routed to an LLM. We pair the cheap classifiers with
 each LLM. For each pair, $t$ is the threshold with the highest weighted accuracy on the Thai
-weak-label validation split, the development set closest to the gold population, with ties
-broken by lower cost. It is fixed before gold is touched, and gold then scores that one
-threshold.
+weak-label validation split, with ties broken by lower cost. It is fixed before the
+reference set is touched, which then scores that one threshold.
 
 \paragraph{Training data and the learning curve (RQ1).} Each embedding classifier is trained
 on a sequence of pools: non-Thai weak labels only (zero-shot cross-lingual transfer to Thai);
@@ -63,26 +62,27 @@ the coverage frontier and the cascade.
 
 \paragraph{Expenditure-weighted accuracy.} What matters for a price index is not how many
 products are classified correctly but how much CPI weight is measured correctly. Let $w_k$ be
-the CPI weight of item $k$ and $r_k$ the recall of item $k$ over the Thai product universe,
-estimated from the gold sample with Horvitz--Thompson weights $1/\pi_i$
-\citep{horvitz1952}. The headline metric is
+the CPI weight of item $k$ and $r_k$ the recall of item $k$ on the reference set, estimated
+with the design weights $1/\pi_i$ of Section~\ref{sec:ref} \citep{horvitz1952}. The headline
+metric is
 \begin{equation}
 \mathrm{acc}_w = \frac{\sum_k w_k\, r_k}{\sum_k w_k}, \qquad
 r_k = \frac{\sum_{i:\, y_i = k} \mathbb{1}[\hat y_i = k]/\pi_i}{\sum_{i:\, y_i = k} 1/\pi_i},
 \label{eq:accw}
 \end{equation}
-the CPI-weighted mean recall over in-scope items, a weighted version of Spectrum's
-in-class recall \citep[p.~22]{bis2026spectrum}. We also report unweighted accuracy, which
-counts \textsc{oos} products, and macro-F1. Abstentions are errors at full coverage.
+the CPI-weighted mean recall over the evaluated items, a weighted version of Spectrum's
+in-class recall \citep[p.~22]{bis2026spectrum}. We also report accuracy over the whole
+held-out list, which counts \textsc{oos} specifications, and macro-F1. Abstentions are
+errors at full coverage.
 
 \paragraph{Coverage, cost and uncertainty.} Sweeping a confidence threshold traces a
 weighted accuracy--coverage frontier \citep{geifman2017selective}: the CPI-weighted share of
 products answered against $\mathrm{acc}_w$ on those. Cost per million products is the measured
 mean API cost per call plus local compute at an assumed USD~\CfgGpuUSDHour{} per GPU-hour times
-measured seconds per item. All intervals come from \CfgBoot{} stratified bootstrap resamples
-of the gold sample \citep{efron1993bootstrap}. Method comparisons are paired: every method is
-scored on the same resamples, and the comparisons were fixed in code before any gold label
-existed.
+measured seconds per item. All intervals come from \CfgBoot{} bootstrap resamples of the
+reference set, stratified by item \citep{efron1993bootstrap}. Method comparisons are
+paired: every method is scored on the same resamples, and the comparisons were fixed in
+code before the reference set was scored.
 
 \subsection{From confusion matrices to basis points (RQ3)}\label{sec:sim}
 
@@ -118,14 +118,22 @@ and the error is reported in basis points of month-on-month and year-on-year inf
 the headline, food and core indices. A perfect classifier gives $\tilde R = R$ and reproduces
 every official series exactly, which is a unit test of the code.
 
+\paragraph{Product universe.} The shares $n_k$ are not observed: the reference set is the
+office's list, not a stream of products. We state them as an assumption and report two
+universes. In the primary one, products arrive in proportion to CPI expenditure weights,
+with the weight outside the evaluated items arriving as out-of-scope products; in the
+alternative they arrive in proportion to the office's specification list, that is, the
+design-weighted shares of the reference set. In-scope items without specifications are held
+at their official values, like out-of-scope items.
+
 \paragraph{Decomposition.} Since $\sum_k \phi_{kj} = 1$,
 $\tilde R_{j,t} - R_{j,t} = \sum_k \phi_{kj}(R_{k,t} - R_{j,t})$. The contribution of each
 confusion $k \to j$ is therefore the item weight times the misallocated mass times the gap
 between the two items' price movements. A confusion matters only if it is frequent, falls on
 a heavily weighted item and joins items whose prices move differently.
 
-\paragraph{Uncertainty.} The confusion counts come from the gold sample, with the
-Horvitz--Thompson universe shares $n_k$. We draw \CfgDraws{} confusion matrices from a
+\paragraph{Uncertainty.} The confusion counts come from the reference set. We draw
+\CfgDraws{} confusion matrices from a
 Dirichlet posterior, row by row. Sparse rows need a prior, and a flat one is not neutral: it
 sends mass to arbitrary items and creates error even for a perfect classifier. We therefore
 use an empirical-Bayes prior worth $\alpha = \CfgAlpha$ product per row, whose mean puts the
@@ -135,11 +143,4 @@ draw. Two variants bracket the result: a perfect classifier on the same universe
 left is due to coverage alone) and the method's matrix plus product-level sampling noise,
 in which each product's log price drifts from its item's as a random walk with an assumed
 annual standard deviation of \CfgSigmaLo\% or \CfgSigmaHi\%, and item $j$ averages the products
-sent to it.
-
-\subsection{The label ceiling (RQ4)}
-
-Treating the first labelling pass as the truth and the second as a classifier puts the human
-ceiling on the same scale as the models: we report agreement, Cohen's kappa
-\citep{cohen1960kappa} and $\mathrm{acc}_w$ at the item, group and division level, with
-bootstrap intervals.
+sent to it, the size of the held-out list standing in for the number of products.

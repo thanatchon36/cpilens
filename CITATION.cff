@@ -3,8 +3,8 @@ message: "If you use this software or its data, please cite it as below. The pap
 title: "cpilens: multilingual classification of Thai product text for consumer price measurement"
 abstract: >-
   Multilingual classification of Thai product text into the items of the Thai
-  consumer price index, evaluated on hand-labelled gold data with CPI-expenditure
-  weights, and an inflation simulator that turns each method's confusion matrix
+  consumer price index, evaluated on held-out official specifications with
+  CPI-expenditure weights, and an inflation simulator that turns each method's confusion matrix
   into basis points of measured inflation. Public data only.
 type: software
 authors:

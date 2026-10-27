@@ -63,28 +63,33 @@ used for training and development, never for evaluation.
 
 \paragraph{Official specifications.} The Ministry of Commerce publishes the product
 specifications TPSO uses for price collection: short Thai descriptions with brand and pack
-size, each under an official item code \citep{moc2026specs}. These give \NMocSpecs{}
-official labels. They are not shop listings, but they are the closest public analogue of
-labelled Thai product text. We split them by item code, so that specifications of one item
-never straddle training and test: \NMocTrainval{} for training and validation, \NMocTest{}
-for test.
+size, each under an official item code \citep{moc2026specs}. They cover the whole basket, so
+specifications of items outside our scope carry the label \textsc{oos}. Each specification
+sits under a sub-item (a seven-digit code; jasmine rice under rice, say). We hold out whole
+sub-items: within every item, a fifth of its sub-items (at least one) form the test split,
+another fifth validation and the rest training, so that a test specification's sub-item is
+never seen in training; an item with a single sub-item is split by specification instead.
+\NMocDupDropped{} test specifications whose text duplicates a training one are dropped. This
+leaves \NMocTrainval{} specifications for training and validation and \NMocTest{} held out,
+\NMocTestOos{} of them out of scope. \NItemsWithoutSpecs{} in-scope items, ready-to-eat food
+and sugar and confectionery, have no specifications in the published file and cannot be
+evaluated; the \NMocTestItems{} evaluated items carry \RefWeightEqual\% of the headline
+weight under the equal split (\InScopeWeightEqual\% for the full scope).
 
-\subsection{Gold labels}\label{sec:gold}
+\subsection{The reference set}\label{sec:ref}
 
-Evaluation uses a gold sample of Thai OFF products labelled by the author. The frame is the
-\NOffThailandThaiScript{} Thai-market products with a Thai-script name. The sample of
-\NGoldSample{} products is stratified by the CPI weight cell of the product's weak label
-(\NGoldStrata{} strata, including products with no weak label), with a floor per stratum and
-the rest allocated half by stratum size and half by cell weight, so heavily weighted items
-are well represented. Inclusion probabilities are stored and every gold estimate is design
-weighted. Gold products, and any training text identical to a gold text, are removed from
-every training pool.
+Every method is evaluated on the held-out specifications, which we call the reference set:
+labels assigned by the office that defines the classification, on text it wrote for its own
+price collection. The set holds every held-out in-scope specification and, because the
+out-of-scope class would otherwise be two thirds of it, a fixed random \NRefOos{} of the
+held-out out-of-scope specifications, carried with the matching design weight so that every
+estimate still refers to the whole held-out list: \NRefSpecs{} rows in all, over
+\NRefItems{} items and \textsc{oos}. The reference set is touched once, after every modelling
+choice, including the cascade thresholds, has been fixed on the training and validation
+splits.
 
-The labelling tool shows the product's names, brand, quantity and front image, and a search
-over the Thai and English item names. It never shows a model's prediction, the weak label or
-the stratum. Besides the items and \textsc{oos}, the labeller can answer ``cannot tell from
-the information shown'' (\textsc{unk}, excluded from accuracy and counted) and flag any label
-as unsure. A random \NGoldDouble{} of the sample is labelled a second time, blind, in a
-different order and at least \CfgGapHours{} hours after the first label. Because both passes
-are by the same person, their disagreement measures intra-annotator consistency, a lower
-bound on the disagreement between two annotators.
+The original design called for a sample of Thai Open Food Facts products labelled by hand,
+blind, in a purpose-built tool, with a second pass to measure the human label ceiling. No
+such labels were collected; the tool and the held-out product sample remain in the
+repository for a later version, and Section~\ref{sec:limitations} states what the official
+text cannot tell us.

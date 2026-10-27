@@ -214,6 +214,7 @@ def _config(_: Path) -> dict[str, str]:
     budgets = [b for b in experiments.BUDGETS if b != "all"]
     return {
         "CfgBoot": num(gold.N_BOOT),
+        "CfgOosN": num(gold.OOS_N),
         "CfgDraws": num(econ.N_DRAWS),
         "CfgSeed": str(gold.SEED),
         "CfgAlpha": f"{econ.ALPHA:g}",
@@ -289,13 +290,20 @@ def _tex(s: str) -> str:
 
 
 def items_table(results: Path = RESULTS) -> str:
-    """Rows of the in-scope item table: code, name, COICOP 2018 class, both weight splits."""
+    """Rows of the in-scope item table: code, name, COICOP 2018 class, both weight splits and
+    the number of reference specifications (0 for an item the office has none for)."""
     scope = pl.read_csv(TAXONOMY / "thcpi_scope.csv", schema_overrides={"label": pl.Utf8})
     cov = pl.read_csv(results / "coverage.csv", schema_overrides={"label": pl.Utf8})
     t = scope.filter(pl.col("in_scope")).join(cov.select("label", "w_equal", "w_nnls"), on="label")
+    n_ref: dict[str, int] = {}
+    f = results / "gold_label_recall.csv"
+    if f.exists():
+        rec = pl.read_csv(f, schema_overrides={"label": pl.Utf8})
+        first = rec.filter(pl.col("method") == rec["method"][0])
+        n_ref = dict(zip(first["label"], first["n"], strict=True))
     return "\n".join(
         f"{r['label']} & {_tex(r['name_en'])} & {r['coicop2018'].replace(';', ', ')} & "
-        f"{r['w_equal']:.2f} & {r['w_nnls']:.2f} \\\\"
+        f"{r['w_equal']:.2f} & {r['w_nnls']:.2f} & {num(n_ref.get(r['label'], 0))} \\\\"
         for r in t.iter_rows(named=True)
     )
 

@@ -21,11 +21,11 @@ hyperparameters are in the paper's appendix (generated from the code).
 
 ## Evaluation
 
-Expenditure-weighted accuracy (CPI-weighted mean item recall, design-weighted with
-Horvitz–Thompson weights), accuracy, macro-F1, accuracy–coverage and cost–accuracy
-frontiers, with stratified bootstrap intervals on the hand-labelled gold sample; and the
-error each method's confusion matrix induces in simulated headline, food and core
-inflation, in basis points.
+Expenditure-weighted accuracy (CPI-weighted mean item recall), accuracy over the held-out
+list (design-weighted), macro-F1, accuracy–coverage and cost–accuracy frontiers, with
+stratified bootstrap intervals on the reference set (held-out official specifications; see
+the data card); and the error each method's confusion matrix induces in simulated headline,
+food and core inflation, in basis points, under a stated product universe.
 
 ## Intended use
 
@@ -40,8 +40,9 @@ about individuals or firms.
 
 ## Limitations
 
-- Gold labels come from one labeller and from a crowd-sourced product database.
-- Official labels are short price-collection specifications, not shop listings.
+- The reference labels are the office's short price-collection specifications, not shop
+  listings; two in-scope items have none and are not evaluated.
+- No human-labelled product set and no label ceiling in this version.
 - LLM behaviour and prices can change after the run date; responses are cached for
   reproducibility.
 - Results are not directly comparable to the BIS Project Spectrum report (different
