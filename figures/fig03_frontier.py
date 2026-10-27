@@ -1,4 +1,5 @@
-"""Figure 3: expenditure-weighted accuracy-coverage frontier on gold, with bootstrap bands."""
+"""Figure 3: expenditure-weighted accuracy-coverage frontier on the reference set,
+with bootstrap bands."""
 
 from __future__ import annotations
 

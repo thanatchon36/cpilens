@@ -1,8 +1,8 @@
-"""Which methods a figure shows, chosen by a fixed rule from the gold scores.
+"""Which methods a figure shows, chosen by a fixed rule from the reference-set scores.
 
-- best cheap: the cascade base model (no API) with the highest gold acc_w;
+- best cheap: the cascade base model (no API) with the highest reference-set acc_w;
 - best overall: the headline method (LLMs, cascades, cascade base models) with the highest
-  gold acc_w, ties broken by lower cost.
+  reference-set acc_w, ties broken by lower cost.
 """
 
 from __future__ import annotations

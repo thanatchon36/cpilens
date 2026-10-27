@@ -1,5 +1,5 @@
-"""Figure 5: gold weighted accuracy against the number of official Thai labels, starting from
-zero-shot cross-lingual transfer."""
+"""Figure 5: reference-set weighted accuracy against the number of official Thai labels,
+starting from zero-shot cross-lingual transfer."""
 
 from __future__ import annotations
 
@@ -66,7 +66,7 @@ def main() -> None:
             color=style.FAMILY["llm"],
             ls=ls,
             lw=1.0,
-            label=f"{names.method(m)} (no training labels)",
+            label=f"{names.method(m)} (few-shot prompt, no training)",
         )
     ax.axvline(STEPS - 0.5, color=style.RULE, lw=0.6, ls=(0, (2, 2)))
     ax.set_xticks(
@@ -83,15 +83,15 @@ def main() -> None:
     style.percent_axis(ax)
     e5 = sc.filter((pl.col("emb") == "e5-large") & (pl.col("clf") == "mlp"))
     z = e5.filter(pl.col("scenario") == "nonthai")["acc_w"][0]
+    k = e5.filter(pl.col("scenario") == "nonthai+thaiweak+moc1000")["acc_w"][0]
     a = e5.filter(pl.col("scenario") == "nonthai+thaiweak+mocall")["acc_w"][0]
     style.finish(
         fig,
-        f"Thai labels lift e5-large MLP from {100 * z:.0f}% (zero-shot) "
-        f"to {100 * a:.0f}% weighted accuracy",
+        f"Transfer without Thai labels gives {100 * z:.0f}%; 1,000 official labels "
+        f"{100 * k:.0f}%, all of them {100 * a:.0f}%",
         style.source(
             style.SOURCE_CPI,
             style.SOURCE_OFF,
-            "Ministry of Commerce product specifications",
             style.SOURCE_REF,
             style.SOURCE_CALC,
         ),

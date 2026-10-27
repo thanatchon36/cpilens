@@ -1,5 +1,5 @@
-"""Figure 10: year-on-year inflation error (RMSE, bp) implied by each method's gold confusion
-matrix, headline / food / core, with 95% posterior intervals."""
+"""Figure 10: year-on-year inflation error (RMSE, bp) implied by each method's reference-set
+confusion matrix, headline / food / core, with 95% posterior intervals."""
 
 from __future__ import annotations
 
@@ -42,14 +42,16 @@ def main() -> None:
         ax.grid(axis="y", visible=False)
     axes[1].set_xlabel("RMSE of year-on-year inflation error (basis points)")
     axes[0].set_yticks(range(len(ms)), [names.method(m) for m in ms])
+    # ranked by the upper end of the interval: a point estimate at the edge of a wide
+    # interval is not a safe basis for "lowest"
     head = e.filter((pl.col("aggregate") == "headline") & pl.col("method").is_in(ms)).sort(
-        "rmse_bp"
+        "rmse_bp_hi"
     )
     best = head.row(0, named=True)
     style.finish(
         fig,
-        f"Lowest headline error: {names.method(best['method'])}, "
-        f"{best['rmse_bp']:.0f} bp RMSE on year-on-year inflation",
+        f"{names.method(best['method'])} misstates headline inflation by at most "
+        f"{best['rmse_bp_hi']:.1f} bp RMSE (95% upper bound)",
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         f"Dots: posterior-mean confusion matrix; lines: 95% interval over {n_draws:,} "
         "Dirichlet draws; confusion matrices from the held-out official specifications, "

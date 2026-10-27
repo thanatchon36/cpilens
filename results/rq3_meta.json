@@ -1,0 +1,17 @@
+{
+  "n_draws": 1000,
+  "alpha": 1.0,
+  "sigmas": [
+    0.05,
+    0.1
+  ],
+  "n_universe": 7330.999999999999,
+  "universes": [
+    "cpi",
+    "list"
+  ],
+  "unobserved_items": [
+    "11710",
+    "12300"
+  ]
+}

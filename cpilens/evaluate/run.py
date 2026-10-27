@@ -18,7 +18,7 @@ import polars as pl
 from cpilens.evaluate import frontier as fr
 from cpilens.evaluate.gold import N_BOOT, Scorer, reference_table
 from cpilens.evaluate.metrics import group_of
-from cpilens.paths import RESULTS
+from cpilens.paths import INTERIM, RESULTS
 
 PREDS = RESULTS / "preds"
 LLMS = ("claude-haiku-5-5", "claude-opus-5-5")
@@ -202,6 +202,30 @@ def cascade_sweep(
     return pl.DataFrame(out)
 
 
+def subitems() -> pl.DataFrame:
+    """Specification id -> its official sub-item (7-digit code); empty without the raw file."""
+    f = INTERIM / "moc_specs.parquet"
+    if not f.exists():
+        return pl.DataFrame(schema={"id": pl.Utf8, "item_code": pl.Utf8})
+    m = pl.read_parquet(f, columns=["spec_id", "item_code"])
+    return m.select(("moc:" + pl.col("spec_id").cast(pl.Utf8)).alias("id"), "item_code")
+
+
+def error_subitems(g: pl.DataFrame, name: str, p: pl.DataFrame, sub: pl.DataFrame) -> pl.DataFrame:
+    """In-scope reference errors of one method, counted by official sub-item and prediction.
+    In-scope rows all have inclusion probability 1, so counts need no design weight."""
+    return (
+        g.filter(pl.col("label") != "OOS")
+        .join(p.select("id", "pred"), on="id", how="left")
+        .filter(pl.col("pred").is_null() | (pl.col("pred") != pl.col("label")))
+        .join(sub, on="id", how="left")
+        .group_by("item_code", "label", "pred")
+        .agg(pl.len().alias("n"))
+        .with_columns(pl.lit(name).alias("method"))
+        .sort("n", descending=True)
+    )
+
+
 def run_eval(
     ref: pl.DataFrame | None = None,
     results: Path = RESULTS,
@@ -219,7 +243,8 @@ def run_eval(
         "n_boot": n_boot,
     }
     (out / "gold_summary.json").write_text(json.dumps(summary, indent=2))
-    rows, fronts, pairs, recalls, confs = [], [], [], [], []
+    rows, fronts, pairs, recalls, confs, errs = [], [], [], [], [], []
+    sub = subitems()
     for weights in ("equal", "nnls"):
         sc = Scorer(g, weights, n_boot)
         for name, (p, meta) in ms.items():
@@ -234,6 +259,7 @@ def run_eval(
                 fronts.append(sc.frontier(p).with_columns(pl.lit(name).alias("method")))
                 recalls.append(label_recall(sc, name, p))
                 confs.append(group_confusion(sc, name, p))
+                errs.append(error_subitems(g, name, p, sub))
         if weights == "equal":
             cascade_sweep(sc, ms).write_csv(out / "gold_cascade_sweep.csv")
         for a, b in paired_list():
@@ -245,3 +271,4 @@ def run_eval(
     pl.DataFrame(pairs).write_csv(out / "gold_paired.csv")
     pl.concat(recalls).write_csv(out / "gold_label_recall.csv")
     pl.concat(confs).write_csv(out / "gold_confusion_group.csv")
+    pl.concat(errs).write_csv(out / "gold_error_subitems.csv")

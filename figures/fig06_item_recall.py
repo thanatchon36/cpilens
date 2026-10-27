@@ -1,4 +1,4 @@
-"""Figure 6: per-item recall on gold, ranked, against cumulative CPI weight."""
+"""Figure 6: per-item recall on the reference set, ranked, against cumulative CPI weight."""
 
 from __future__ import annotations
 

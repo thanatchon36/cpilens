@@ -46,7 +46,7 @@ def main() -> None:
         style.source(
             style.SOURCE_OFF, "Ministry of Commerce product specifications", style.SOURCE_CALC
         ),
-        "Labels: official (MOC) or weak (Open Food Facts crosswalk); gold products excluded. "
+        "Labels: official (MOC) or weak (Open Food Facts crosswalk); reference set excluded. "
         "Items with no non-Thai products are omitted. The map is for display only.",
         legend=a,
         legend_kw={"markerscale": 4},

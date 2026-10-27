@@ -44,6 +44,11 @@ def groups() -> dict[str, str]:
         for c, n in zip(w["code"], w["name_en"], strict=True)
         if c.endswith("00")
     }
-    # groups the weights table does not list (only their divisions)
-    extra = {"421": "Personal care products", "721": "Alcoholic beverages"}
+    # groups the weights table does not list (only their divisions) hold one in-scope item
+    # each, so they take its name
+    by_group: dict[str, list[str]] = {}
+    for code, name in labels().items():
+        if code[:1].isdigit():
+            by_group.setdefault(code[:3], []).append(name)
+    extra = {g: n[0] for g, n in by_group.items() if len(n) == 1}
     return {**extra, **out, "OOS": "Out of scope", "ABSTAIN": "Abstain"}

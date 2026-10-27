@@ -1,4 +1,4 @@
-"""Figure 4: cost-accuracy frontier on gold; cascades traced across thresholds."""
+"""Figure 4: cost-accuracy frontier on the reference set; cascades traced across thresholds."""
 
 from __future__ import annotations
 

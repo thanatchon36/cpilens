@@ -1,4 +1,5 @@
-"""Figure 7: row-normalised confusion between CPI groups on gold (best cheap method)."""
+"""Figure 7: row-normalised confusion between CPI groups on the reference set
+(best cheap method)."""
 
 from __future__ import annotations
 

@@ -24,8 +24,8 @@
     "claude-opus-5-5"
   ],
   "llm_models_returned": {
-    "claude-haiku-5-5": 7035,
-    "claude-opus-5-5": 2518
+    "claude-haiku-5-5": 11364,
+    "claude-opus-5-5": 6847
   },
   "seed": 20261027,
   "data_manifest": "data/manifest.csv"

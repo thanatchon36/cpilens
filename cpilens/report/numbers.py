@@ -32,7 +32,16 @@ ALIAS = {
     "e5-large__mlp__nonthai": "EfiveMLPZeroShot",
     "e5-large__mlp__nonthai+thaiweak": "EfiveMLPThaiWeak",
     "e5-large__mlp__mocall": "EfiveMLPMocOnly",
+    "bge-m3__mlp__nonthai": "BgeMLPZeroShot",
+    "bge-m3__mlp__mocall": "BgeMLPMocOnly",
+    "xlmr__finetune__nonthai": "XlmrFTZeroShot",
 }
+BUDGET_WORD = {100: "Hundred", 250: "TwoFifty", 500: "FiveHundred", 1000: "Thousand"}
+for _n, _w in BUDGET_WORD.items():  # the learning curve of the e5-large MLP
+    ALIAS[f"e5-large__mlp__nonthai+thaiweak+moc{_n}"] = f"EfiveMLPPlus{_w}"
+    ALIAS[f"e5-large__mlp__moc{_n}"] = f"EfiveMLPMoc{_w}"
+for _v, _w in (("nobrand", "NoBrand"), ("noqty", "NoQty"), ("nobrand-noqty", "NoBrandNoQty")):
+    ALIAS[f"e5-large__mlp__nonthai+thaiweak+mocall-{_v}"] = f"EfiveMLP{_w}"
 for _c in CASCADE_CHEAP:
     for _l in LLMS:
         ALIAS[f"cascade__{_c}__{_l}"] = f"Cas{ALIAS[_c]}{ALIAS[_l]}"
@@ -136,7 +145,21 @@ def _gold(r: Path) -> dict[str, str]:
     meta = json.loads((r / "gold_summary.json").read_text())
     for k in ("n_ref_specs", "n_ref_items", "n_ref_oos", "n_boot"):
         m[f"N{_camel(k.removeprefix('n_'))}"] = num(meta[k])
-    s = pl.read_csv(f).filter(pl.col("weights") == "equal")
+    m["NRefInScope"] = num(meta["n_ref_specs"] - meta["n_ref_oos"])
+    allw = pl.read_csv(f)
+    for row in allw.filter(pl.col("weights") == "nnls").iter_rows(named=True):
+        if (a := ALIAS.get(row["method"])) is not None:
+            m[f"AccW{a}Nnls"] = pct(row["acc_w"])
+            m[f"AccW{a}NnlsLo"] = pct(row["acc_w_lo"])
+            m[f"AccW{a}NnlsHi"] = pct(row["acc_w_hi"])
+    s = allw.filter(pl.col("weights") == "equal")
+    cost = dict(zip(s["method"], s["usd_per_million"], strict=True))
+    opus, haiku = cost.get("claude-opus-5-5"), cost.get("claude-haiku-5-5")
+    if opus and haiku:
+        m["CostRatioOpusHaiku"] = f"{opus / haiku:.0f}"
+        for k, v in cost.items():
+            if k.startswith("cascade__") and k.endswith("claude-opus-5-5"):
+                m[f"CostPct{ALIAS[k]}"] = f"{100 * v / opus:.0f}"
     for row in s.iter_rows(named=True):
         a = ALIAS.get(row["method"])
         if a is None:
@@ -157,20 +180,60 @@ def _rq3(r: Path) -> dict[str, str]:
     if not f.exists():
         return {}
     e = pl.read_csv(f).filter(pl.col("weights") == "equal")
-    if "universe" in e.columns:  # the primary universe: products in proportion to CPI weights
-        e = e.filter(pl.col("universe") == "cpi")
+    if "universe" not in e.columns:
+        e = e.with_columns(pl.lit("cpi").alias("universe"))
+    # the primary universe (products in proportion to CPI weights) has no suffix
+    uni = {"cpi": "", "list": "List"}
     m: dict[str, str] = {}
-    for row in e.iter_rows(named=True):
+    for row in e.filter(pl.col("universe").is_in(list(uni))).iter_rows(named=True):
         a = "Perfect" if row["variant"] == "coverage_only" else ALIAS.get(row["method"])
         if a is None or row["variant"] not in {*VARIANT, "coverage_only"}:
             continue
         v = VARIANT.get(row["variant"], "")
         for stat, tag in BP_STATS.items():
-            name = f"Bp{row['kind'].title()}{tag}{AGG[row['aggregate']]}{a}{v}"
-            m[name] = signed(row[stat])
+            name = (
+                f"Bp{row['kind'].title()}{tag}{AGG[row['aggregate']]}{a}{v}{uni[row['universe']]}"
+            )
+            m[name] = signed(row[stat], 1)
             if row.get(f"{stat}_lo") is not None:
-                m[f"{name}Lo"] = signed(row[f"{stat}_lo"])
-                m[f"{name}Hi"] = signed(row[f"{stat}_hi"])
+                m[f"{name}Lo"] = signed(row[f"{stat}_lo"], 1)
+                m[f"{name}Hi"] = signed(row[f"{stat}_hi"], 1)
+    return m
+
+
+def _paired(r: Path) -> dict[str, str]:
+    """Paired differences in weighted accuracy, percentage points: ``\\Diff<A><B>``."""
+    f = r / "gold_paired.csv"
+    if not f.exists():
+        return {}
+    m: dict[str, str] = {}
+    for row in pl.read_csv(f).iter_rows(named=True):
+        a, b = ALIAS.get(row["a"]), ALIAS.get(row["b"])
+        if a is None or b is None:
+            continue
+        tag = f"Diff{a}{b}" + ("Nnls" if row["weights"] == "nnls" else "")
+        for k, suffix in (("est", ""), ("lo", "Lo"), ("hi", "Hi")):
+            m[tag + suffix] = signed(100 * row[k], 1)
+    return m
+
+
+def _errors(r: Path) -> dict[str, str]:
+    """Where the in-scope errors fall: by official sub-item (``gold_error_subitems.csv``)."""
+    f = r / "gold_error_subitems.csv"
+    if not f.exists():
+        return {}
+    e = pl.read_csv(f, schema_overrides={"item_code": pl.Utf8, "label": pl.Utf8})
+    m: dict[str, str] = {}
+    for name, d in e.group_by("method"):
+        a = ALIAS.get(str(name[0]))
+        if a is None:
+            continue
+        by = d.group_by("item_code").agg(pl.col("n").sum()).sort("n", descending=True)
+        top, total = int(by["n"].head(3).sum()), int(by["n"].sum())
+        m[f"NErr{a}"] = num(total)
+        m[f"NErrTopThree{a}"] = num(top)
+        m[f"PctErrTopThree{a}"] = pct(top / total, 0)
+        m[f"NErrSubitems{a}"] = num(by.height)
     return m
 
 
@@ -265,7 +328,7 @@ def _camel(key: str) -> str:
 
 def macros(results: Path = RESULTS) -> dict[str, str]:
     m: dict[str, str] = {}
-    for part in (_config, _names, _data, _costs, _gold, _rq3, _rq4):
+    for part in (_config, _names, _data, _costs, _gold, _paired, _errors, _rq3, _rq4):
         m |= part(results)
     bad = [k for k in m if not k.isalpha()]
     if bad:

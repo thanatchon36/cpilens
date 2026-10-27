@@ -3,8 +3,9 @@ products of the same CPI item?
 
 Alignment of label k = mean, over sampled Thai products of k, of the share of their 10
 nearest non-Thai neighbours (cosine) that carry label k. Labels are official (MOC) or weak
-(OFF crosswalk); gold products are excluded. The 2-D map is a t-SNE of a balanced sample
-(fixed seed), for display only; alignment is computed in the full embedding space.
+(OFF crosswalk); the held-out reference specifications are excluded. The 2-D map is a t-SNE
+of a balanced sample (fixed seed), for display only; alignment is computed in the full
+embedding space.
 """
 
 from __future__ import annotations
@@ -31,7 +32,7 @@ def _sample(d: pl.DataFrame, by: list[str], n: int) -> pl.DataFrame:
 def run(model: str = "e5-large", per_label: int = 200, per_cell: int = 40) -> None:
     from sklearn.manifold import TSNE
 
-    c = corpus().filter((pl.col("split") != "gold") & pl.col("label").is_not_null())
+    c = corpus().filter(~pl.col("split").is_in(["gold", "test"]) & pl.col("label").is_not_null())
     c = c.with_columns(
         pl.when(pl.col("region") == "thai")
         .then(pl.lit("Thai"))
