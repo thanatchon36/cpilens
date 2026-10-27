@@ -63,6 +63,8 @@ def source(*parts: str) -> str:
 WIDTH = {"full": 16.0 / 2.54, "column": 7.8 / 2.54, "slide": 10.0}
 TITLE_IN = 0.34  # space reserved above the axes for the title line
 LINE_IN = 0.17  # per source/note line below the axes
+LEGEND_IN = 0.2  # per legend row under the axes
+ACC_LABEL = "Expenditure-weighted accuracy (%)"  # the same axis wording in every chart
 
 
 def setup() -> None:
@@ -124,8 +126,20 @@ def figure(
     return fig, axes
 
 
-def finish(fig: Figure, title: str, source: str, note: str | None = None) -> None:
-    """Title-as-message at the top left; source and note lines (wrapped) at the bottom left."""
+def finish(
+    fig: Figure,
+    title: str,
+    source: str,
+    note: str | None = None,
+    legend: Any = None,
+    legend_cols: int = 4,
+    legend_kw: dict[str, Any] | None = None,
+) -> None:
+    """Title-as-message at the top left; under the axes, the legend (if any) in rows, then the
+    source and note lines (wrapped), all at the left. A legend below the chart never covers
+    data and never collides with panel titles. ``legend``: an axes whose handles to use, or a
+    ``(handles, labels)`` pair."""
+    import math
     import textwrap
 
     w, h = fig.get_figwidth(), fig.get_figheight()
@@ -144,10 +158,37 @@ def finish(fig: Figure, title: str, source: str, note: str | None = None) -> Non
             fontsize=7,
             color=MUTED,
         )
+    footer = len(lines) * LINE_IN
+    if legend is not None:
+        if isinstance(legend, tuple):
+            handles, labels = legend
+        else:
+            handles, labels = legend.get_legend_handles_labels()
+        fig.legend(
+            handles,
+            labels,
+            loc="lower left",
+            bbox_to_anchor=(0.0, (footer + 0.06) / h),
+            ncols=legend_cols,
+            fontsize=7.5,
+            frameon=False,
+            handlelength=1.6,
+            columnspacing=1.2,
+            borderaxespad=0,
+            **(legend_kw or {}),
+        )
+        footer += math.ceil(len(labels) / legend_cols) * LEGEND_IN + 0.06
     top = TITLE_IN / h
-    bottom = (len(lines) * LINE_IN + 0.04) / h
+    bottom = (footer + 0.04) / h
     engine: Any = fig.get_layout_engine()
     engine.set(rect=(0, bottom, 1, 1 - top - bottom), w_pad=0.04, h_pad=0.04)
+
+
+def percent_axis(ax: Any, axis: str = "y") -> None:
+    """Show an axis of 0-1 shares as whole percentages."""
+    from matplotlib.ticker import PercentFormatter
+
+    (ax.yaxis if axis == "y" else ax.xaxis).set_major_formatter(PercentFormatter(1.0, decimals=0))
 
 
 def dirs() -> tuple[Path, Path]:

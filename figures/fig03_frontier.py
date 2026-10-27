@@ -26,21 +26,27 @@ def main() -> None:
         ls = "-" if fam not in dashes else (0, (3, 1.5))
         dashes[fam] = True
         c = style.FAMILY[fam]
-        ax.fill_between(d["coverage_w"], d["acc_w_lo"], d["acc_w_hi"], color=c, alpha=0.10, lw=0)
+        if ls == "-":  # one band per family keeps the chart readable
+            ax.fill_between(
+                d["coverage_w"], d["acc_w_lo"], d["acc_w_hi"], color=c, alpha=0.10, lw=0
+            )
         ax.plot(d["coverage_w"], d["acc_w"], color=c, ls=ls, label=names.method(m))
     ax.set_xlim(0, 1.0)
-    ax.set_xlabel("Share of in-scope CPI weight classified (weighted coverage)")
-    ax.set_ylabel("Weighted accuracy on covered products")
-    ax.legend(loc="lower left", ncols=2)
+    ax.set_xlabel("In-scope CPI weight classified (%)")
+    ax.set_ylabel(style.ACC_LABEL)
+    style.percent_axis(ax, "x")
+    style.percent_axis(ax)
     full = f.filter(pl.col("threshold") == 0).filter(pl.col("method").is_in(SHOWN)).sort("acc_w")
     top = full.row(-1, named=True)
     style.finish(
         fig,
-        f"At full coverage {names.method(top['method'])} classifies "
+        f"At full coverage, {names.method(top['method'])} classifies "
         f"{100 * top['acc_w']:.0f}% of CPI weight correctly",
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
-        f"Products below a confidence threshold are left unclassified. Bands: 95% stratified "
-        f"bootstrap ({n_boot:,} resamples). Weights: equal split within residual cells.",
+        "Accuracy is on the classified products; those below a confidence threshold are left "
+        f"unclassified. Bands (first method of each family): 95% stratified bootstrap "
+        f"({n_boot:,} resamples). Weights: equal split within residual cells.",
+        legend=ax,
     )
     style.save(fig, "fig03_frontier", out)
 

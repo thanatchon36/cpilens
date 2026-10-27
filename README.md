@@ -1,18 +1,20 @@
+<p align="center"><img src="docs/assets/logo.svg" alt="cpilens logo" width="120"></p>
+
 <h1 align="center">cpilens</h1>
 
-<p align="center"><em>How much does product classification cost in basis points?</em></p>
-
 [![CI](https://github.com/thanatchon36/cpilens/actions/workflows/ci.yml/badge.svg)](https://github.com/thanatchon36/cpilens/actions/workflows/ci.yml)
-[![Code: MIT](https://img.shields.io/badge/code-MIT-green)](LICENSE)
-[![Data: ODbL](https://img.shields.io/badge/data-ODbL--1.0-blue)](data/SOURCES.md)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Data](https://img.shields.io/badge/data-ODbL--1.0-blue)](data/SOURCES.md)
+[![Status](https://img.shields.io/badge/status-work%20in%20progress-orange)](PROGRESS.md)
 
-📄 **Paper:** [`paper/`](paper/) (LaTeX; `make paper` builds the PDF) ·
-📋 **Brief:** two pages, attached with the paper at release ·
-🧾 **Data sources:** [`data/SOURCES.md`](data/SOURCES.md) ·
-📝 **Decision log:** [`docs/decisions.md`](docs/decisions.md)
+📄 **[Read the paper (PDF)](paper/main.pdf)** ·
+📊 **[Figures](figures/out/)** ·
+📚 **[Documentation](docs/)** ·
+🧾 **[Data sources](data/SOURCES.md)**
 
-**Multilingual classification of Thai product text into the items of the Thai consumer price
-index, and what each method's errors do to measured inflation.** A statistical office or
+**How much does product classification cost in basis points?** Multilingual classification of
+Thai product text into the items of the Thai consumer price index, and what each method's
+errors do to measured inflation. A statistical office or
 central bank that builds a price index from web or scanner data must first assign every product
 to an item of the official basket. This repository measures that step for a non-English market
 with public data only: how well frozen multilingual embeddings, a fine-tuned encoder, LLM

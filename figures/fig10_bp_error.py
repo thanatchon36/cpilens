@@ -10,7 +10,7 @@ import polars as pl
 from cpilens.evaluate.run import CASCADE_CHEAP, LLMS
 from cpilens.viz import names, select, style
 
-AGGS = (("headline", "Headline"), ("food", "Food"), ("core", "Core proxy"))
+AGGS = (("headline", "(a) Headline"), ("food", "(b) Food"), ("core", "(c) Core proxy"))
 
 
 def order() -> list[str]:
@@ -32,8 +32,8 @@ def main() -> None:
             r = d.filter(pl.col("method") == m).row(0, named=True)
             c = style.FAMILY[select.family(m)]
             ax.plot([r["rmse_bp_lo"], r["rmse_bp_hi"]], [y, y], color=c, lw=1.6, alpha=0.45)
-            ax.plot(r["rmse_bp"], y, "o", color=c, ms=4)
-        ax.set_title(title, fontsize=8.5, weight="semibold")
+            ax.plot(r["rmse_bp"], y, "o", color=c, ms=4, clip_on=False, zorder=3)
+        ax.set_title(title, fontsize=8.5)
         ax.set_xlim(left=0)
         ax.grid(axis="x")
         ax.grid(axis="y", visible=False)
@@ -49,7 +49,8 @@ def main() -> None:
         f"{best['rmse_bp']:.0f} bp RMSE on year-on-year inflation",
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
         f"Dots: posterior-mean confusion matrix; lines: 95% interval over {n_draws:,} "
-        "Dirichlet draws. Out-of-scope items held at official values.",
+        "Dirichlet draws. Out-of-scope items held at official values. Panels have their own "
+        "scales.",
     )
     style.save(fig, "fig10_bp_error", out)
 

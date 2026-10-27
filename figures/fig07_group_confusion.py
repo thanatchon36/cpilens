@@ -34,13 +34,18 @@ def main() -> None:
                     f"{100 * mat[i, j]:.0f}",
                     ha="center",
                     va="center",
-                    fontsize=6,
+                    fontsize=7,
                     color="white" if mat[i, j] > 0.55 else style.INK,
                 )
     ax.set_xticks(
-        range(len(cols)), [gn.get(k, k) for k in cols], rotation=60, ha="right", fontsize=6.5
+        range(len(cols)),
+        [gn.get(k, k) for k in cols],
+        rotation=45,
+        ha="right",
+        rotation_mode="anchor",
+        fontsize=7,
     )
-    ax.set_yticks(range(len(rows)), [gn.get(k, k) for k in rows], fontsize=6.5)
+    ax.set_yticks(range(len(rows)), [gn.get(k, k) for k in rows], fontsize=7)
     ax.set_xlabel("Predicted group")
     ax.set_ylabel("True group")
     ax.spines[:].set_visible(False)

@@ -5,14 +5,17 @@ from __future__ import annotations
 import polars as pl
 from matplotlib.patches import Patch
 
+from cpilens.taxonomy.weights import PRICE_REF_DATE
 from cpilens.viz import names, select, style
 
 TOP = 12
+# flow types are ordered by how far a product travels, so the ordinal blue ramp encodes them
+# (the method-family colours would suggest methods)
 TYPE_COLOR = {
-    "within_group": style.OKABE_ITO["sky"],
-    "within_division": style.OKABE_ITO["blue"],
-    "cross_division": style.OKABE_ITO["vermillion"],
-    "oos_leak": style.OKABE_ITO["orange"],
+    "within_group": style.BLUE_RAMP[1],
+    "within_division": style.BLUE_RAMP[2],
+    "cross_division": style.BLUE_RAMP[4],
+    "oos_leak": style.BLUE_RAMP[5],
     "empty_item": style.MUTED,
 }
 TYPE_NAME = {
@@ -44,13 +47,14 @@ def main() -> None:
     ax.axvline(0, color=style.RULE, lw=0.6)
     ax.grid(axis="x")
     ax.grid(axis="y", visible=False)
-    ax.set_xlabel("Mean contribution to the headline index error since Dec 2567 (bp)")
+    ax.set_xlabel(
+        f"Mean contribution to the headline index error since {PRICE_REF_DATE:%b %Y} (basis points)"
+    )
     handles = [
         Patch(color=TYPE_COLOR[t], label=TYPE_NAME[t])
         for t in TYPE_COLOR
         if t in set(top["flow_type"])
     ]
-    ax.legend(handles=handles, loc="lower left")
     ft = pl.read_csv(results / "rq3_flow_types.csv").filter(
         (pl.col("method") == m) & (pl.col("aggregate") == "headline")
     )
@@ -61,6 +65,8 @@ def main() -> None:
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
         "Contribution = item weight × misallocated product share × gap between the true and the "
         "predicted item's price relative (true → predicted). Posterior-mean confusion matrix.",
+        legend=(handles, [h.get_label() for h in handles]),
+        legend_cols=5,
     )
     style.save(fig, "fig11_where_errors_hurt", out)
 

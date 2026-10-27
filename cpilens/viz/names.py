@@ -16,7 +16,7 @@ def method(name: str) -> str:
         return LLM[name]
     if name.startswith("cascade__"):
         _, emb, clf, _scenario, llm = name.split("__")
-        return f"Cascade: {EMB[emb]} {CLF[clf]} → {LLM[llm].removeprefix('Claude ')}"
+        return f"Cascade ({EMB[emb]} {CLF[clf]} → {LLM[llm].removeprefix('Claude ')})"
     emb, clf, scenario = name.split("__")
     base = f"{EMB[emb]} {CLF[clf]}"
     for v, txt in (

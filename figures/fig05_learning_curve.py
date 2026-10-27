@@ -3,6 +3,8 @@ zero-shot cross-lingual transfer."""
 
 from __future__ import annotations
 
+import math
+
 import polars as pl
 
 from cpilens.evaluate.run import LLMS
@@ -10,9 +12,15 @@ from cpilens.viz import names, style
 
 BUDGETS = ("100", "250", "500", "1000", "all")
 SERIES = (
-    ("e5-large", "mlp", "nonthai+thaiweak+moc", "-", "Non-Thai + Thai weak + n official"),
-    ("e5-large", "mlp", "moc", (0, (3, 1.5)), "n official only"),
+    ("e5-large", "mlp", "nonthai+thaiweak+moc", "-", "non-Thai + Thai weak + $n$ official"),
+    ("e5-large", "mlp", "moc", (0, (3, 1.5)), "$n$ official only"),
 )
+STEPS = 2  # categorical steps before the numeric budgets: zero-shot, + Thai weak
+
+
+def xpos(n: int) -> float:
+    """Budgets on a log scale, 100 labels one unit right of the categorical steps."""
+    return STEPS + math.log10(n / 100)
 
 
 def main() -> None:
@@ -24,8 +32,9 @@ def main() -> None:
         pl.col("run").alias("method"), "n_official"
     )
     sc = sc.join(grid, on="method", how="left")
-    fig, ax = style.figure(3.2)
-    xs = {b: i + 2 for i, b in enumerate(BUDGETS)}  # 0: zero-shot, 1: + Thai weak
+    n_all = int(sc.filter(pl.col("scenario") == "nonthai+thaiweak+mocall")["n_official"].max())
+    xs = {b: xpos(n_all if b == "all" else int(b)) for b in BUDGETS}
+    fig, ax = style.figure(3.4)
     c = style.FAMILY["embedding"]
     for emb, clf, prefix, ls, label in SERIES:
         d = sc.filter((pl.col("emb") == emb) & (pl.col("clf") == clf))
@@ -59,14 +68,19 @@ def main() -> None:
             lw=1.0,
             label=f"{names.method(m)} (no training labels)",
         )
-    n_all = sc.filter(pl.col("scenario") == "nonthai+thaiweak+mocall")["n_official"].max()
+    ax.axvline(STEPS - 0.5, color=style.RULE, lw=0.6, ls=(0, (2, 2)))
     ax.set_xticks(
-        range(len(BUDGETS) + 2),
-        ["Zero-shot\n(non-Thai)", "+ Thai\nweak", *BUDGETS[:-1], f"all\n({n_all:,})"],
+        [0, 1, *(xs[b] for b in BUDGETS)],
+        [
+            "Zero-shot\n(non-Thai)",
+            "+ Thai\nweak",
+            *(f"{int(b):,}" for b in BUDGETS[:-1]),
+            f"all\n({n_all:,})",
+        ],
     )
-    ax.set_xlabel("Official Thai (MOC) labels used in training")
-    ax.set_ylabel("Weighted accuracy on gold")
-    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.01), ncols=2, fontsize=7)
+    ax.set_xlabel("Official Thai (MOC) labels in training (log scale right of the dashed line)")
+    ax.set_ylabel(style.ACC_LABEL)
+    style.percent_axis(ax)
     e5 = sc.filter((pl.col("emb") == "e5-large") & (pl.col("clf") == "mlp"))
     z = e5.filter(pl.col("scenario") == "nonthai")["acc_w"][0]
     a = e5.filter(pl.col("scenario") == "nonthai+thaiweak+mocall")["acc_w"][0]
@@ -83,6 +97,8 @@ def main() -> None:
         ),
         "Budgets count every official label a run touches (training and validation). "
         "Bands: 95% stratified bootstrap.",
+        legend=ax,
+        legend_cols=2,
     )
     style.save(fig, "fig05_learning_curve", out)
 

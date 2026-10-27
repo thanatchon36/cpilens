@@ -106,3 +106,12 @@ One line per non-obvious choice, newest last. `[default]` = taken without a repl
   - Disagreement is also given by division and by group of the pass-1 label.
   - Nearly all in-scope weight is in division 1, so a by-division split is nearly degenerate. fig12 therefore shows disagreement by level (panel a) and by group, for groups with n ≥ 5 (panel b). The by-division numbers stay in `rq4_by_class.csv`.
   - Spectrum's 8–10% human error rate (notes D6, p. 15) is compared in the text only, never plotted: it is a different taxonomy and design.
+
+## Phase 6 — paper and publication (27 Oct 2026)
+- Legends sit in a row under the chart, above the source line (`style.finish(legend=...)`), as in central-bank publications: they never cover data and never collide with panel titles.
+- One axis wording for the headline metric everywhere (`style.ACC_LABEL`), in whole per cent; "basis points" in axis labels, "bp" after a number in a title.
+- Method-family colours are reserved for methods: fig08 uses grey and blue for non-Thai and Thai products, fig11 the ordinal blue ramp for flow types.
+- fig02 keeps a name strip above each division's cells and labels an item only when its name fits inside the cell; the rest are counted in the note and listed in the appendix table.
+- `results/run_manifest.json` carries no timestamp or git hash, so `make paper` leaves the tree clean; the commit that holds the file is its version.
+- `paper/main.pdf` is committed and linked from the README, as in the author's other repositories.
+- The repository went public before the results exist (the author's decision after a review on their behalf); the README states the status and the release date. The v0.1.0 tag and release wait for Checkpoint C.

@@ -7,6 +7,7 @@ import json
 
 import polars as pl
 
+from cpilens.label.store import MIN_GAP
 from cpilens.viz import names, style
 
 MIN_N = 5  # groups with fewer double-labelled products are left out of panel (b)
@@ -52,15 +53,17 @@ def main() -> None:
         x.grid(axis="x")
         x.grid(axis="y", visible=False)
     item, group = 100 * (1 - lv["item"]["agree"]), 100 * (1 - lv["group"]["agree"])
+    unk = meta["n_unk_either"]
+    excluded = f"; {unk} with 'cannot tell' in either pass excluded" if unk else ""
     style.finish(
         fig,
         f"Relabelling blind, the labeller changes {item:.0f}% of item labels "
         f"and {group:.0f}% of group labels",
         style.source(style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
-        f"{meta['n_pairs']:,} products labelled twice by the same person, at least 48 hours "
-        f"apart; {meta['n_unk_either']} with 'cannot tell' in either pass excluded. Groups by the "
-        f"first-pass label; groups with fewer than {MIN_N} products omitted. Lines: 95% "
-        "bootstrap intervals.",
+        f"{meta['n_pairs']:,} products labelled twice by the same person, at least "
+        f"{MIN_GAP.total_seconds() / 3600:.0f} hours apart{excluded}. Groups by the first-pass "
+        f"label; groups with fewer than {MIN_N} products omitted. Lines: 95% bootstrap "
+        "intervals.",
     )
     style.save(fig, "fig12_label_ceiling", out)
 
