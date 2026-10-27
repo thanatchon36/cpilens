@@ -1,0 +1,30 @@
+row,code,name_en,kind
+1,00000,All items,headline
+2,10000,Food and non-alcoholic beverages,division
+3,11100,"Rice, flour and cereal products",food_group
+4,11200,"Meat, poultry and fish",food_group
+5,11300,Eggs and dairy products,food_group
+6,11400,Vegetables and fruit,food_group
+7,11411,Fresh vegetables,food_subgroup
+8,11421,Fresh fruit,food_subgroup
+9,11500,Seasonings and condiments,food_group
+10,11600,Non-alcoholic beverages,food_group
+11,11700,Sugar products,food_group
+12,12000,Prepared food,food_group
+13,12300,Ready-to-eat food,food_subgroup
+14,12400,Food from popular restaurants,food_subgroup
+15,12500,Fast food and delivery,food_subgroup
+16,80000,Non-food,aggregate
+17,20000,Apparel and footwear,division
+18,30000,Housing and furnishing,division
+19,40000,Medical and personal care,division
+20,50000,"Transport and communication",division
+21,51000,Public transport fares,transport_line
+22,52200,Vehicle fuel,transport_line
+23,54000,Communication,transport_line
+24,60000,"Recreation, reading, education and religion",division
+25,70000,Tobacco and alcoholic beverages,division
+26,93000,Core CPI,analytic
+27,90000,Fresh food and energy,analytic
+28,91000,Fresh food,analytic
+29,92000,Energy,analytic

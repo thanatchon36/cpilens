@@ -1,0 +1,27 @@
+repos:
+  - repo: local
+    hooks:
+      - id: detect-secrets
+        name: detect-secrets
+        entry: uv run detect-secrets-hook --baseline .secrets.baseline
+        language: system
+        exclude: ^uv\.lock$
+      - id: no-anthropic-keys
+        name: block Anthropic keys and workspace ids
+        entry: "(sk-ant-[A-Za-z0-9_-]{10,}|wrkspc_[A-Za-z0-9]{10,})"
+        language: pygrep
+      - id: no-env-files
+        name: block .env files
+        entry: .env files must not be committed
+        language: fail
+        files: (^|/)\.env(\..*)?$
+      - id: ruff
+        name: ruff
+        entry: uv run ruff check
+        language: system
+        types: [python]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format --check
+        language: system
+        types: [python]
