@@ -6,6 +6,7 @@
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Data](https://img.shields.io/badge/data-ODbL--1.0-blue)](data/SOURCES.md)
 [![Status](https://img.shields.io/badge/status-work%20in%20progress-orange)](PROGRESS.md)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23686886.svg)](https://doi.org/10.5281/zenodo.23686886)
 
 📄 **[Read the paper (PDF)](paper/main.pdf)** ·
 📊 **[Figures](figures/out/)** ·
@@ -83,7 +84,9 @@ comparable to ours. This is independent work, not a BIS, ECB or Bank of Thailand
 
 ## Citation
 
-See [`CITATION.cff`](CITATION.cff).
+See [`CITATION.cff`](CITATION.cff). Every release is archived on Zenodo; the concept DOI
+[10.5281/zenodo.23686886](https://doi.org/10.5281/zenodo.23686886) always resolves to the latest
+version.
 
 ## Disclaimer
 

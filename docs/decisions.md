@@ -115,3 +115,4 @@ One line per non-obvious choice, newest last. `[default]` = taken without a repl
 - `results/run_manifest.json` carries no timestamp or git hash, so `make paper` leaves the tree clean; the commit that holds the file is its version.
 - `paper/main.pdf` is committed and linked from the README, as in the author's other repositories.
 - The repository went public before the results exist (the author's decision after a review on their behalf); the README states the status and the release date. The v0.1.0 tag and release wait for Checkpoint C.
+- A v0.0.1 snapshot release (27 Oct 2026) exists only so that the Zenodo–GitHub integration mints a DOI before the results: concept DOI 10.5281/zenodo.23686886 (all versions; used in the README badge and CITATION.cff), version DOI 10.5281/zenodo.23686887. v0.1.0 will be a new version under the same concept DOI, so the badge never changes.
