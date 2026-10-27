@@ -54,7 +54,7 @@ def main() -> None:
     style.finish(
         fig,
         f"{names.method(m)}: on average {100 * diag:.0f}% of a group's products "
-        "stay in the right group",
+        "stay in the right group (unweighted)",
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         "Cells: % of the true group's held-out official specifications; rows sum to 100.",
     )

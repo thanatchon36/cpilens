@@ -50,7 +50,8 @@ BLUE_RAMP = ("#c6dbef", "#9ecae1", "#6baed6", "#3182bd", "#08519c", "#08306b")
 
 SOURCE_CPI = "TPSO consumer price indices and weights (base 2566)"
 SOURCE_OFF = "Open Food Facts (ODbL)"
-SOURCE_REF = "TPSO price-collection specifications (official labels; held-out split)"
+SOURCE_SPECS = "TPSO price-collection specifications (MOC open data)"
+SOURCE_REF = f"{SOURCE_SPECS[:-1]}; official labels, held-out split)"
 SOURCE_CALC = "author's calculations"
 
 
@@ -64,7 +65,7 @@ WIDTH = {"full": 16.0 / 2.54, "column": 7.8 / 2.54, "slide": 10.0}
 TITLE_IN = 0.34  # space reserved above the axes for the title line
 LINE_IN = 0.17  # per source/note line below the axes
 LEGEND_IN = 0.2  # per legend row under the axes
-ACC_LABEL = "Expenditure-weighted accuracy (%)"  # the same axis wording in every chart
+ACC_LABEL = "Expenditure-weighted accuracy"  # the same axis wording in every chart
 
 
 def setup() -> None:

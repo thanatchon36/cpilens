@@ -1,7 +1,7 @@
 {
   "title": "cpilens: multilingual classification of Thai product text for consumer price measurement",
   "upload_type": "software",
-  "description": "How much does product classification cost in basis points? Multilingual classification of Thai product text into the items of the Thai consumer price index (frozen multilingual embeddings with k-NN, logistic regression and MLP; a fine-tuned XLM-R; LLM prompting; cascades), evaluated on held-out official specifications with CPI-expenditure weights, and an inflation simulator that turns each method's confusion matrix into basis points of headline, food and core inflation. Public data only: Open Food Facts, TPSO consumer price indices and weights, Ministry of Commerce product specifications. The views expressed are the author's own and do not necessarily reflect those of the Bank of Thailand.",
+  "description": "How much does product classification cost in basis points? Multilingual classification of Thai product text into the items of the Thai consumer price index (frozen multilingual embeddings with k-NN, logistic regression and MLP; a fine-tuned XLM-R; LLM prompting; cascades), evaluated on held-out official specifications with CPI-expenditure weights, and an inflation simulator that turns each method's confusion matrix into basis points of headline, food and core inflation. Public data only: Open Food Facts, TPSO consumer price indices and weights, Ministry of Commerce product specifications. Code: MIT. Data derived from Open Food Facts: ODbL 1.0. The views expressed are the author's own and do not necessarily reflect those of the Bank of Thailand. This work uses only publicly available data.",
   "creators": [
     {
       "name": "Chongmankhong, Thanatchon"

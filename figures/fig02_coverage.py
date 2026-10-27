@@ -103,7 +103,7 @@ def main() -> None:
         small = f" The {unlabelled} smallest are unlabelled; the appendix lists every item."
     style.finish(
         fig,
-        f"Packaged-product items make up {share:.0f}% of the CPI basket; "
+        f"The items a product classifier can reach make up {share:.0f}% of the CPI basket; "
         f"{100 * food:.0f}% of that is food",
         style.source(style.SOURCE_CPI, style.SOURCE_CALC),
         f"Area: price-updated CPI weight (% of headline). Blue: the {ins.height} items in the "

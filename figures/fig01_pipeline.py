@@ -89,7 +89,7 @@ def main() -> None:
     ]
     ev = box(ax, c3, 3.0, "Evaluation", "CPI-weighted accuracy,\ncoverage, cost; bootstrap")
     sim = box(ax, c4, 3.0, "Inflation simulator", "confusion matrix → item\nrelatives → bp error")
-    ref = box(ax, c3, 0.3, "Reference set", "MOC specifications of\nheld-out sub-items")
+    ref = box(ax, c3, 0.3, "Reference set", "TPSO specifications of\nheld-out sub-items")
     tpso = box(ax, c4, 0.3, "TPSO", "CPI indices and weights\n(base 2566)")
     arrow(ax, off, tax)
     arrow(ax, moc, tax)

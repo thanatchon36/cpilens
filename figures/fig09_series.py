@@ -31,13 +31,16 @@ def main() -> None:
                 alpha=0.15,
                 lw=0,
             )
-            ax.plot(e["date"], e["measured_bp"] / 100, color=c, ls=ls, label=names.method(m))
+            # the best method is drawn wide under the official line, visible where they coincide
+            wide = 2.6 if m == best else 1.2
+            y = e["measured_bp"] / 100
+            ax.plot(e["date"], y, color=c, ls=ls, lw=wide, label=names.method(m))
         o = d.filter(pl.col("method") == cheap).sort("date")
         ax.plot(  # drawn last, so a method that tracks the official series cannot hide it
             o["date"],
             o["official_bp"] / 100,
             color=style.FAMILY["official"],
-            lw=1.6,
+            lw=1.0,
             zorder=5,
             label="Official",
         )

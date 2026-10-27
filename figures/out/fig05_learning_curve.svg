@@ -762,8 +762,8 @@ z
      </g>
     </g>
     <g id="text_8">
-     <!-- Official Thai (MOC) labels in training (log scale right of the dashed line) -->
-     <g style="fill: #1a1a1a" transform="translate(116.875364 167.109) scale(0.085 -0.085)">
+     <!-- Official Thai (TPSO) labels in training (log scale right of the dotted line) -->
+     <g style="fill: #1a1a1a" transform="translate(117.390013 167.109) scale(0.085 -0.085)">
       <defs>
        <path id="LibertinusSerif-Regular-30" d="M 4262 2106 
 C 4262 3430 3347 4211 2202 4211 
@@ -854,55 +854,49 @@ C 237 506 698 -64 1504 -64
 C 1888 -64 2227 58 2547 582 
 z
 " transform="scale(0.015625)"/>
-       <path id="LibertinusSerif-Regular-2e" d="M 4243 742 
-C 4275 224 4250 218 3834 198 
-C 3795 160 3795 26 3834 -13 
-C 4070 -6 4326 0 4518 0 
-C 4710 0 5005 -6 5216 -13 
-C 5254 26 5254 160 5216 198 
-C 4781 218 4762 243 4723 774 
-L 4531 3469 
-C 4506 3814 4538 3904 4973 3930 
-C 5011 3968 5011 4102 4973 4141 
-L 4134 4128 
-L 2778 883 
-C 2752 819 2733 794 2720 794 
-C 2707 794 2688 826 2669 877 
-L 1357 4128 
-L 429 4141 
-C 390 4102 390 3968 429 3930 
-C 870 3904 909 3891 864 3411 
-L 608 774 
-C 570 390 493 230 128 198 
-C 90 160 90 26 128 -13 
-C 320 -6 525 0 678 0 
-C 832 0 1088 -6 1280 -13 
-C 1318 26 1318 160 1280 198 
-C 858 230 826 429 858 787 
-L 1101 3354 
-L 1114 3354 
-L 2438 32 
-C 2458 -13 2496 -64 2534 -64 
-C 2573 -64 2598 -19 2624 32 
-L 4064 3418 
-L 4077 3418 
-L 4243 742 
+       <path id="LibertinusSerif-Regular-31" d="M 666 3347 
+L 666 781 
+C 666 250 557 218 109 198 
+C 70 160 70 26 109 -13 
+C 397 -6 710 0 941 0 
+C 1165 0 1542 -6 1862 -13 
+C 1901 26 1901 160 1862 198 
+C 1363 224 1210 250 1210 781 
+L 1210 1869 
+C 1350 1824 1504 1805 1728 1805 
+C 2893 1805 3245 2566 3245 3110 
+C 3245 3488 2995 4173 1811 4173 
+C 1568 4173 1190 4128 934 4128 
+C 698 4128 365 4134 109 4141 
+C 70 4102 70 3968 109 3930 
+C 557 3910 666 3878 666 3347 
+z
+M 1210 3546 
+C 1210 3731 1306 3955 1766 3955 
+C 2208 3955 2650 3808 2650 2995 
+C 2650 2304 2317 2022 1696 2022 
+C 1536 2022 1280 2035 1210 2054 
+L 1210 3546 
 z
 " transform="scale(0.015625)"/>
-       <path id="LibertinusSerif-Regular-24" d="M 2285 -64 
-C 2906 -64 3475 230 3910 800 
-C 3878 858 3834 896 3763 896 
-C 3309 397 2874 198 2278 198 
-C 1414 198 819 1171 819 2106 
-C 819 2656 966 3117 1197 3405 
-C 1517 3795 1888 3974 2221 3974 
-C 3104 3974 3456 3450 3622 2899 
-C 3699 2874 3763 2893 3834 2931 
-C 3802 3264 3757 3571 3693 3923 
-C 3366 3955 3078 4211 2291 4211 
-C 1747 4211 1293 4013 915 3667 
-C 493 3277 237 2650 237 1984 
-C 237 870 909 -64 2285 -64 
+       <path id="LibertinusSerif-Regular-34" d="M 2528 4038 
+C 2157 4090 2170 4211 1542 4211 
+C 896 4211 326 3782 326 3104 
+C 326 2432 883 2125 1446 1907 
+C 1830 1760 2304 1581 2304 954 
+C 2304 435 2016 166 1504 166 
+C 909 166 525 442 384 1075 
+C 301 1101 237 1088 173 1056 
+C 198 563 224 397 301 83 
+C 704 83 883 -64 1453 -64 
+C 1741 -64 2016 6 2240 147 
+C 2611 378 2842 768 2842 1178 
+C 2842 1856 2330 2157 1805 2355 
+C 1421 2496 781 2739 781 3277 
+C 781 3635 1107 3994 1485 3994 
+C 2106 3994 2304 3597 2432 3174 
+C 2502 3162 2586 3168 2643 3213 
+C 2618 3520 2592 3699 2528 4038 
 z
 " transform="scale(0.015625)"/>
        <path id="LibertinusSerif-Regular-43" d="M 1069 2522 
@@ -1051,66 +1045,67 @@ z
       <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(479.3125 0)"/>
       <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(506.40625 0)"/>
       <use xlink:href="#LibertinusSerif-Regular-9" transform="translate(531.40625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-2e" transform="translate(561.203125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-30" transform="translate(645.109375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-24" transform="translate(715.3125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-a" transform="translate(779.90625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(809.703125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(834.703125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(861.109375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-43" transform="translate(906.8125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(957.109375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1001.8125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(1028.21875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1067.21875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1092.21875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(1119.3125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1173.515625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(1198.515625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-53" transform="translate(1230.109375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1267.3125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1313.015625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(1340.109375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1394.3125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(1421.40625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-48" transform="translate(1475.609375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1525.609375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-9" transform="translate(1550.609375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1581.609375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(1608.015625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-48" transform="translate(1658.421875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1708.421875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(1733.421875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-44" transform="translate(1772.421875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1815.21875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1860.921875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(1887.328125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1932.03125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-53" transform="translate(1957.03125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1994.234375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-48" transform="translate(2021.328125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-49" transform="translate(2071.328125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(2125.125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(2156.71875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(2181.71875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-47" transform="translate(2232.125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(2263.125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(2288.125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-49" transform="translate(2319.71875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(2373.515625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(2418.21875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-45" transform="translate(2443.21875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(2493.8125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(2539.515625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-49" transform="translate(2578.515625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(2632.3125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-45" transform="translate(2677.71875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(2728.3125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(2753.3125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(2779.71875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(2806.8125 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(2861.015625 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-a" transform="translate(2905.71875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-35" transform="translate(561.203125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-31" transform="translate(620.90625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-34" transform="translate(675 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-30" transform="translate(723.5 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-a" transform="translate(792.703125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(822.5 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(847.5 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(873.90625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-43" transform="translate(919.609375 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(969.90625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1014.609375 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(1041.015625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1080.015625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1105.015625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(1132.109375 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1186.3125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(1211.3125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-53" transform="translate(1242.90625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1280.109375 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1325.8125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(1352.90625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1407.109375 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(1434.203125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-48" transform="translate(1488.40625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1538.40625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-9" transform="translate(1563.40625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1594.40625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(1620.8125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-48" transform="translate(1671.21875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1721.21875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(1746.21875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-44" transform="translate(1785.21875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1828.015625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1873.71875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(1900.125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1944.828125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-53" transform="translate(1969.828125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(2007.03125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-48" transform="translate(2034.125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-49" transform="translate(2084.125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(2137.921875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(2169.515625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(2194.515625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-47" transform="translate(2244.921875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(2275.921875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(2300.921875 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-49" transform="translate(2332.515625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(2386.3125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(2431.015625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-45" transform="translate(2456.015625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(2506.609375 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(2557.015625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(2588.609375 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(2620.203125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-45" transform="translate(2665.609375 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(2716.203125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(2741.203125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(2767.609375 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(2794.703125 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(2848.90625 0)"/>
+      <use xlink:href="#LibertinusSerif-Regular-a" transform="translate(2893.609375 0)"/>
      </g>
     </g>
    </g>
@@ -1246,8 +1241,8 @@ z
      </g>
     </g>
     <g id="text_13">
-     <!-- Expenditure-weighted accuracy (%) -->
-     <g style="fill: #1a1a1a" transform="translate(10.479 140.498086) rotate(-90) scale(0.085 -0.085)">
+     <!-- Expenditure-weighted accuracy -->
+     <g style="fill: #1a1a1a" transform="translate(10.479 134.195469) rotate(-90) scale(0.085 -0.085)">
       <defs>
        <path id="LibertinusSerif-Regular-26" d="M 1798 2310 
 L 1216 2310 
@@ -1443,10 +1438,6 @@ z
       <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1157.1875 0)"/>
       <use xlink:href="#LibertinusSerif-Regular-44" transform="translate(1202.890625 0)"/>
       <use xlink:href="#LibertinusSerif-Regular-5a" transform="translate(1245.6875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1297.1875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-9" transform="translate(1322.1875 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-6" transform="translate(1351.984375 0)"/>
-      <use xlink:href="#LibertinusSerif-Regular-a" transform="translate(1415.6875 0)"/>
      </g>
     </g>
    </g>
@@ -2464,29 +2455,9 @@ z
    </g>
   </g>
   <g id="text_15">
-   <!-- Source: TPSO consumer price indices and weights (base 2566); Open Food Facts (ODbL); TPSO price-collection specifications (official -->
+   <!-- Source: TPSO consumer price indices and weights (base 2566); Open Food Facts (ODbL); TPSO price-collection specifications (MOC open data; -->
    <g style="fill: #5a5a5a" transform="translate(2.267717 216.438) scale(0.07 -0.07)">
     <defs>
-     <path id="LibertinusSerif-Regular-34" d="M 2528 4038 
-C 2157 4090 2170 4211 1542 4211 
-C 896 4211 326 3782 326 3104 
-C 326 2432 883 2125 1446 1907 
-C 1830 1760 2304 1581 2304 954 
-C 2304 435 2016 166 1504 166 
-C 909 166 525 442 384 1075 
-C 301 1101 237 1088 173 1056 
-C 198 563 224 397 301 83 
-C 704 83 883 -64 1453 -64 
-C 1741 -64 2016 6 2240 147 
-C 2611 378 2842 768 2842 1178 
-C 2842 1856 2330 2157 1805 2355 
-C 1421 2496 781 2739 781 3277 
-C 781 3635 1107 3994 1485 3994 
-C 2106 3994 2304 3597 2432 3174 
-C 2502 3162 2586 3168 2643 3213 
-C 2618 3520 2592 3699 2528 4038 
-z
-" transform="scale(0.015625)"/>
      <path id="LibertinusSerif-Regular-1b" d="M 448 384 
 C 448 198 602 45 787 45 
 C 973 45 1126 198 1126 384 
@@ -2498,31 +2469,6 @@ C 448 2106 602 1952 787 1952
 C 973 1952 1126 2106 1126 2291 
 C 1126 2477 973 2630 787 2630 
 C 602 2630 448 2477 448 2291 
-z
-" transform="scale(0.015625)"/>
-     <path id="LibertinusSerif-Regular-31" d="M 666 3347 
-L 666 781 
-C 666 250 557 218 109 198 
-C 70 160 70 26 109 -13 
-C 397 -6 710 0 941 0 
-C 1165 0 1542 -6 1862 -13 
-C 1901 26 1901 160 1862 198 
-C 1363 224 1210 250 1210 781 
-L 1210 1869 
-C 1350 1824 1504 1805 1728 1805 
-C 2893 1805 3245 2566 3245 3110 
-C 3245 3488 2995 4173 1811 4173 
-C 1568 4173 1190 4128 934 4128 
-C 698 4128 365 4134 109 4141 
-C 70 4102 70 3968 109 3930 
-C 557 3910 666 3878 666 3347 
-z
-M 1210 3546 
-C 1210 3731 1306 3955 1766 3955 
-C 2208 3955 2650 3808 2650 2995 
-C 2650 2304 2317 2022 1696 2022 
-C 1536 2022 1280 2035 1210 2054 
-L 1210 3546 
 z
 " transform="scale(0.015625)"/>
      <path id="LibertinusSerif-Regular-4e" d="M 1088 2291 
@@ -2697,6 +2643,57 @@ C 3507 26 3507 160 3469 198
 C 3078 224 3008 250 3008 781 
 z
 " transform="scale(0.015625)"/>
+     <path id="LibertinusSerif-Regular-2e" d="M 4243 742 
+C 4275 224 4250 218 3834 198 
+C 3795 160 3795 26 3834 -13 
+C 4070 -6 4326 0 4518 0 
+C 4710 0 5005 -6 5216 -13 
+C 5254 26 5254 160 5216 198 
+C 4781 218 4762 243 4723 774 
+L 4531 3469 
+C 4506 3814 4538 3904 4973 3930 
+C 5011 3968 5011 4102 4973 4141 
+L 4134 4128 
+L 2778 883 
+C 2752 819 2733 794 2720 794 
+C 2707 794 2688 826 2669 877 
+L 1357 4128 
+L 429 4141 
+C 390 4102 390 3968 429 3930 
+C 870 3904 909 3891 864 3411 
+L 608 774 
+C 570 390 493 230 128 198 
+C 90 160 90 26 128 -13 
+C 320 -6 525 0 678 0 
+C 832 0 1088 -6 1280 -13 
+C 1318 26 1318 160 1280 198 
+C 858 230 826 429 858 787 
+L 1101 3354 
+L 1114 3354 
+L 2438 32 
+C 2458 -13 2496 -64 2534 -64 
+C 2573 -64 2598 -19 2624 32 
+L 4064 3418 
+L 4077 3418 
+L 4243 742 
+z
+" transform="scale(0.015625)"/>
+     <path id="LibertinusSerif-Regular-24" d="M 2285 -64 
+C 2906 -64 3475 230 3910 800 
+C 3878 858 3834 896 3763 896 
+C 3309 397 2874 198 2278 198 
+C 1414 198 819 1171 819 2106 
+C 819 2656 966 3117 1197 3405 
+C 1517 3795 1888 3974 2221 3974 
+C 3104 3974 3456 3450 3622 2899 
+C 3699 2874 3763 2893 3834 2931 
+C 3802 3264 3757 3571 3693 3923 
+C 3366 3955 3078 4211 2291 4211 
+C 1747 4211 1293 4013 915 3667 
+C 493 3277 237 2650 237 1984 
+C 237 870 909 -64 2285 -64 
+z
+" transform="scale(0.015625)"/>
     </defs>
     <use xlink:href="#LibertinusSerif-Regular-34"/>
     <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(48.5 0)"/>
@@ -2820,16 +2817,24 @@ z
     <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(5053.703125 0)"/>
     <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(5092.703125 0)"/>
     <use xlink:href="#LibertinusSerif-Regular-9" transform="translate(5117.703125 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(5145.796875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-960" transform="translate(5196.203125 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-44" transform="translate(5279.109375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(5321.90625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(5349 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(5394.703125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-2e" transform="translate(5147.5 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-30" transform="translate(5231.40625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-24" transform="translate(5301.609375 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(5366.203125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(5391.203125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-51" transform="translate(5441.609375 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(5494.21875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(5538.921875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(5593.125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-45" transform="translate(5618.125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(5668.71875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(5714.421875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(5746.015625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-1c" transform="translate(5791.71875 0)"/>
    </g>
   </g>
   <g id="text_16">
-   <!-- labels; held-out split); author's calculations. -->
+   <!-- official labels, held-out split); author's calculations. -->
    <g style="fill: #5a5a5a" transform="translate(2.267717 228.678) scale(0.07 -0.07)">
     <defs>
      <path id="LibertinusSerif-Regular-8" d="M 506 2726 
@@ -2848,53 +2853,60 @@ C 518 614 365 461 365 275
 z
 " transform="scale(0.015625)"/>
     </defs>
-    <use xlink:href="#LibertinusSerif-Regular-4d"/>
-    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(26.40625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-43" transform="translate(72.109375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(122.40625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(167.109375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(193.515625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-1c" transform="translate(232.515625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(256.109375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-49" transform="translate(281.109375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(334.90625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(379.609375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-45" transform="translate(406.015625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-e" transform="translate(456.609375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(490.40625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-56" transform="translate(540.8125 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(593.90625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(625.5 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(650.5 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-51" transform="translate(689.5 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(741.40625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(767.8125 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(794.90625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-a" transform="translate(826.5 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-1c" transform="translate(856.296875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(879.890625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(904.890625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-56" transform="translate(950.59375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(1003.6875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-49" transform="translate(1035.28125 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(1089.078125 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-53" transform="translate(1139.484375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-8" transform="translate(1176.6875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(1195.6875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1234.6875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-44" transform="translate(1259.6875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1302.484375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1348.1875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-44" transform="translate(1374.59375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-56" transform="translate(1417.390625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1470.484375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1496.890625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(1542.59375 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1574.1875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(1601.28125 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(1651.6875 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(1705.890625 0)"/>
-    <use xlink:href="#LibertinusSerif-Regular-f" transform="translate(1744.890625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-50"/>
+    <use xlink:href="#LibertinusSerif-Regular-960" transform="translate(50.40625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-44" transform="translate(133.3125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(176.109375 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(203.203125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(248.90625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(275.3125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(300.3125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(326.71875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-43" transform="translate(372.421875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(422.71875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(467.421875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(493.828125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-d" transform="translate(532.828125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(554.828125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-49" transform="translate(579.828125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-46" transform="translate(633.625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(678.328125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-45" transform="translate(704.734375 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-e" transform="translate(755.328125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(789.125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-56" transform="translate(839.53125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(892.625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(924.21875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(949.21875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-51" transform="translate(988.21875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1040.125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1066.53125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(1093.625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-a" transform="translate(1125.21875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-1c" transform="translate(1155.015625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1178.609375 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1203.609375 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-56" transform="translate(1249.3125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(1302.40625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-49" transform="translate(1334 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(1387.796875 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-53" transform="translate(1438.203125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-8" transform="translate(1475.40625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(1494.40625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-1" transform="translate(1533.40625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-44" transform="translate(1558.40625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1601.203125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1646.90625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-44" transform="translate(1673.3125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-56" transform="translate(1716.109375 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4d" transform="translate(1769.203125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-42" transform="translate(1795.609375 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-55" transform="translate(1841.3125 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4a" transform="translate(1872.90625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-50" transform="translate(1900 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-4f" transform="translate(1950.40625 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-54" transform="translate(2004.609375 0)"/>
+    <use xlink:href="#LibertinusSerif-Regular-f" transform="translate(2043.609375 0)"/>
    </g>
   </g>
   <g id="text_17">

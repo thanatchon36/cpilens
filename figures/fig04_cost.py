@@ -83,15 +83,19 @@ def main() -> None:
     ax.grid(axis="x", which="major")
     chosen = sw.filter(pl.col("chosen") & (pl.col("cheap") == CASCADE_CHEAP[0])).sort("acc_w")
     best = chosen.row(-1, named=True)
+    llm = sc.filter(pl.col("method") == best["llm"]).row(0, named=True)
+    gap = 100 * abs(best["acc_w"] - llm["acc_w"])
     style.finish(
         fig,
-        f"A cascade routing {100 * best['routed']:.0f}% of products to "
-        f"{names.LLM[best['llm']]} costs USD {best['usd_per_million']:,.0f} per million products",
+        f"A cascade comes within {gap:.1f} points of {names.LLM[best['llm']]}'s accuracy at "
+        f"{100 * best['usd_per_million'] / llm['usd_per_million']:.0f}% of its cost",
         style.source(
             style.SOURCE_OFF, style.SOURCE_REF, "Anthropic API price list", style.SOURCE_CALC
         ),
         f"Full coverage throughout. API cost measured per call; local compute at an assumed USD "
-        f"{GPU_USD_PER_HOUR:.2f} per GPU-hour. Lines: the cascade over its thresholds.",
+        f"{GPU_USD_PER_HOUR:.2f} per GPU-hour. Lines: the cascade over its thresholds; at the "
+        f"chosen threshold the {names.LLM[best['llm']]} cascade routes "
+        f"{100 * best['routed']:.0f}% of products to the LLM.",
         legend=ax,
         legend_cols=3,
     )

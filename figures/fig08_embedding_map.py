@@ -43,10 +43,8 @@ def main() -> None:
         fig,
         f"Cross-lingual alignment ranges from {100 * lo['alignment']:.0f}% ({lab[lo['label']]}) "
         f"to {100 * hi['alignment']:.0f}% ({lab[hi['label']]})",
-        style.source(
-            style.SOURCE_OFF, "Ministry of Commerce product specifications", style.SOURCE_CALC
-        ),
-        "Labels: official (MOC) or weak (Open Food Facts crosswalk); reference set excluded. "
+        style.source(style.SOURCE_OFF, style.SOURCE_SPECS, style.SOURCE_CALC),
+        "Labels: official (TPSO) or weak (Open Food Facts crosswalk); reference set excluded. "
         "Items with no non-Thai products are omitted. The map is for display only.",
         legend=a,
         legend_kw={"markerscale": 4},

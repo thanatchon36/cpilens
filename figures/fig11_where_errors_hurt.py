@@ -13,17 +13,17 @@ TOP = 12
 # (the method-family colours would suggest methods)
 TYPE_COLOR = {
     "within_group": style.BLUE_RAMP[1],
-    "within_division": style.BLUE_RAMP[2],
+    "within_division": style.BLUE_RAMP[3],
     "cross_division": style.BLUE_RAMP[4],
     "oos_leak": style.BLUE_RAMP[5],
     "empty_item": style.MUTED,
 }
 TYPE_NAME = {
-    "within_group": "within group",
-    "within_division": "within division",
-    "cross_division": "across divisions",
-    "oos_leak": "out-of-scope leak",
-    "empty_item": "empty item",
+    "within_group": "Within group",
+    "within_division": "Within division",
+    "cross_division": "Across divisions",
+    "oos_leak": "Out-of-scope leak",
+    "empty_item": "Empty item",
 }
 
 
@@ -61,7 +61,8 @@ def main() -> None:
     share = top["mean_abs_bp"].sum() / ft["mean_abs_bp"].sum()
     style.finish(
         fig,
-        f"For {names.method(m)}, {TOP} confusions carry {100 * share:.0f}% of the headline error",
+        f"For {names.method(m)}, {TOP} confusions carry {100 * share:.0f}% of the absolute "
+        "headline error",
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         "Contribution = item weight × misallocated product share × gap between the true and the "
         "predicted item's price relative (true → predicted). Posterior-mean confusion matrix "

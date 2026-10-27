@@ -78,7 +78,7 @@ def main() -> None:
             f"all\n({n_all:,})",
         ],
     )
-    ax.set_xlabel("Official Thai (MOC) labels in training (log scale right of the dashed line)")
+    ax.set_xlabel("Official Thai (TPSO) labels in training (log scale right of the dotted line)")
     ax.set_ylabel(style.ACC_LABEL)
     style.percent_axis(ax)
     e5 = sc.filter((pl.col("emb") == "e5-large") & (pl.col("clf") == "mlp"))

@@ -48,13 +48,15 @@ def main() -> None:
         "rmse_bp_hi"
     )
     best = head.row(0, named=True)
+    cheap = head.filter(pl.col("method").is_in(CASCADE_CHEAP)).row(0, named=True)
     style.finish(
         fig,
-        f"{names.method(best['method'])} misstates headline inflation by at most "
-        f"{best['rmse_bp_hi']:.1f} bp RMSE (95% upper bound)",
+        f"Headline error, 95% upper bound: {names.method(best['method'])} "
+        f"{best['rmse_bp_hi']:.1f} bp; best cheap method {cheap['rmse_bp_hi']:.1f} bp",
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         f"Dots: posterior-mean confusion matrix; lines: 95% interval over {n_draws:,} "
-        "Dirichlet draws; confusion matrices from the held-out official specifications, "
+        "Dirichlet draws of the confusion matrix; matrices from the held-out official "
+        "specifications, "
         "products in proportion to CPI weights. Out-of-scope items and items without "
         "specifications held at official values. Panels have their own scales.",
     )
