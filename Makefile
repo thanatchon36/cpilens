@@ -48,5 +48,5 @@ test:
 	$(UV) pytest -q --cov=cpilens.taxonomy --cov=cpilens.evaluate --cov=cpilens.econ \
 		--cov-report=term-missing --cov-fail-under=80
 
-# CI: no raw data; tests that need data/raw are skipped.
+# CI: no raw data and no ml group (torch); tests that need them are skipped.
 smoke: lint test

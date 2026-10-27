@@ -154,43 +154,107 @@ def test_cascade_sweep_endpoints():
     assert abs(sw["usd_per_million"][2] - 101.0) < 1e-9
 
 
-def test_run_gold_on_synthetic_labels(tmp_path):
-    """End to end on the real prediction files with fake labels (Haiku's own answers)."""
+def _synthetic_results(res, ids, labels, rng):
+    """A results tree in the shape ``cpilens models`` writes, small enough for CI: a grid of
+    the three cascade cheap models, both LLMs, their dev tables and cost log, and gold
+    predictions for each (Haiku's are the labels themselves; the others have random errors)."""
+    import json
+
+    from cpilens.evaluate import run
+
+    (res / "preds" / "embed").mkdir(parents=True)
+    (res / "preds" / "llm").mkdir()
+    grid = []
+    for r in run.CASCADE_CHEAP:
+        emb, clf, scenario = r.split("__")
+        grid.append(
+            {"run": r, "emb": emb, "clf": clf, "scenario": scenario, "text_variant": "full"}
+            | {"pred_s_per_item": 1e-4}
+        )
+    pl.DataFrame(grid).write_csv(res / "rq1_dev_grid.csv")
+    (res / "embed_timing.json").write_text(json.dumps({"e5-large": 1e-3, "bge-m3": 1e-3}))
+    pl.DataFrame(
+        {"model": list(run.LLMS), "purpose": ["eval:x", "eval:y"], "usd": [1e-4, 1e-3]}
+    ).write_csv(res / "llm_costs.csv")
+    dev = [
+        {
+            "threshold": t,
+            "routed": 0.1,
+            "usd_per_million": 1.0,
+            "acc": 0.9,
+            "acc_w": 0.9 if t == 0.7 else 0.8,  # 0.7 must be the dev-chosen threshold
+            "cheap": c,
+            "llm": m,
+            "eval_set": "thai_val_weak",
+            "n": 10,
+        }
+        for c in run.CASCADE_CHEAP
+        for m in run.LLMS
+        for t in (0.5, 0.7)
+    ]
+    pl.DataFrame(dev).write_csv(res / "cascade_dev.csv")
+    pool = sorted(set(labels))
+
+    def preds(flip: float) -> pl.DataFrame:
+        pred = [str(rng.choice(pool)) if rng.random() < flip else y for y in labels]
+        return pl.DataFrame(
+            {
+                "id": ids,
+                "eval_set": ["gold"] * len(ids),
+                "label": labels,
+                "pred": pred,
+                "conf": rng.random(len(ids)),
+            }
+        )
+
+    for r in run.CASCADE_CHEAP:
+        preds(0.3).write_parquet(res / "preds" / "embed" / f"{r}.parquet")
+    preds(0.0).write_parquet(res / "preds" / "llm" / "claude-haiku-5-5__low.parquet")
+    preds(0.1).write_parquet(res / "preds" / "llm" / "claude-opus-5-5__low.parquet")
+
+
+def test_run_gold_end_to_end(tmp_path):
+    """End to end on a synthetic results tree with fake labels: scores, frontiers, paired
+    comparisons, per-label recall, group confusion and the dev-chosen cascades."""
     import shutil
 
     from cpilens.evaluate import run
     from cpilens.label import store
-    from cpilens.paths import RESULTS
+    from cpilens.paths import TAXONOMY
 
-    if not (RESULTS / "cascade_dev.csv").exists() or not (store.GOLD / "sample.csv").exists():
-        pytest.skip("needs cpilens models outputs")
+    rng = np.random.default_rng(0)
     shutil.copy(store.GOLD / "sample.csv", tmp_path / "sample.csv")
     s = pl.read_csv(tmp_path / "sample.csv", schema_overrides={"barcode": pl.Utf8}).head(120)
-    h = pl.read_parquet(RESULTS / "preds/llm/claude-haiku-5-5__low.parquet").filter(
-        pl.col("eval_set") == "gold"
-    )
-    lab = dict(zip(h["id"], h["pred"].fill_null("UNK"), strict=True))
-    for r in s.iter_rows(named=True):
+    scope = pl.read_csv(TAXONOMY / "thcpi_scope.csv", schema_overrides={"label": pl.Utf8})
+    pool = [*scope.filter(pl.col("in_scope"))["label"].to_list(), "OOS"]
+    labels = [str(rng.choice(pool)) for _ in range(s.height)]
+    for r, y in zip(s.iter_rows(named=True), labels, strict=True):
         store.append_label(
             1,
             {
                 "order": r["order"],
                 "barcode": r["barcode"],
-                "label": lab["off:" + r["barcode"]],
+                "label": y,
                 "unsure": "False",
                 "seconds": "1",
                 "labelled_utc": "2026-10-27T00:00:00Z",
             },
             tmp_path,
         )
+    res = tmp_path / "results"
+    _synthetic_results(res, ["off:" + b for b in s["barcode"]], labels, rng)
     out = tmp_path / "out"
     out.mkdir()
-    run.run_gold(tmp_path, RESULTS, out, n_boot=20)
+    run.run_gold(tmp_path, res, out, n_boot=20)
     sc = pl.read_csv(out / "gold_scores.csv")
     haiku = sc.filter((pl.col("method") == "claude-haiku-5-5") & (pl.col("weights") == "equal"))
     assert haiku["acc"][0] == 1.0  # scored against its own answers
     assert set(sc["family"]) == {"embedding", "finetune", "llm", "cascade"}
     assert pl.read_csv(out / "gold_paired.csv").height > 0
+    sweep = pl.read_csv(out / "gold_cascade_sweep.csv")
+    assert sweep.filter(pl.col("chosen"))["threshold"].unique().to_list() == [0.7]
+    for f in ("gold_frontier.csv", "gold_label_recall.csv", "gold_confusion_group.csv"):
+        assert pl.read_csv(out / f).height > 0
 
 
 def test_cohen_kappa():

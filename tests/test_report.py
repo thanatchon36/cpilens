@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 
 import polars as pl
+import pytest
 
 from cpilens.report import numbers
 
@@ -18,6 +19,7 @@ def test_formatting():
 
 
 def test_macros_from_results(tmp_path):
+    pytest.importorskip("torch")  # the Cfg macros are read from the model code (ml group)
     (tmp_path / "data_summary.json").write_text(
         json.dumps(
             {"gold_sample": 600, "in_scope_weight_equal": 40.46, "in_scope_weight_nnls": 43.5}

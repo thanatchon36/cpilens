@@ -164,3 +164,17 @@ def test_release_rows_match_api_indices() -> None:
     agg = pl.read_csv(TAXONOMY / "thcpi_weight_aggregates.csv", schema_overrides={"code": pl.Utf8})
     w, months = build_from_dir(RAW / "tpso" / "releases", load_index(), agg)
     assert len(months) >= 5 and w.height == agg.height
+
+
+def test_coverage_table_partitions_each_division():
+    from cpilens.taxonomy import coverage
+
+    t = coverage.table()
+    assert t.filter(pl.col("label") != "OOS").height > 0
+    # at most one out-of-scope block per division (none where every leaf is in scope)
+    assert (t.filter(pl.col("label") == "OOS").group_by("division").len()["len"] == 1).all()
+    by = t.group_by("division").agg(
+        pl.col("w_equal").sum(), pl.col("w_nnls").sum(), pl.col("division_weight").first()
+    )
+    assert (by["w_equal"] - by["division_weight"]).abs().max() < 0.01
+    assert (by["w_nnls"] - by["division_weight"]).abs().max() < 0.01
