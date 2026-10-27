@@ -7,13 +7,27 @@ from datetime import UTC, datetime
 import polars as pl
 import typer
 
-from cpilens.data import tpso
+from cpilens.data import download, moc, off, tpso
 from cpilens.data.tpso_release import PRICE_REF, build_from_dir
-from cpilens.paths import RAW, TAXONOMY
+from cpilens.label import sampling
+from cpilens.paths import DATA, INTERIM, RAW, TAXONOMY
+from cpilens.taxonomy.crosswalk import Crosswalk
 from cpilens.taxonomy.hierarchy import Hierarchy
 from cpilens.taxonomy.weights import cells, leaf_weights
 
+GOLD = DATA / "gold"
+
 app = typer.Typer(no_args_is_help=True, add_completion=False)
+
+
+@app.command()
+def fetch_raw() -> None:
+    """Download the files in data/manifest.csv (if missing) and verify checksums."""
+    bad = download.fetch_all()
+    if bad:
+        typer.echo(f"checksum mismatch (upstream changed?): {bad}", err=True)
+        raise typer.Exit(1)
+    typer.echo("raw files present and verified")
 
 
 @app.command()
@@ -60,6 +74,49 @@ def weights() -> None:
         "leaf"
     ).write_csv(TAXONOMY / "thcpi_leaf_weights_2566.csv")
     typer.echo(f"weights from {len(months)} releases ({used}); {lw.height} leaves")
+
+
+@app.command()
+def products() -> None:
+    """OFF/OBF extract with silver labels, and MOC specifications with gold labels."""
+    p = Crosswalk.load().apply(pl.read_parquet(off.extract()))
+    p.write_parquet(off.OUT)
+    scope = pl.read_csv(TAXONOMY / "thcpi_scope.csv", schema_overrides={"label": pl.Utf8})
+    h = Hierarchy.from_index(tpso.load_index())
+    specs = moc.label_specs(moc.load_specs(), scope, h.leaves)
+    specs.write_parquet(INTERIM / "moc_specs.parquet")
+    typer.echo(
+        f"{p.height} OFF/OBF products ({p['silver_label'].is_not_null().sum()} silver); "
+        f"{specs.height} MOC specs"
+    )
+
+
+@app.command()
+def sample_gold() -> None:
+    """Draw the gold-labelling sample (fixed seed) into data/gold/sample.csv."""
+    lc = pl.read_csv(
+        TAXONOMY / "thcpi_leaf_weights_2566.csv",
+        schema_overrides={"leaf": pl.Utf8, "cell": pl.Utf8},
+    )
+    fr = sampling.frame(pl.read_parquet(off.OUT), lc)
+    s = sampling.draw(fr, dict(zip(lc["cell"], lc["cell_weight"], strict=True)))
+    GOLD.mkdir(parents=True, exist_ok=True)
+    s.select(
+        "order",
+        "barcode",
+        "source",
+        "stratum",
+        "incl_prob",
+        "double",
+        "name_th",
+        "name_en",
+        "brands",
+        "quantity",
+    ).write_csv(GOLD / "sample.csv")
+    typer.echo(
+        f"{s.height} products ({s['double'].sum()} double-labelled) from a frame of "
+        f"{fr.height}; seed {sampling.SEED}"
+    )
 
 
 if __name__ == "__main__":

@@ -1,0 +1,120 @@
+tag,label,priority,basis
+en:rices,11110,0,TPSO item ข้าวสารเจ้า/ข้าวสารเหนียว
+en:prepared-rices,12300,1,cooked rice dishes are ready-to-eat food
+en:flours,11121,0,TPSO items แป้งสาลี/แป้งข้าวเจ้า/แป้งมันสำปะหลัง
+en:starches,11121,0,TPSO item แป้งมันสำปะหลัง
+en:breads,11122,0,TPSO item ขนมปังปอนด์
+en:pastas,11122,0,TPSO items มักกะโรนี/เส้นหมี่/วุ้นเส้น
+en:noodles,11122,0,TPSO items เส้นหมี่/วุ้นเส้น/เส้นก๋วยเตี๋ยว
+en:breakfast-cereals,11122,0,TPSO item อาหารธัญพืช
+en:cereal-grains,11122,0,TPSO item อาหารธัญพืช (rices override)
+en:biscuits-and-cakes,11122,1,TPSO item ขนมอบ
+en:biscuits-and-crackers,11122,1,TPSO item ขนมอบ
+en:pastries,11122,1,TPSO item ขนมอบ
+en:sweet-pastries-and-pies,11122,1,TPSO item ขนมอบ
+en:salty-snacks,11122,1,TPSO item ขนมขบเคี้ยว
+en:popcorn,11122,1,TPSO item ขนมขบเคี้ยว
+en:bars,11122,1,TPSO item อาหารธัญพืช/ขนมอบ
+xx:tofu,11122,0,TPSO item เต้าหู้
+en:meats,11211,0,TPSO item เนื้อสุกร/เนื้อโค (fresh)
+en:prepared-meats,11212,0,TPSO items ไส้กรอก/หมูยอ/กุนเชียง
+en:meat-preparations,11212,0,TPSO item ลูกชิ้นหมู/ไก่
+en:canned-meats,11212,0,processed meat
+en:poultries,11221,0,TPSO item ไก่สด/เป็ดสด
+en:chicken-preparations,11212,0,processed meat (ลูกชิ้นไก่)
+en:meats-and-their-products,?,0,fresh vs processed not determinable
+en:insects,OOS,0,not a CPI basket item
+en:fishes,11234,0,packaged fish in OFF is almost always processed (TPSO ปลาแปรรูป); fresh fish rare
+en:fishes-and-their-products,11234,0,packaged fish is mostly processed (TPSO ปลาแปรรูป)
+en:canned-fishes,11234,0,processed fish
+en:smoked-fishes,11234,0,processed fish
+en:fish-preparations,11235,0,TPSO item ลูกชิ้นปลา
+en:surimi,11235,0,TPSO item ลูกชิ้นปลา
+en:crustaceans,11233,0,TPSO items กุ้ง/ปู
+en:shellfish,11233,0,TPSO items หอย
+en:mollusc,11233,0,TPSO items ปลาหมึก/หอย
+en:seafood,11235,0,packaged seafood is mostly processed
+en:seaweeds-and-their-products,11412,0,processed vegetables and other
+en:eggs,11310,0,TPSO items ไข่ไก่/ไข่เป็ด/ไข่เค็ม
+en:dairies,11320,0,TPSO item group นมและผลิตภัณฑ์นม
+en:milks-liquid-and-powder,11320,1,TPSO items นมสด/นมผง
+en:condensed-milks,11320,1,TPSO item นมข้นหวาน
+en:creamer,11320,1,TPSO item ครีมเทียม
+en:cheeses,11320,0,TPSO item เนยแข็ง
+en:yogurts,11320,0,TPSO item นมเปรี้ยว
+en:dairy-drinks,11320,1,TPSO item นมเปรี้ยว/นมสด
+en:dairy-desserts,11320,1,dairy product
+en:baby-milks,11320,1,TPSO item นมผง
+en:milk-substitutes,11320,1,TPSO item นมถั่วเหลือง
+en:plant-based-milk-alternatives,11320,1,TPSO item นมถั่วเหลือง
+en:milkfat,11521,0,TPSO item เนยสด
+en:butters,11521,0,TPSO item เนยสด
+en:margarines,11521,0,TPSO item เนยเทียม
+en:fats,11521,0,TPSO item น้ำมันพืช/น้ำมันสัตว์
+en:vegetable-oils,11521,0,TPSO item น้ำมันพืช
+en:coconut-milks-and-creams,11521,1,TPSO item กะทิสำเร็จรูป
+en:coconut-milks,11521,1,TPSO item กะทิสำเร็จรูป
+en:fresh-vegetables,11411,0,TPSO group ผักสด
+en:vegetables,11411,0,fresh vegetables
+en:mushrooms,11411,0,TPSO item เห็ด
+en:potatoes,11411,0,TPSO item มันเทศ (fresh tubers)
+en:vegetables-based-foods,11412,0,packaged vegetable products are mostly processed
+en:canned-vegetables,11412,0,TPSO item ผักกระป๋อง/ถุง
+en:dried-plant-based-foods,11412,0,dried vegetables
+en:pickles,11412,0,TPSO item ผักกาดดอง
+en:legumes,11412,0,TPSO item ถั่วเขียว/ถั่วลิสง
+en:garlics,11412,1,TPSO item กระเทียม
+en:onions,11412,1,TPSO items หัวหอมแดง/หอมหัวใหญ่
+en:nuts,11412,0,TPSO item ถั่วลิสง
+en:fresh-fruits,11421,0,TPSO group ผลไม้สด
+en:fruits,11421,0,fresh fruit
+en:fruit-based-foods,11422,0,packaged fruit products are mostly processed
+en:dried-fruits,11422,0,TPSO item ผลไม้ดอง/กวน/ตากแห้ง
+en:canned-fruits,11422,0,TPSO item ผลไม้กระป๋อง
+en:fruit-and-vegetable-preserves,11422,0,TPSO item ผลไม้แช่อิ่ม/กวน
+en:compotes,11422,0,processed fruit
+en:condiments,11522,1,TPSO group เครื่องปรุงรส
+en:sauces,11522,1,TPSO items ซอสพริก/ซอสหอยนางรม/ซีอิ๊ว
+en:herbs-and-spices,11522,1,TPSO item เครื่องปรุงรส
+en:chili-peppers,11412,1,TPSO item พริกแห้ง
+en:salts,11522,1,TPSO item เกลือป่น
+en:vinegars,11522,1,TPSO item น้ำส้มสายชู
+en:condiment-pastes,11522,1,TPSO item น้ำพริกแกง
+en:flavour-enhancers,11522,1,TPSO item ผงชูรส
+en:broths,11522,1,TPSO item เครื่องปรุงรส (stock cubes)
+en:food-additives,?,0,mixed
+en:beverages,11600,1,TPSO group เครื่องดื่มไม่มีแอลกอฮอล์
+en:beverage-preparations,11600,1,TPSO items กาแฟผง/ชา/เครื่องดื่มรสช็อกโกแลต
+en:coffees,11600,1,TPSO item กาแฟผงสำเร็จรูป
+en:teas,11600,1,TPSO item ชา
+en:cocoa-and-chocolate-powders,11600,1,TPSO item เครื่องดื่มรสช็อกโกแลต
+en:syrups,11600,1,TPSO item น้ำหวาน
+en:dietary-supplements,11600,1,TPSO item ผลิตภัณฑ์เสริมอาหาร (under 11600)
+en:alcoholic-beverages,?,1,type of alcoholic beverage needed
+en:beers,72100,1,TPSO item เบียร์
+en:wines,72200,1,TPSO item ไวน์
+en:ciders,72200,1,closest TPSO item ไวน์
+en:liqueurs,72300,1,TPSO item สุรา
+en:distilled-beverages,72300,1,TPSO item สุรา
+en:sweeteners,11710,0,sugar products
+en:sugars,11710,0,sugar products
+en:honeys,11710,0,sugar products
+en:confectioneries,11710,1,sweets (ขนมหวาน)
+en:chocolates,11710,1,sweets
+en:desserts,11710,1,sweets (ขนมหวาน)
+en:frozen-desserts,11710,1,sweets
+en:sweet-spreads,11710,0,sugar products
+en:jams,11422,1,TPSO item ผลไม้กวน
+en:peanut-butters,11412,1,TPSO item ถั่วลิสง
+en:meals,12300,1,ready-to-eat food (ambiguous scope)
+en:sandwiches,12300,1,ready-to-eat food
+en:pizzas-pies-and-quiches,12300,1,ready-to-eat food
+en:soups,?,1,instant soup vs ready meal
+en:meat-alternatives,?,0,no TPSO item
+en:baby-foods,?,0,mixed
+en:cosmetic-products,42100,0,TPSO items ผลิตภัณฑ์ป้องกันและบำรุงผิว/ลิปสติก
+en:hygiene,42100,0,TPSO items สบู่/แชมพู/ยาสีฟัน
+en:open-beauty-facts,42100,0,Open Beauty Facts products (personal care)
+en:cigarettes,71000,0,TPSO item บุหรี่
+en:non-food-products,OOS,0,not in the labelled scope
+en:open-products-facts,OOS,0,not in the labelled scope

@@ -1,5 +1,7 @@
 # data: raw downloads are large or not redistributable; see data/SOURCES.md
 data/raw/
+# rebuilt by `make data` from data/raw
+data/interim/
 !data/SOURCES.md
 .cache/
 # environment and secrets

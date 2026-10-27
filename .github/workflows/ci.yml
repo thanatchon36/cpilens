@@ -1,0 +1,14 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.11"
+      - run: uv sync --frozen
+      - run: make smoke
+      - name: secret scan
+        run: uv run detect-secrets-hook --baseline .secrets.baseline $(git ls-files | grep -v '^uv.lock$')
