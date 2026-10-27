@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software or its data, please cite it as below."
+title: "cpilens: multilingual classification of Thai product text for consumer price measurement"
+type: software
+authors:
+  - family-names: Chongmankhong
+    given-names: Thanatchon
+version: 0.1.0
+license: MIT
+repository-code: "https://github.com/thanatchon36/cpilens"
+keywords:
+  - consumer price index
+  - product classification
+  - multilingual text embeddings
+  - large language models
+  - Thailand

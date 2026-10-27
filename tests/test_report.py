@@ -58,3 +58,18 @@ def test_costs_table_sums_by_model_and_stage(tmp_path):
     rows = numbers.costs_table(tmp_path).split("\n")
     assert rows[0] == "m1 & eval & 2 & 200 & 10 & 0.75 \\\\"
     assert rows[-1] == "\\midrule Total & & 3 & 201 & 11 & 0.76 \\\\"
+
+
+def test_manifest_reads_hf_refs_and_cached_llm_models(tmp_path):
+    from cpilens.report import manifest
+
+    ref = tmp_path / "hub" / "models--org--m" / "refs"
+    ref.mkdir(parents=True)
+    (ref / "main").write_text("abc123\n")
+    assert manifest.hf_revision("org/m", tmp_path / "hub") == "abc123"
+    assert manifest.hf_revision("org/none", tmp_path / "hub") is None
+    cache = tmp_path / "llm"
+    cache.mkdir()
+    for i, m in enumerate(["b", "a", "a"]):
+        (cache / f"{i}.json").write_text(f'{{"model": "{m}"}}')
+    assert manifest.llm_models_returned(cache) == {"a": 2, "b": 1}

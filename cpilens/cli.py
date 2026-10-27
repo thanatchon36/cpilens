@@ -246,6 +246,9 @@ def report() -> None:
     numbers.describe()
     typer.echo(f"{numbers.write()} macros -> {numbers.OUT.relative_to(numbers.ROOT)}")
     typer.echo(f"tables -> {', '.join(numbers.write_tables())}")
+    from cpilens.report import manifest
+
+    typer.echo(f"manifest -> {manifest.write().relative_to(numbers.ROOT)}")
 
 
 if __name__ == "__main__":

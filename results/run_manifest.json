@@ -1,0 +1,34 @@
+{
+  "created_utc": "2026-10-27T08:23:14Z",
+  "git_commit": "318697c12e8856b5b6283d6b85ded9dd661d5b75",
+  "python": "3.11.17",
+  "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
+  "packages": {
+    "anthropic": "2.3.0",
+    "duckdb": "2.0.0",
+    "matplotlib": "3.11.2",
+    "numpy": "2.4.6",
+    "polars": "2.1.0",
+    "pyarrow": "26.0.0",
+    "scikit-learn": "1.9.1",
+    "scipy": "1.17.1",
+    "sentence-transformers": "6.2.0",
+    "torch": "2.14.1",
+    "transformers": "5.21.0"
+  },
+  "hf_models": {
+    "BAAI/bge-m3": "5617a9f61b028005a4858fdac845db406aefb181",
+    "intfloat/multilingual-e5-large": "3d7cfbdacd47fdda877c5cd8a79fbcc4f2a574f3",
+    "FacebookAI/xlm-roberta-base": "e73636d4f797dec63c3081bb6ed5c7b0bb3f2089"
+  },
+  "llm_models_requested": [
+    "claude-haiku-5-5",
+    "claude-opus-5-5"
+  ],
+  "llm_models_returned": {
+    "claude-haiku-5-5": 7035,
+    "claude-opus-5-5": 2518
+  },
+  "seed": 20261027,
+  "data_manifest": "data/manifest.csv"
+}

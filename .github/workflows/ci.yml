@@ -11,4 +11,4 @@ jobs:
       - run: uv sync --frozen
       - run: make smoke
       - name: secret scan
-        run: uv run detect-secrets-hook --baseline .secrets.baseline $(git ls-files | grep -v '^uv.lock$')
+        run: uv run detect-secrets-hook --baseline .secrets.baseline $(git ls-files | grep -vE '^(uv.lock|results/run_manifest.json)$')

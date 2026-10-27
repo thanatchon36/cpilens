@@ -5,7 +5,8 @@ repos:
         name: detect-secrets
         entry: uv run detect-secrets-hook --baseline .secrets.baseline
         language: system
-        exclude: ^uv\.lock$
+        # generated: git and model commit hashes (the Anthropic-key check below still runs)
+        exclude: ^(uv\.lock|results/run_manifest\.json)$
       - id: no-anthropic-keys
         name: block Anthropic keys and workspace ids
         entry: "(sk-ant-[A-Za-z0-9_-]{10,}|wrkspc_[A-Za-z0-9]{10,})"
