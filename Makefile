@@ -1,9 +1,9 @@
 # cpilens pipeline. `make all` rebuilds everything from public sources.
 # Stages not built yet print a notice instead of failing silently.
 UV := uv run
-.PHONY: all data label models eval econ figures paper check test lint smoke
+.PHONY: all data label models eval econ agreement figures paper check test lint smoke
 
-all: data models eval econ figures paper check
+all: data models eval econ agreement figures paper check
 
 data:
 	$(UV) cpilens fetch-raw
@@ -24,6 +24,9 @@ eval:
 
 econ:
 	$(UV) cpilens econ
+
+agreement:
+	$(UV) cpilens agreement
 
 figures:
 	for f in figures/fig*.py; do $(UV) python $$f || exit 1; done

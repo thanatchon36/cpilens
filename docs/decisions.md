@@ -95,3 +95,14 @@ One line per non-obvious choice, newest last. `[default]` = taken without a repl
   - It is for display only. Alignment is measured in the full e5-large space: for up to 200 sampled Thai products per label, the share of their 10 nearest non-Thai neighbours that have the same label.
   - Labels with no non-Thai products have undefined alignment (null), not zero.
 - Figure scripts were developed against a scratchpad run in which Opus's own gold answers stood in for the labels. Nothing from that run is written to `results/` or committed.
+- All 12 mission figures have scripts (`figures/fig01`–`fig12`). Layout fixes made after viewing each one:
+  - fig09 legend sits inside panel (a) (`loc="best"`); a figure-level legend collided with the title.
+  - fig11 legend handles are explicit patches; empty `barh` calls drew the wrong colour.
+  - Groups 421 and 721 are not in the published weights table (only their divisions are), so their display names come from a two-entry mapping in `cpilens/viz/names.groups()`.
+- fig02 (coverage treemap): a squarified layout (`cpilens/viz/treemap.py`, no new dependency) of the `w_equal` leaf weights. The in-scope items are blue and each division's out-of-scope remainder is grey. The data are `results/coverage.csv`, written by `cpilens weights`. The in-scope item count shown in fig01 and fig02 is read from that table too.
+- RQ4 (`cpilens agreement`, `cpilens/evaluate/agreement.py`):
+  - Pass 1 is treated as the truth and pass 2 as a classifier. This puts the ceiling's `acc_w` on the same scale as every method's.
+  - Agreement and Cohen's kappa are reported at item, group and division level, with 1,000 stratified resamples. Pairs with `UNK` in either pass are excluded and counted.
+  - Disagreement is also given by division and by group of the pass-1 label.
+  - Nearly all in-scope weight is in division 1, so a by-division split is nearly degenerate. fig12 therefore shows disagreement by level (panel a) and by group, for groups with n ≥ 5 (panel b). The by-division numbers stay in `rq4_by_class.csv`.
+  - Spectrum's 8–10% human error rate (notes D6, p. 15) is compared in the text only, never plotted: it is a different taxonomy and design.

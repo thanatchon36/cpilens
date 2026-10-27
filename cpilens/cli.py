@@ -11,7 +11,8 @@ import typer
 from cpilens.data import download, moc, off, tpso
 from cpilens.data.tpso_release import PRICE_REF, build_from_dir
 from cpilens.label import sampling
-from cpilens.paths import DATA, INTERIM, RAW, TAXONOMY
+from cpilens.paths import DATA, INTERIM, RAW, RESULTS, TAXONOMY
+from cpilens.taxonomy import coverage
 from cpilens.taxonomy.crosswalk import Crosswalk
 from cpilens.taxonomy.hierarchy import Hierarchy
 from cpilens.taxonomy.weights import cells, leaf_weights
@@ -74,6 +75,7 @@ def weights() -> None:
     ).select("leaf", "name_th", "cell", "residual_cell", "cell_weight", "w_equal", "w_nnls").sort(
         "leaf"
     ).write_csv(TAXONOMY / "thcpi_leaf_weights_2566.csv")
+    coverage.table().write_csv(RESULTS / "coverage.csv")
     typer.echo(f"weights from {len(months)} releases ({used}); {lw.height} leaves")
 
 
@@ -226,6 +228,14 @@ def econ() -> None:
     from cpilens.econ.run import run_econ
 
     run_econ()
+
+
+@app.command()
+def agreement() -> None:
+    """RQ4: pass-1 vs pass-2 agreement on the double-labelled subset (the label ceiling)."""
+    from cpilens.evaluate.agreement import run_agreement
+
+    run_agreement()
 
 
 if __name__ == "__main__":

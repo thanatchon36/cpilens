@@ -191,3 +191,45 @@ def test_run_gold_on_synthetic_labels(tmp_path):
     assert haiku["acc"][0] == 1.0  # scored against its own answers
     assert set(sc["family"]) == {"embedding", "finetune", "llm", "cascade"}
     assert pl.read_csv(out / "gold_paired.csv").height > 0
+
+
+def test_cohen_kappa():
+    from cpilens.evaluate.agreement import cohen_kappa
+
+    assert cohen_kappa(["a", "b", "a", "b"], ["a", "b", "a", "b"]) == 1.0
+    # agreement no better than chance given the marginals
+    assert abs(cohen_kappa(["a", "a", "b", "b"], ["a", "b", "a", "b"])) < 1e-12
+
+
+def test_run_agreement(tmp_path):
+    import json
+
+    from cpilens.evaluate.agreement import run_agreement
+    from cpilens.label import store
+
+    pl.DataFrame(
+        {
+            "order": ["1", "2", "3", "4", "5"],
+            "barcode": ["b1", "b2", "b3", "b4", "b5"],
+            "stratum": ["11110", "11110", "11200", "11200", "OOS"],
+            "incl_prob": [0.5, 0.5, 0.25, 0.25, 0.1],
+            "double": [True] * 5,
+        }
+    ).write_csv(tmp_path / "sample.csv")
+    first = ["11110", "11110", "11211", "11212", "OOS"]
+    second = ["11110", "11121", "11211", "11212", "UNK"]
+    for p, labels in ((1, first), (2, second)):
+        for i, k in enumerate(labels, 1):
+            row = {"order": str(i), "barcode": f"b{i}", "label": k, "unsure": str(i == 2)}
+            store.append_label(p, row | {"seconds": "1", "labelled_utc": "x"}, tmp_path)
+    run_agreement(tmp_path, tmp_path, n_boot=20)
+    a = pl.read_csv(tmp_path / "rq4_agreement.csv")
+    assert a["n"].to_list() == [4, 4, 4]
+    assert a.filter(pl.col("level") == "item")["agree"][0] == 0.75
+    assert a.filter(pl.col("level") == "group")["agree"][0] == 1.0  # 11110 and 11121 share 111
+    meta = json.loads((tmp_path / "rq4_meta.json").read_text())
+    assert (meta["n_pairs"], meta["n_unk_either"], meta["n_unsure_either"]) == (5, 1, 1)
+    assert meta["agree_if_unsure"] == 0.0
+    by = pl.read_csv(tmp_path / "rq4_by_class.csv", schema_overrides={"class": pl.Utf8})
+    g = by.filter(pl.col("level") == "group").sort("class")
+    assert g["class"].to_list() == ["111", "112"] and g["disagree"].to_list() == [0.5, 0.0]

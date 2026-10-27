@@ -34,3 +34,16 @@ def labels() -> dict[str, str]:
     s = pl.read_csv(TAXONOMY / "thcpi_scope.csv", schema_overrides={"label": pl.Utf8})
     short = [n.split(" (")[0].split(";")[0] for n in s["name_en"]]
     return {**dict(zip(s["label"], short, strict=True)), "OOS": "Out of scope"}
+
+
+def groups() -> dict[str, str]:
+    """CPI group (first three digits) -> English name, from the published weights table."""
+    w = pl.read_csv(TAXONOMY / "thcpi_weights_2566.csv", schema_overrides={"code": pl.Utf8})
+    out = {
+        c[:3]: n.split(" (")[0]
+        for c, n in zip(w["code"], w["name_en"], strict=True)
+        if c.endswith("00")
+    }
+    # groups the weights table does not list (only their divisions)
+    extra = {"421": "Personal care products", "721": "Alcoholic beverages"}
+    return {**extra, **out, "OOS": "Out of scope", "ABSTAIN": "Abstain"}

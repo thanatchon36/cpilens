@@ -5,20 +5,7 @@ from __future__ import annotations
 import numpy as np
 import polars as pl
 
-from cpilens.paths import TAXONOMY
 from cpilens.viz import names, select, style
-
-
-def group_names() -> dict[str, str]:
-    w = pl.read_csv(TAXONOMY / "thcpi_weights_2566.csv", schema_overrides={"code": pl.Utf8})
-    out = {
-        c[:3]: n.split(" (")[0]
-        for c, n in zip(w["code"], w["name_en"], strict=True)
-        if c.endswith("00")
-    }
-    # groups the published weights table does not list (only their divisions)
-    extra = {"421": "Personal care products", "721": "Alcoholic beverages"}
-    return {**extra, **out, "OOS": "Out of scope", "ABSTAIN": "Abstain"}
 
 
 def main() -> None:
@@ -34,7 +21,7 @@ def main() -> None:
     mat = np.zeros((len(rows), len(cols)))
     for r in c.iter_rows(named=True):
         mat[rows.index(r["true"]), cols.index(r["pred"])] = r["share"]
-    gn = group_names()
+    gn = names.groups()
     fig, ax = style.figure(4.6)
     ax.imshow(mat, cmap="Blues", vmin=0, vmax=1, aspect="auto")
     ax.grid(False)

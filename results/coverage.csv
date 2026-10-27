@@ -1,0 +1,35 @@
+division,label,name_en,w_equal,w_nnls,weight_estimated,division_name,division_weight
+1,11110,Rice,1.1593,2.5725,false,Food and non-alcoholic beverages,38.973
+1,11121,Flour,1.1593,0.0228,false,Food and non-alcoholic beverages,38.973
+1,11122,Flour products (bread; noodles; pasta),1.1593,0.8827,false,Food and non-alcoholic beverages,38.973
+1,11211,Fresh meat,0.8878,2.5801,false,Food and non-alcoholic beverages,38.973
+1,11212,Processed meat,0.8878,0.3883,false,Food and non-alcoholic beverages,38.973
+1,11221,Fresh poultry,0.8878,0.9549,false,Food and non-alcoholic beverages,38.973
+1,11231,Fresh freshwater fish,0.8878,1.2184,false,Food and non-alcoholic beverages,38.973
+1,11232,Fresh marine fish,0.8878,0.3491,false,Food and non-alcoholic beverages,38.973
+1,11233,Other fresh seafood,0.8878,0.8665,false,Food and non-alcoholic beverages,38.973
+1,11234,Processed fish,0.8878,0.6184,false,Food and non-alcoholic beverages,38.973
+1,11235,Processed seafood,0.8878,0.1263,false,Food and non-alcoholic beverages,38.973
+1,11310,Eggs,0.8775,0.8089,false,Food and non-alcoholic beverages,38.973
+1,11320,Milk and dairy products,0.8775,0.9461,false,Food and non-alcoholic beverages,38.973
+1,11411,Fresh vegetables,2.132,2.132,false,Food and non-alcoholic beverages,38.973
+1,11412,Processed vegetables and other,0.2285,0.4254,true,Food and non-alcoholic beverages,38.973
+1,11421,Fresh fruit,2.274,2.274,false,Food and non-alcoholic beverages,38.973
+1,11422,Processed fruit and other,0.2285,0.0316,true,Food and non-alcoholic beverages,38.973
+1,11521,Oils and fats,0.5855,0.437,false,Food and non-alcoholic beverages,38.973
+1,11522,Seasonings and condiments,0.5855,0.734,false,Food and non-alcoholic beverages,38.973
+1,11600,Non-alcoholic beverages,3.291,3.291,false,Food and non-alcoholic beverages,38.973
+1,11710,Sugar and confectionery,0.843,0.843,false,Food and non-alcoholic beverages,38.973
+1,12300,Ready-to-eat food,14.777,14.777,false,Food and non-alcoholic beverages,38.973
+1,OOS,Out of scope,1.689,1.689,false,Food and non-alcoholic beverages,38.973
+2,OOS,Out of scope,2.1024,2.1019,false,Apparel and footwear,2.102
+3,36000,Cleaning products,1.5391,1.6084,false,Housing and furnishing,24.626
+3,OOS,Out of scope,23.086499999999997,23.017599999999998,false,Housing and furnishing,24.626
+4,42100,Personal care products,0.4253,3.3723,false,Medical and personal care,6.379
+4,OOS,Out of scope,5.9542,3.0067,false,Medical and personal care,6.379
+5,OOS,Out of scope,22.6568,22.6569,false,Transport and communication,22.657
+6,OOS,Out of scope,4.0205,4.021,false,"Recreation, reading, education and religion",4.021
+7,71000,Tobacco products,0.3103,0.4252,false,Tobacco and alcoholic beverages,1.241
+7,72100,Beer,0.3103,0.5412,false,Tobacco and alcoholic beverages,1.241
+7,72200,Wine,0.3103,0.0118,false,Tobacco and alcoholic beverages,1.241
+7,72300,Spirits,0.3103,0.2627,false,Tobacco and alcoholic beverages,1.241
