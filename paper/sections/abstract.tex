@@ -1,2 +1,12 @@
-% Written after the gold evaluation, from results only.
-\textit{[This part is written once the gold labels are evaluated.]}
+Web and scanner prices enter a consumer price index only after each product has been
+assigned to an item of the official basket. We ask what that classification step costs in
+measured inflation. Using public Thai data only, we score multilingual text embeddings, a
+fine-tuned encoder, LLM prompting and cascades on \NRefSpecs{} held-out official
+price-collection specifications, weight every score by CPI expenditure, and pass each
+method's confusion matrix through a simulator of the Thai CPI. Transfer from non-Thai
+products alone classifies \AccWEfiveMLPZeroShot\% of the evaluated weight correctly, and all
+official labels raise this to \AccWEfiveMLP\%. A frontier LLM reaches \AccWOpus\%, and a cascade
+matches it at \CostPctCasEfiveMLPOpus\% of its cost. With the LLM's confusion matrix, headline
+year-on-year inflation would be misstated by \BpYoyRmseHeadlineOpus{} basis points (RMSE);
+with an embedding classifier, by \BpYoyRmseHeadlineEfiveMLP. Accuracy does not rank methods by
+this error. Code and derived data are open.

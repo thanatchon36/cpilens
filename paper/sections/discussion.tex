@@ -1,4 +1,55 @@
 \section{Discussion: what this means for central banks in Asia}\label{sec:discussion}
 
-% Written after the gold evaluation, from results only.
-\textit{[This part is written once the gold labels are evaluated.]}
+Many central banks and statistical offices in Asia are building price measures from web and
+scanner data in languages for which little labelled product text exists. The Thai results
+suggest five points for that work. Each holds for one index, one language and the office's
+own text, and should be checked on other data before it is relied on.
+
+\paragraph{Ask for basis points, not accuracy.} Weighted accuracy reversed the ranking that
+plain accuracy gave, and even weighted accuracy did not rank methods by their effect on
+measured inflation, and basis points alone flatter a classifier that measures little of the
+weight. Two classifiers that each get about \AccWEfiveMLP\% of the weight right
+differ several-fold in basis points. The simulator of Section~\ref{sec:sim} needs only a
+confusion matrix on held-out labels, the published weights and the published item indices.
+An office that already publishes an index can therefore state the
+classification error of a new source in the unit its users care about before the source
+enters production. The decomposition says which confusions to fix first.
+
+\paragraph{A published specification list is a public good.} The most useful data in this
+paper are the Ministry of Commerce's price-collection specifications: Thai descriptions with
+official item codes, released as open data. They served as training labels, as development
+data and as the reference set, and without them no number in Section~\ref{sec:results}
+could have been computed. Where an office publishes such a list, every researcher and vendor
+has a common benchmark in the local language at no cost to the office.
+
+\paragraph{LLM classification is affordable at the scale of a price index.} \NameHaiku{}
+classified official Thai text with \AccWHaiku\% weighted accuracy at USD \CostHaiku{} per
+million products, and the \NameEfive{}--\NameOpus{} cascade matched \NameOpus{} at USD
+\CostCasEfiveMLPOpus{} per million. The whole set of LLM runs for this paper cost USD
+\LLMSpendUSD. The question is then one of governance more than budget: closed models
+change, responses must be cached and versioned, and an office may prefer an open model it
+can run itself. The cheap methods were not close enough to make that choice free: for every cheap
+method trained on all labels, the upper end of the interval for the headline error was above
+the LLMs'.
+
+\paragraph{Document the basket, not just the codes.} The LLMs' largest errors came from two
+items whose official contents differ from what their headings suggest: TPSO's personal items
+include wristwatches, school bags and hair dryers, and its milk and dairy products include
+margarine. A classifier can only follow the definition it is given. A short, public
+description of what each item includes and excludes, maintained with the classification,
+would remove these errors for every method at once and is cheaper than any model.
+
+\paragraph{Transfer gets a long way, but not all the way.} With no Thai label at all,
+non-Thai products taught an embedding classifier to place \AccWEfiveMLPZeroShot\% of the
+evaluated weight, and the alignment of Thai products with their non-Thai neighbours varied
+widely by item. For languages with even fewer resources than Thai, this is a usable
+starting point and a guide to where official labels are needed first: in the items where
+local products look least like foreign ones. But the error of the zero-shot classifier in
+basis points was large, and an office would need at least a held-out labelled sample in
+its own language to know how large before it publishes anything built on it.
+
+Two cautions apply to all five points. The reference text here is the office's own short
+descriptions; shop text is longer and noisier, and accuracy on it will be lower. And the
+basis-point figures assume a product universe; a real stream of web products would have its
+own mix. A labelled sample of the text to be classified, drawn with known probabilities,
+would resolve both and is the natural next step for any office that applies these methods.

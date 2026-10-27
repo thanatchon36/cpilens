@@ -144,3 +144,7 @@ left is due to coverage alone) and the method's matrix plus product-level sampli
 in which each product's log price drifts from its item's as a random walk with an assumed
 annual standard deviation of \CfgSigmaLo\% or \CfgSigmaHi\%, and item $j$ averages the products
 sent to it, the size of the held-out list standing in for the number of products.
+For each aggregate we report the root mean squared error of the inflation rate over the
+simulated months. The point estimate uses the posterior-mean confusion matrix and the
+interval is the \CfgCI\% range of the RMSE across draws. Because the RMSE is not linear in the
+matrix, the point need not sit in the middle of the interval.

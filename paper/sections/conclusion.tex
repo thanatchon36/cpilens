@@ -1,4 +1,15 @@
 \section{Conclusion}\label{sec:conclusion}
 
-% Written after the gold evaluation, from results only.
-\textit{[This part is written once the gold labels are evaluated.]}
+Classification is the step that turns a list of products into a price index, and its error
+can be stated in the unit of the index. For Thai product text, transfer from other languages
+gets an embedding classifier to \AccWEfiveMLPZeroShot\% of the evaluated CPI weight without a
+single Thai label; official labels raise this to \AccWEfiveMLP\%; and a frontier LLM reaches
+\AccWOpus\%, at a cost that a cascade cuts to \CostPctCasEfiveMLPOpus\% without loss. Passed
+through a simulator of the Thai CPI, the LLM's errors would misstate headline year-on-year
+inflation by \BpYoyRmseHeadlineOpus{} basis points and the embedding classifier's by
+\BpYoyRmseHeadlineEfiveMLP. Accuracy does not rank methods by that error, and neither does the
+error alone; both are needed, and the decomposition shows which confusions to fix. Most of
+the LLMs' remaining errors are not errors of language but gaps in the documentation of the
+official basket. The open questions are on the side of the data: how these numbers change
+on shop text rather than the office's own, and on a real stream of products rather than an
+assumed one. A labelled, probability-sampled set of web products would answer both.

@@ -35,6 +35,8 @@ ALIAS = {
     "bge-m3__mlp__nonthai": "BgeMLPZeroShot",
     "bge-m3__mlp__mocall": "BgeMLPMocOnly",
     "xlmr__finetune__nonthai": "XlmrFTZeroShot",
+    # a low-coverage run with a small basis-point error (results text)
+    "e5-large__linear__moc100": "EfiveLinMocHundred",
 }
 BUDGET_WORD = {100: "Hundred", 250: "TwoFifty", 500: "FiveHundred", 1000: "Thousand"}
 for _n, _w in BUDGET_WORD.items():  # the learning curve of the e5-large MLP
@@ -182,9 +184,21 @@ def _rq3(r: Path) -> dict[str, str]:
     e = pl.read_csv(f).filter(pl.col("weights") == "equal")
     if "universe" not in e.columns:
         e = e.with_columns(pl.lit("cpi").alias("universe"))
+    m: dict[str, str] = {}
+    for kind, tag in (("yoy", "Yoy"), ("mom", "Mom")):
+        k = e.filter(pl.col("kind") == kind)
+        if k.height:
+            m[f"NMonths{tag}"] = str(k["n_months"].cast(pl.Int64).max())
+    ser = r / "rq3_series.csv"
+    if ser.exists():
+        d = pl.read_csv(ser, try_parse_dates=True)
+        for kind, tag in (("yoy", "Yoy"), ("mom", "Mom")):
+            dates = sorted(d.filter(pl.col("kind") == kind)["date"].unique().to_list())
+            if dates:
+                m[f"SimFirst{tag}"] = dates[0].strftime("%B %Y")
+                m[f"SimLast{tag}"] = dates[-1].strftime("%B %Y")
     # the primary universe (products in proportion to CPI weights) has no suffix
     uni = {"cpi": "", "list": "List"}
-    m: dict[str, str] = {}
     for row in e.filter(pl.col("universe").is_in(list(uni))).iter_rows(named=True):
         a = "Perfect" if row["variant"] == "coverage_only" else ALIAS.get(row["method"])
         if a is None or row["variant"] not in {*VARIANT, "coverage_only"}:
@@ -266,7 +280,7 @@ def _config(_: Path) -> dict[str, str]:
     from cpilens.classify import embedclf, experiments, finetune, llm
     from cpilens.econ import run as econ
     from cpilens.embed import projection
-    from cpilens.evaluate import frontier, gold
+    from cpilens.evaluate import frontier, gold, metrics
 
     def default(f: object, arg: str) -> object:
         return inspect.signature(f).parameters[arg].default  # type: ignore[arg-type]
@@ -300,6 +314,8 @@ def _config(_: Path) -> dict[str, str]:
         "CfgFewShot": str(default(llm.few_shot, "per_label")),
         "CfgMaxTokens": num(llm.MAX_TOKENS),
         "CfgBudgets": ", ".join(num(b) for b in budgets),  # type: ignore[arg-type]
+        "CfgBudgetMax": num(max(int(b) for b in budgets)),
+        "CfgCI": pct(default(metrics.ci, "level"), 0),  # type: ignore[arg-type]
         "CfgAlignK": str(projection.K),
         "CfgThresholds": ", ".join(f"{t:g}" for t in frontier.THRESHOLDS),
     }

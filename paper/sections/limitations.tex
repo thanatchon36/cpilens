@@ -21,6 +21,20 @@ set that against the human error rate Spectrum reports
 measure the label ceiling and takes the official labels as correct. Official codes can be
 wrong or ambiguous too; a method that disagrees with the office is occasionally right.
 
+\paragraph{The label descriptions are ours.} Every classifier sees the labels only through
+names and short descriptions that we wrote from TPSO's item headings, and the LLMs see
+nothing else. Most of the LLMs' errors come from two places where those descriptions
+disagree with the office's practice: personal items that are not personal-care goods, and
+margarine. We left the descriptions unchanged, since changing them after seeing the
+reference set would tune on it, so the LLM scores are a lower bound on what a correct
+description of the official item contents would give.
+
+\paragraph{The development data are not the deployment text.} Cascade thresholds were chosen
+on the Thai weak-label validation split, which is Open Food Facts text. The confidence of the
+cheap classifiers on that text did not carry over to official specifications, and most
+cascades routed too few products. An office would have to choose thresholds on data like the
+text it classifies.
+
 \paragraph{The product universe is assumed.} The reference set is a list, not a stream of
 products, so the shares $n_k$ in the simulator are assumptions. Section~\ref{sec:sim}
 reports two: products in proportion to CPI weights, and in proportion to the office's list.
