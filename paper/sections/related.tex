@@ -1,4 +1,47 @@
 \section{Related work}\label{sec:related}
 
-% Written after the gold evaluation, from results only.
-\textit{[This part is written once the gold labels are evaluated.]}
+\paragraph{Online prices.} Prices collected from retailers' websites have become a
+measurement source in their own right \citep{cavallo2016bpp}. For large multi-channel
+retailers, online and offline prices are largely the same \citep{cavallo2017online}, and
+online prices help forecast and nowcast inflation \citep{aparicio2020forecasting,
+macias2023nowcasting}. Every such index needs each product assigned to a category of the
+official basket first; this paper is about that step.
+
+\paragraph{Classification in official statistics.} Eurostat's guides on scanner data and
+web scraping for the HICP treat classification as one of the main processing steps
+\citep{eurostat2017scanner, eurostat2020webscraping}, and euro-area statistics have moved
+towards these sources \citep{eiglsperger2019hicp}. National statistical offices have
+classified products with machine learning: the ONS with clustering and decision trees
+\citep{metcalfe2016clip} and with semi-supervised label propagation into CPIH basket items
+\citep{martindale2020semi}, Statistics Netherlands with supervised classifiers, of which
+logistic regression performed best \citep{harms2019cbs}, and the U.S. Census Bureau with
+text classification of product descriptions for the Economic Census
+\citep{roberson2021applying}. The Australian Bureau of Statistics reported that it was
+investigating machine learning to automate the classification of web-scraped products
+\citep{abs2020webscraping}, and a UNECE project surveyed such uses across offices
+\citep{unece2021ml}. These studies report accuracy; they do not translate it into the
+error of the resulting index.
+
+\paragraph{Project Spectrum.} The closest work is the BIS Innovation Hub's Project Spectrum
+\citep{bis2026spectrum}, which classifies the ECB's Daily Price Dataset into ECOICOP 2018
+subclasses. It finds that text embeddings with classic classifiers reach accuracy comparable
+to LLM prompting at a small fraction of the cost and time \citep[p.~3]{bis2026spectrum}, and
+reports accuracy weighted by CPI expenditure at the subclass level
+\citep[pp.~22--24]{bis2026spectrum}. It argues that, for nowcasting, errors at the subclass
+level usually matter less than errors at higher levels of the hierarchy, depending on how
+differently the confused categories' prices move \citep[p.~25]{bis2026spectrum}, and it names
+two next steps: testing the approach on other data sets and languages, and building CPI
+indices from the classified data to back-test them against official inflation
+\citep[p.~30]{bis2026spectrum}. This paper takes up both for one non-European language and
+turns the second into a measurement: the error a given confusion matrix adds to measured
+inflation, in basis points. Our setting differs from Spectrum's in taxonomy, language,
+product universe and labels, so the numbers are not directly comparable.
+
+\paragraph{Models.} We use multilingual sentence encoders \citep{reimers2019sbert,
+wang2024me5, chen2024bgem3} and a fine-tuned multilingual encoder \citep{conneau2020xlmr}.
+LLMs have been shown to match or beat crowd workers on text annotation
+\citep{gilardi2023chatgpt}, and cascades that send only hard items to an expensive model can
+cut cost at little loss of accuracy \citep{chen2023frugalgpt}. Calibrated confidence
+\citep{guo2017calibration} makes selective classification possible, trading coverage for
+accuracy \citep{geifman2017selective}; we weight both axes of that trade-off by CPI
+expenditure.
