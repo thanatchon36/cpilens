@@ -18,3 +18,7 @@ htmlcov/
 .DS_Store
 
 
+
+# private planning notes (kept out of the public repo)
+MISSION.md
+PROGRESS.md
