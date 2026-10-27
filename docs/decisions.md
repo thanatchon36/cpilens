@@ -76,3 +76,22 @@ One line per non-obvious choice, newest last. `[default]` = taken without a repl
   - `coverage_only`: a perfect classifier on the gold universe. It is non-zero only if an item has no gold products and is renormalised within its group. The part due to classification is `full` minus `coverage_only`.
   - `noise_s0.05` / `noise_s0.10`: product-level sampling noise as a sensitivity. Each product's log price deviates from its item's by a random walk with an *assumed* annual s.d. σ. Item j averages max(1, N·inflow_j) products, with N the HT universe size. The estimate is the draw median.
 - Flows in the decomposition are typed as within group (same 3-digit group), within division, cross division, OOS leak, or empty item. Outputs: `results/rq3_errors.csv`, `rq3_series.csv` (MoM/YoY official vs measured with draw bands) and `rq3_decomposition.csv`.
+
+## Phase 5 — 2026-10-27 (figure style, gold-independent figures)
+- `cpilens/viz/style.py`:
+  - Libertinus Serif (SIL OFL, vendored in `figures/fonts/`), the house face used across the author's papers.
+  - Okabe–Ito colours with one fixed slot per method family.
+  - Full-width (16 cm), one-column (7.8 cm) and 16:9 slide sizes.
+  - Light horizontal grid, no top or right spines.
+  - Export to PDF, SVG (text as paths) and PNG at 300 dpi, with fixed metadata so reruns are byte-stable.
+- The mission's figure conventions override the author's earlier house style (no in-figure titles). Every chart carries a title stating its message, a source line, and an optional note line. Titles and notes that contain a number build it from the results tables, never from literal text.
+- Figure scripts read only `results/` tables. `cpilens eval` therefore also writes:
+  - `gold_label_recall.csv`: HT recall, universe share and weight per label;
+  - `gold_confusion_group.csv`: HT row-normalised group confusion;
+  - `gold_cascade_sweep.csv`: every threshold on gold, descriptive only, with the dev-chosen one flagged.
+- `cpilens econ` writes `rq3_flow_types.csv` (contribution sums by flow type) for all methods. It writes full decompositions (flows ≥ 0.01 bp) and monthly series only for the headline methods: both LLMs, the three cascade base models and their six cascades. Run settings are recorded in `rq3_meta.json` and `gold_summary.json`.
+- Embedding map:
+  - t-SNE (scikit-learn, fixed seed, PCA init, perplexity 30) of a balanced sample: ≤ 40 products per (label, Thai/other).
+  - It is for display only. Alignment is measured in the full e5-large space: for up to 200 sampled Thai products per label, the share of their 10 nearest non-Thai neighbours that have the same label.
+  - Labels with no non-Thai products have undefined alignment (null), not zero.
+- Figure scripts were developed against a scratchpad run in which Opus's own gold answers stood in for the labels. Nothing from that run is written to `results/` or committed.

@@ -143,7 +143,7 @@ def models(
     from cpilens.classify import experiments, finetune
     from cpilens.classify import llm as llm_mod
     from cpilens.classify.data import corpus
-    from cpilens.embed import encode
+    from cpilens.embed import encode, projection
     from cpilens.paths import RESULTS
 
     grid = [experiments.run()]
@@ -157,6 +157,7 @@ def models(
     sample = corpus().sample(5000, seed=20261027)["text"].to_list()
     timing = {m: encode.seconds_per_item(m, sample) for m in encode.MODELS}
     (RESULTS / "embed_timing.json").write_text(json.dumps(timing, indent=2))
+    projection.run()
     if llm:
         llm_mod.run_eval("claude-haiku-5-5", max_usd=2.0)
         llm_mod.run_eval("claude-opus-5-5", moc_n=1500, max_usd=8.0)

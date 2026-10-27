@@ -25,7 +25,10 @@ eval:
 econ:
 	$(UV) cpilens econ
 
-figures paper:
+figures:
+	for f in figures/fig*.py; do $(UV) python $$f || exit 1; done
+
+paper:
 	@echo "$@: not built yet"; exit 1
 
 check: lint test

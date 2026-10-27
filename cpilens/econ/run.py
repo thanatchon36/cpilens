@@ -18,6 +18,7 @@ has zero error in every draw.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import numpy as np
@@ -26,7 +27,7 @@ import polars as pl
 from cpilens.econ import simulate as s
 from cpilens.evaluate.gold import gold_table
 from cpilens.evaluate.metrics import group_of
-from cpilens.evaluate.run import methods
+from cpilens.evaluate.run import is_headline, methods
 from cpilens.label import store
 from cpilens.paths import RESULTS
 
@@ -35,6 +36,7 @@ SEED = 20261027
 ALPHA = 1.0
 SIGMAS = (0.05, 0.10)
 STATS = ("mean_bp", "rmse_bp", "max_abs_bp")
+MIN_FLOW_BP = 0.01  # flows kept in the detailed decomposition (mean |contribution|)
 
 
 def flow_type(true: str, pred: str) -> str:
@@ -85,7 +87,7 @@ def run_econ(
     n_universe = float((1 / g["incl_prob"]).sum())
     ms = methods(results)
     rng = np.random.default_rng(SEED)
-    err_rows, series_rows, dec_rows = [], [], []
+    err_rows, series_rows, dec_rows, type_rows = [], [], [], []
     for wm in weights:
         off = s.official(wm)
         perfect_pred: list[str | None] = list(y)
@@ -97,7 +99,7 @@ def run_econ(
             pl.lit("perfect").alias("method"), pl.lit("coverage_only").alias("variant")
         )
         err_rows.append(cov.with_columns(pl.lit(wm).alias("weights")))
-        for name, (p, _meta) in ms.items():
+        for name, (p, meta) in ms.items():
             pred = g.select("id").join(p, on="id", how="left")["pred"].to_list()
             counts, n = s.counts_from_predictions(off.labels, y, pred, pi)
             prior = s.eb_prior(counts, ALPHA)
@@ -127,6 +129,25 @@ def run_econ(
                 )
             if wm != "equal":
                 continue
+            dec = pl.concat(
+                [
+                    s.decompose(off, P, n, a).with_columns(pl.lit(a).alias("aggregate"))
+                    for a in s.AGGREGATES
+                ]
+            ).with_columns(
+                pl.lit(name).alias("method"),
+                pl.struct("true", "pred")
+                .map_elements(lambda r: flow_type(r["true"], r["pred"]), return_dtype=pl.Utf8)
+                .alias("flow_type"),
+            )
+            type_rows.append(
+                dec.group_by("method", "aggregate", "flow_type").agg(
+                    pl.col("mean_bp").sum(), pl.col("mean_abs_bp").sum(), pl.len().alias("n_flows")
+                )
+            )
+            if not is_headline(name, meta):
+                continue
+            dec_rows.append(dec.filter(pl.col("mean_abs_bp") >= MIN_FLOW_BP))
             # monthly series with draw bands (figure: official vs measured inflation)
             est = s.measured_index(off, s.measured_relatives(off, P, n)[0])
             dr = [s.measured_index(off, s.measured_relatives(off, d, n)[0]) for d in draws]
@@ -150,21 +171,9 @@ def run_econ(
                                 "measured_hi_bp": hi[i],
                             }
                         )
-            for a in ("headline", "food", "core"):
-                dec = s.decompose(off, P, n, a)
-                if dec.height:
-                    dec_rows.append(
-                        dec.with_columns(
-                            pl.lit(name).alias("method"),
-                            pl.lit(a).alias("aggregate"),
-                            pl.struct("true", "pred")
-                            .map_elements(
-                                lambda r: flow_type(r["true"], r["pred"]), return_dtype=pl.Utf8
-                            )
-                            .alias("flow_type"),
-                        )
-                    )
+    meta = {"n_draws": n_draws, "alpha": ALPHA, "sigmas": SIGMAS, "n_universe": n_universe}
+    (out / "rq3_meta.json").write_text(json.dumps(meta, indent=2))
     pl.concat(err_rows, how="diagonal_relaxed").write_csv(out / "rq3_errors.csv")
     pl.DataFrame(series_rows).write_csv(out / "rq3_series.csv")
-    if dec_rows:
-        pl.concat(dec_rows).write_csv(out / "rq3_decomposition.csv")
+    pl.concat(dec_rows).write_csv(out / "rq3_decomposition.csv")
+    pl.concat(type_rows).write_csv(out / "rq3_flow_types.csv")
