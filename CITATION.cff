@@ -11,8 +11,8 @@ type: software
 authors:
   - family-names: Chongmankhong
     given-names: Thanatchon
-version: 0.0.1
-date-released: 2026-10-27
+version: 0.1.0
+date-released: 2026-10-28
 doi: 10.5281/zenodo.23686886
 license: MIT
 repository-code: "https://github.com/thanatchon36/cpilens"

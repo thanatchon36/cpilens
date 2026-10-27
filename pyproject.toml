@@ -1,6 +1,6 @@
 [project]
 name = "cpilens"
-version = "0.0.1"
+version = "0.1.0"
 description = "Multilingual classification of product text for Thai CPI measurement, and what classification error costs in basis points."
 readme = "README.md"
 license = { text = "MIT" }
