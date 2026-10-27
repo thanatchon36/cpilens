@@ -95,7 +95,8 @@ def main() -> None:
         f"Full coverage throughout. API cost measured per call; local compute at an assumed USD "
         f"{GPU_USD_PER_HOUR:.2f} per GPU-hour. Lines: the cascade over its thresholds; at the "
         f"chosen threshold the {names.LLM[best['llm']]} cascade routes "
-        f"{100 * best['routed']:.0f}% of products to the LLM.",
+        f"{100 * best['routed']:.0f}% of the held-out list (design-weighted) to the LLM; the "
+        "cost share depends on that product mix.",
         legend=ax,
         legend_cols=3,
     )

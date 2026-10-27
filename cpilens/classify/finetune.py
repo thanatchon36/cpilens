@@ -18,12 +18,13 @@ from torch import nn
 
 from cpilens.classify import embedclf as ec
 from cpilens.classify import experiments as ex
+from cpilens.classify.config import FT_BATCH, FT_EPOCHS, FT_HF, FT_LR, FT_MAX_LEN
 from cpilens.classify.data import corpus
 from cpilens.paths import CACHE
 
-HF = "FacebookAI/xlm-roberta-base"
+HF = FT_HF
 FT_DIR = CACHE / "ft"
-MAX_LEN = 64  # tokens; product texts are short
+MAX_LEN = FT_MAX_LEN
 
 
 def _batches(tok: object, texts: list[str], bs: int, max_len: int = MAX_LEN):  # type: ignore[no-untyped-def]
@@ -48,9 +49,9 @@ def logits_for(model: nn.Module, tok: object, texts: list[str], bs: int = 256) -
 
 def run(
     scenario: str = "nonthai+thaiweak+mocall",
-    epochs: int = 4,
-    bs: int = 64,
-    lr: float = 3e-5,
+    epochs: int = FT_EPOCHS,
+    bs: int = FT_BATCH,
+    lr: float = FT_LR,
     seed: int = 20261027,
 ) -> dict[str, object]:
     from transformers import (

@@ -275,11 +275,11 @@ def run_eval(model: str, effort: str = "low", max_usd: float | None = None) -> p
     ``reference_table``, not the whole MOC test split: its out-of-scope part is sampled)."""
     from cpilens.classify import experiments as ex
     from cpilens.classify.data import corpus
-    from cpilens.evaluate.gold import reference_table
+    from cpilens.evaluate.gold import build_reference_table
 
     c = corpus()
     ev = ex.eval_sets(c)
-    ref_ids = reference_table(c)["id"].to_list()
+    ref_ids = build_reference_table(c)["id"].to_list()
     ev = ev.filter((pl.col("eval_set") != "moc_test") | pl.col("id").is_in(ref_ids))
     sp = system_prompt(few_shot(c))
     t0 = datetime.now(UTC)

@@ -33,7 +33,7 @@ the Thai CPI and measure what each method's errors would do to measured inflatio
 Transfer from non-Thai products alone gets an e5-large classifier to 60.3%
 of the evaluated CPI weight, and all 24,456 official labels raise it to 68.8%.
 Claude Opus 5.5 reaches 97.9% and Claude Haiku 5.5 95.4%, and a cascade from e5-large to
-Claude Opus 5.5 matches Claude Opus 5.5 at 47% of its cost. With Claude Opus 5.5's
+Claude Opus 5.5 scores 97.8% at 27% of its cost. With Claude Opus 5.5's
 confusion matrix, headline year-on-year inflation would be misstated by
 1.9 basis points (RMSE; at most 3.7 at the
 upper end of a 95% interval that allows errors to cluster), against
@@ -82,7 +82,7 @@ own labels instead (see the paper's Limitations).
 One command, `make all`, runs every step below in order. Step by step:
 
 ```bash
-uv sync                                   # Python 3.11; a GPU helps for embeddings and fine-tuning
+uv sync --group ml                        # Python 3.11; the ml group (torch) is only for `make models`
 make data                                 # public sources (checksums verified), corpus, splits
 make models eval econ figures             # classifiers, evaluation on the reference set, simulator, figures
 make paper                                # numbers.tex from results/, typed-number check, PDF via tectonic
@@ -92,8 +92,18 @@ make check                                # ruff, mypy, pytest with a coverage g
 LLM calls need `ANTHROPIC_API_KEY` in a gitignored `.env`. Every response is cached in
 `.cache/llm/` and replayed, every billed call is logged to `results/llm_costs.csv`, and spend is
 capped in code. `results/run_manifest.json` records package versions and model revisions. The
-models' predictions are committed in `results/preds/`, so `make data eval econ figures paper`
-rebuilds every number in the paper without a GPU or an API call.
+models' predictions (`results/preds/`) and the reference set (`data/reference_set.csv`) are
+committed, so
+
+```bash
+uv sync && uv run cpilens fetch-tpso && make eval econ figures paper
+```
+
+rebuilds every number in the paper without the ml group, a GPU, an API call or the Open Food
+Facts dump. `fetch-tpso` reads TPSO's live index API (raw files are not redistributed); `make
+data` downloads the other sources and checks them against recorded checksums, so if an
+upstream file has changed since this release the build stops instead of quietly using other
+data.
 
 ## Data and licences
 

@@ -17,7 +17,7 @@ and all \NMocTrainval{} official labels raise it to \AccWEfiveMLP\%
 
 Figure~\ref{fig:learning} traces the learning curve. With Thai weak labels added the score is
 \AccWEfiveMLPThaiWeak\%; with \CfgBudgetMax{} official labels on top of the weak ones it is
-\AccWEfiveMLPPlusThousand\%. Only the full official set moves it clearly: the paired gain of
+\AccWEfiveMLPPlusThousand\%. Only the full official set moves it by more than the sampling error: the paired gain of
 all official labels over zero-shot transfer is \DiffEfiveMLPEfiveMLPZeroShot{} percentage
 points [\DiffEfiveMLPEfiveMLPZeroShotLo, \DiffEfiveMLPEfiveMLPZeroShotHi]. That gain depends on
 how the weight is spread inside the official cells: under the NNLS split it is
@@ -52,14 +52,16 @@ the list because it was never shown an out-of-scope Thai text, yet it measures m
 weight correctly. A metric weighted by expenditure is not a refinement here; it reverses the
 ranking.
 
-The input fields matter less than the labels. Dropping the brand from the input costs
-\DiffEfiveMLPEfiveMLPNoBrand{} points [\DiffEfiveMLPEfiveMLPNoBrandLo,
-\DiffEfiveMLPEfiveMLPNoBrandHi]; dropping the quantity costs nothing measurable
-(\DiffEfiveMLPEfiveMLPNoQty{} [\DiffEfiveMLPEfiveMLPNoQtyLo, \DiffEfiveMLPEfiveMLPNoQtyHi]).
-Under the NNLS split the order turns: the quantity costs \DiffEfiveMLPEfiveMLPNoQtyNnls{}
-points [\DiffEfiveMLPEfiveMLPNoQtyNnlsLo, \DiffEfiveMLPEfiveMLPNoQtyNnlsHi] and the brand
-\DiffEfiveMLPEfiveMLPNoBrandNnls{} [\DiffEfiveMLPEfiveMLPNoBrandNnlsLo,
-\DiffEfiveMLPEfiveMLPNoBrandNnlsHi], so neither field can be called unimportant.
+The input fields matter less than the labels. Removing the brand or the quantity from the
+Open Food Facts training texts (the official specifications keep theirs) changes weighted
+accuracy by amounts we cannot tell from zero: \DiffEfiveMLPEfiveMLPNoBrand{} points
+[\DiffEfiveMLPEfiveMLPNoBrandLo, \DiffEfiveMLPEfiveMLPNoBrandHi] for the brand and
+\DiffEfiveMLPEfiveMLPNoQty{} [\DiffEfiveMLPEfiveMLPNoQtyLo, \DiffEfiveMLPEfiveMLPNoQtyHi] for
+the quantity, and under the NNLS split \DiffEfiveMLPEfiveMLPNoBrandNnls{}
+[\DiffEfiveMLPEfiveMLPNoBrandNnlsLo, \DiffEfiveMLPEfiveMLPNoBrandNnlsHi] and
+\DiffEfiveMLPEfiveMLPNoQtyNnls{} [\DiffEfiveMLPEfiveMLPNoQtyNnlsLo,
+\DiffEfiveMLPEfiveMLPNoQtyNnlsHi]. Each variant is a single training run, so the intervals
+leave out training-seed variation.
 Figure~\ref{fig:alignment} shows why transfer works for some items and not for others: in
 the embedding space, Thai beverages, eggs and dairy products sit among non-Thai products of
 the same item, while Thai processed seafood, other fresh seafood and processed meat do not.
@@ -81,7 +83,7 @@ excluded. Source: Open Food Facts; MOC; author's calculations.}
 \NameOpus{} classifies \AccWOpus\% [\AccWOpusLo, \AccWOpusHi] of the evaluated weight correctly
 and \NameHaiku{} \AccWHaiku\% [\AccWHaikuLo, \AccWHaikuHi], against \AccWXlmrFT\% for the best
 cheap method with the full input (the fine-tuned XLM-R). A cascade that sends the \NameEfive{} MLP's unsure products to \NameOpus{}
-matches \NameOpus{} at \CostPctCasEfiveMLPOpus\% of its cost.
+scores \AccWCasEfiveMLPOpus\% at \CostPctCasEfiveMLPOpus\% of its cost.
 
 The gap between the LLMs and every cheap method is large and certain: \NameHaiku{} is ahead
 of the \NameEfive{} MLP by \DiffHaikuEfiveMLP{} points [\DiffHaikuEfiveMLPLo,
@@ -99,8 +101,8 @@ ahead
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig04_cost.pdf}
-\caption{\textbf{A cascade from the \NameEfive{} MLP to \NameOpus{} matches \NameOpus{} at
-\CostPctCasEfiveMLPOpus\% of its cost; no cheap method comes close to either LLM.} Weighted
+\caption{\textbf{A cascade from the \NameEfive{} MLP to \NameOpus{} comes within
+sampling error of \NameOpus{} at \CostPctCasEfiveMLPOpus\% of its cost; no cheap method comes close to either LLM.} Weighted
 accuracy at full coverage against cost per million products (log scale). Lines:
 the two \NameEfive{} cascades over their candidate thresholds; diamonds: the threshold
 chosen on development data. API cost
@@ -112,7 +114,10 @@ Open Food Facts; MOC; TPSO; Anthropic API price list; author's calculations.}
 Cascades work when the threshold is set where the cheap model is reliable. Every threshold
 was chosen on the development data, the Thai weak-label validation split, which is Open Food
 Facts text. For the \NameEfive{} MLP and \NameOpus{} it chose a confidence threshold of
-\ThresholdCasEfiveMLPOpus; \RoutedCasEfiveMLPOpus\% of the reference products went to the LLM,
+\ThresholdCasEfiveMLPOpus; \RoutedCasEfiveMLPOpus\% of the held-out list, counted with its
+design weights, went to the LLM (\RoutedCasEfiveMLPOpusInScope\% of in-scope specifications and
+\RoutedCasEfiveMLPOpusOos\% of out-of-scope ones, so the cost share rises with the in-scope
+share of the products),
 and the cascade scored \AccWCasEfiveMLPOpus\%, a paired difference from \NameOpus{} of
 \DiffCasEfiveMLPOpusOpus{} points [\DiffCasEfiveMLPOpusOpusLo, \DiffCasEfiveMLPOpusOpusHi]. The
 other cascades were given lower thresholds, routed fewer products and differed from the LLM
@@ -138,7 +143,8 @@ Open Food Facts; MOC; TPSO; author's calculations.}
 
 \paragraph{Where the errors are.} The cheap methods miss whole items. The fine-tuned XLM-R
 misses every held-out specification of fresh meat, freshwater fish, processed fish and tobacco
-(each a small cell), sends most personal-care specifications to \textsc{oos}, and confuses
+(each a small cell, with \NZeroRecallMinXlmrFT{} to \NZeroRecallMaxXlmrFT{} held-out
+specifications, so these are thin evidence one by one), sends most personal-care specifications to \textsc{oos}, and confuses
 seasonings with beverages and cleaning with personal-care products (Figures~\ref{fig:recall}
 and~\ref{fig:confusion}); its \NErrXlmrFT{} in-scope errors fall on \NErrSubitemsXlmrFT{}
 sub-items. The LLMs' errors are concentrated. \NameOpus's \NErrOpus{} in-scope errors fall on

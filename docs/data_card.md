@@ -31,8 +31,9 @@ and is not committed. Attribution for everything derived from Open Food Facts:
 - **Coverage:** two in-scope items (ready-to-eat food; sugar and confectionery) have no
   specifications in the published file and cannot be evaluated. Items with few specifications
   have wide intervals.
-- **Use:** touched once, after every modelling choice (including cascade thresholds) was
-  fixed on the training and validation splits.
+- **Use:** cascade thresholds and classifier settings are chosen on the training and
+  validation splits only. The set was not sealed: the development grid logs its scores for
+  every run, so they were visible during development.
 
 ## Labelling app (not used in this version)
 

@@ -4,9 +4,14 @@ expenditure-weighted accuracy-coverage frontier, and paired method comparisons.
 The reference set is the held-out split of the official price-collection specifications
 (``reference_table``); the ``gold_*`` result files keep their names. ``gold_table`` reads a
 hand-labelled sample instead (the labelling app in ``cpilens.label``; not used in the paper).
-``UNK`` rows are excluded from accuracy and counted separately. The bootstrap resamples rows
-within strata (the item, for the reference set), and a paired comparison uses the same
-resampled indices for both methods.
+``UNK`` rows are excluded from accuracy and counted separately. The bootstrap resamples
+clusters within strata: for the reference set, whole official sub-items within each item,
+since the split holds out whole sub-items and a method's errors cluster within them. A paired
+comparison uses the same resampled indices for both methods.
+
+The reference set is built once from the corpus (``build_reference_table``, run by
+``cpilens products``) and committed as ``data/reference_set.csv``: ids, labels and the
+sampling design only, so scoring needs no raw data.
 """
 
 from __future__ import annotations
@@ -19,6 +24,7 @@ import polars as pl
 
 from cpilens.evaluate import metrics as m
 from cpilens.label import store
+from cpilens.paths import DATA
 
 N_BOOT = 1000
 SEED = 20261027
@@ -37,13 +43,28 @@ def gold_table(gold: Path = store.GOLD) -> pl.DataFrame:
 
 
 OOS_N = 1500  # held-out out-of-scope specifications kept in the reference set
+REFERENCE = DATA / "reference_set.csv"
 
 
-def reference_table(c: pl.DataFrame | None = None, oos_n: int = OOS_N) -> pl.DataFrame:
-    """One row per reference specification: ``id``, label, the item as stratum and the
-    inclusion probability. Every held-out in-scope specification is kept (probability 1).
-    The out-of-scope class would otherwise be two thirds of the set, so a fixed hash-ordered
-    ``oos_n`` of its held-out specifications are kept, with the matching design weight."""
+def sub_item(spec_id: str) -> str:
+    """The official sub-item (7-digit code) of a specification id ``moc:<16 digits>``; any
+    other id is its own cluster."""
+    return spec_id[4:11] if spec_id.startswith("moc:") else spec_id
+
+
+def reference_table(path: Path = REFERENCE) -> pl.DataFrame:
+    """The committed reference set (see ``build_reference_table``)."""
+    return pl.read_csv(
+        path, schema_overrides={"label": pl.Utf8, "stratum": pl.Utf8, "cluster": pl.Utf8}
+    )
+
+
+def build_reference_table(c: pl.DataFrame | None = None, oos_n: int = OOS_N) -> pl.DataFrame:
+    """One row per reference specification: ``id``, label, the item as stratum, the
+    official sub-item as cluster and the inclusion probability. Every held-out in-scope
+    specification is kept (probability 1). The out-of-scope class would otherwise be two
+    thirds of the set, so a fixed hash-ordered ``oos_n`` of its held-out specifications are
+    kept, with the matching design weight."""
     from cpilens.classify.data import bucket, corpus
 
     t = (corpus() if c is None else c).filter(
@@ -59,7 +80,12 @@ def reference_table(c: pl.DataFrame | None = None, oos_n: int = OOS_N) -> pl.Dat
     return (
         pl.concat([ins, oos])
         .select("id", "label", "incl_prob")
-        .with_columns(pl.col("label").alias("stratum"), pl.lit(False).alias("unsure"))
+        .with_columns(
+            pl.col("label").alias("stratum"),
+            pl.col("id").map_elements(sub_item, return_dtype=pl.Utf8).alias("cluster"),
+            pl.lit(False).alias("unsure"),
+        )
+        .sort("id")
     )
 
 
@@ -83,9 +109,10 @@ class Scorer:
         self.pi = g["incl_prob"].to_numpy()
         self.inv = 1.0 / self.pi
         self.strata = g["stratum"].to_list()
+        clusters = g["cluster"].to_list() if "cluster" in g.columns else None
         self.lw = m.cpi_label_weights(method)
         # the same resamples for every method make comparisons paired
-        self.boot_idx = m.bootstrap_indices(self.strata, n_boot, SEED)
+        self.boot_idx = m.bootstrap_indices(self.strata, n_boot, SEED, clusters)
 
     def align(self, preds: pl.DataFrame) -> tuple[list[str | None], np.ndarray]:
         d = self.g.select("id").join(preds.select("id", "pred", "conf"), on="id", how="left")

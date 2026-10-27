@@ -3,8 +3,8 @@ scores with stratified-bootstrap intervals, coverage frontiers, paired compariso
 dev-chosen cascades.
 
 Methods are read from the prediction files written by ``cpilens models``. A cascade's
-threshold is chosen on the development set (``results/cascade_dev.csv``) before the
-reference set is touched: the threshold with the highest Thai weak-validation weighted
+threshold is chosen on the development set (``results/cascade_dev.csv``) without
+reference-set scores: the threshold with the highest Thai weak-validation weighted
 accuracy, ties broken by lower cost. The reference set then scores that one threshold.
 """
 
@@ -13,12 +13,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import numpy as np
 import polars as pl
 
 from cpilens.evaluate import frontier as fr
-from cpilens.evaluate.gold import N_BOOT, Scorer, reference_table
+from cpilens.evaluate.gold import N_BOOT, Scorer, reference_table, sub_item
 from cpilens.evaluate.metrics import group_of
-from cpilens.paths import INTERIM, RESULTS
+from cpilens.paths import RESULTS
 
 PREDS = RESULTS / "preds"
 LLMS = ("claude-haiku-5-5", "claude-opus-5-5")
@@ -46,10 +47,14 @@ def choose_threshold(dev: pl.DataFrame, cheap: str, llm: str) -> float:
 
 
 def methods(
-    results: Path = RESULTS, eval_set: str = "moc_test"
+    results: Path = RESULTS, eval_set: str = "moc_test", ref: pl.DataFrame | None = None
 ) -> dict[str, tuple[pl.DataFrame, dict[str, object]]]:
     """Method name -> (reference-set predictions: id, pred, conf; metadata incl. USD per
-    million)."""
+    million). A cascade's routed share, and so its cost, is design-weighted (1/pi over the
+    reference table ``ref``): a share of the product universe, not of the sample."""
+    inv = (reference_table() if ref is None else ref).select(
+        "id", (1 / pl.col("incl_prob")).alias("inv"), (pl.col("label") == "OOS").alias("oos")
+    )
     grid = pl.read_csv(results / "rq1_dev_grid.csv")
     costs = pl.read_csv(results / "llm_costs.csv")
     embed_s = json.loads((results / "embed_timing.json").read_text())
@@ -81,12 +86,21 @@ def methods(
         lp = out[m][0].rename({"pred": "llm_pred", "conf": "llm_conf"})
         for c in CASCADE_CHEAP:
             t = choose_threshold(dev, c, m)
-            d = out[c][0].join(lp, on="id", how="inner")
+            d = out[c][0].join(lp, on="id", how="inner").join(inv, on="id", how="inner")
             pred, routed = fr.cascade(
-                d["pred"].to_list(), d["conf"].to_list(), d["llm_pred"].to_list(), t
+                d["pred"].to_list(),
+                d["conf"].to_list(),
+                d["llm_pred"].to_list(),
+                t,
+                d["inv"].to_numpy(),
             )
             # a cascade's confidence is that of whichever model answered
             route = d["conf"] < t
+            # the routed share, and so the cost, depends on the product mix
+            by_scope = {
+                f"routed_{k}": float(np.average(route.filter(sel), weights=d["inv"].filter(sel)))
+                for k, sel in (("in_scope", ~d["oos"]), ("oos", d["oos"]))
+            }
             conf = pl.select(pl.when(route).then(d["llm_conf"]).otherwise(d["conf"])).to_series()
             out[f"cascade__{c}__{m}"] = (
                 pl.DataFrame({"id": d["id"], "pred": pred, "conf": conf}),
@@ -96,6 +110,7 @@ def methods(
                     "llm": m,
                     "threshold": t,
                     "routed": routed,
+                    **by_scope,
                     "usd_per_million": 1e6 * fr.cascade_cost(routed, cheap_cost[c], llm_cost[m]),
                 },
             )
@@ -181,6 +196,7 @@ def cascade_sweep(
                     d["conf"].fill_null(0.0).to_list(),
                     d["llm_pred"].to_list(),
                     t,
+                    sc.inv,
                 )
                 s = sc.score(pl.DataFrame({"id": d["id"], "pred": pred, "conf": [1.0] * d.height}))
                 acc = s["acc_w"]
@@ -202,13 +218,11 @@ def cascade_sweep(
     return pl.DataFrame(out)
 
 
-def subitems() -> pl.DataFrame:
-    """Specification id -> its official sub-item (7-digit code); empty without the raw file."""
-    f = INTERIM / "moc_specs.parquet"
-    if not f.exists():
-        return pl.DataFrame(schema={"id": pl.Utf8, "item_code": pl.Utf8})
-    m = pl.read_parquet(f, columns=["spec_id", "item_code"])
-    return m.select(("moc:" + pl.col("spec_id").cast(pl.Utf8)).alias("id"), "item_code")
+def subitems(g: pl.DataFrame) -> pl.DataFrame:
+    """Specification id -> its official sub-item (7-digit code, read off the id)."""
+    return g.select(
+        "id", pl.col("id").map_elements(sub_item, return_dtype=pl.Utf8).alias("item_code")
+    )
 
 
 def error_subitems(g: pl.DataFrame, name: str, p: pl.DataFrame, sub: pl.DataFrame) -> pl.DataFrame:
@@ -235,7 +249,7 @@ def run_eval(
 ) -> None:
     """Score every method on the reference set (``ref``: a table like ``reference_table``)."""
     g = reference_table() if ref is None else ref
-    ms = methods(results, eval_set)
+    ms = methods(results, eval_set, g)
     summary = {
         "n_ref_specs": g.height,
         "n_ref_items": g.filter(pl.col("label") != "OOS")["label"].n_unique(),
@@ -244,7 +258,7 @@ def run_eval(
     }
     (out / "gold_summary.json").write_text(json.dumps(summary, indent=2))
     rows, fronts, pairs, recalls, confs, errs = [], [], [], [], [], []
-    sub = subitems()
+    sub = subitems(g)
     for weights in ("equal", "nnls"):
         sc = Scorer(g, weights, n_boot)
         for name, (p, meta) in ms.items():

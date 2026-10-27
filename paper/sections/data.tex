@@ -84,9 +84,10 @@ price collection. The set holds every held-out in-scope specification and, becau
 out-of-scope class would otherwise be two thirds of it, a fixed random \NRefOos{} of the
 held-out out-of-scope specifications, carried with the matching design weight so that every
 estimate still refers to the whole held-out list: \NRefSpecs{} rows in all, over
-\NRefItems{} items and \textsc{oos}. The reference set is touched once, after every modelling
-choice, including the cascade thresholds, has been fixed on the training and validation
-splits.
+\NRefItems{} items and \textsc{oos}. Cascade thresholds and classifier settings are chosen
+on the training and validation splits only. The reference set was not sealed, however: the
+development grid logged its scores for every run, so they were visible while the methods
+reported here were chosen.
 
 The original design called for a sample of Thai Open Food Facts products labelled by hand,
 blind, in a purpose-built tool, with a second pass to measure the human label ceiling. No

@@ -39,7 +39,7 @@ def llm_models_returned(cache: Path) -> dict[str, int]:
 
 
 def build() -> dict[str, object]:
-    from cpilens.classify import finetune
+    from cpilens.classify.config import FT_HF
     from cpilens.classify.llm import LLM_CACHE
     from cpilens.embed.encode import MODELS
     from cpilens.evaluate import gold
@@ -51,7 +51,7 @@ def build() -> dict[str, object]:
             pkgs[p] = metadata.version(p)
         except metadata.PackageNotFoundError:
             continue
-    hf = [m["hf"] for m in MODELS.values()] + [finetune.HF]
+    hf = [m["hf"] for m in MODELS.values()] + [FT_HF]
     return {
         "python": platform.python_version(),
         "platform": platform.platform(),

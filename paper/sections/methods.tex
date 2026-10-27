@@ -44,8 +44,10 @@ cost; total spend was capped at USD~\CfgCapUSD{} and came to USD~\LLMSpendUSD.
 \paragraph{Cascade.} A cheap classifier answers when its calibrated confidence is at least a
 threshold $t$; otherwise the product is routed to an LLM. We pair the cheap classifiers with
 each LLM. For each pair, $t$ is the threshold with the highest weighted accuracy on the Thai
-weak-label validation split, with ties broken by lower cost. It is fixed before the
-reference set is touched, which then scores that one threshold.
+weak-label validation split, with ties broken by lower cost, chosen without reference-set
+scores; the reference set then scores that one threshold. The routed share, and with it the
+cascade's cost, is a share of the held-out list: each specification counts with its design
+weight $1/\pi_i$.
 
 \paragraph{Training data and the learning curve (RQ1).} Each embedding classifier is trained
 on a sequence of pools: non-Thai weak labels only (zero-shot cross-lingual transfer to Thai);
@@ -80,7 +82,11 @@ weighted accuracy--coverage frontier \citep{geifman2017selective}: the CPI-weigh
 products answered against $\mathrm{acc}_w$ on those. Cost per million products is the measured
 mean API cost per call plus local compute at an assumed USD~\CfgGpuUSDHour{} per GPU-hour times
 measured seconds per item. All intervals come from \CfgBoot{} bootstrap resamples of the
-reference set, stratified by item \citep{efron1993bootstrap}. Method comparisons are
+reference set, stratified by item \citep{efron1993bootstrap}. Because a method tends to get
+a sub-item all right or all wrong, each resample draws whole sub-items within an item: the
+\NRefInScope{} in-scope specifications fall in \NRefSubitems{} sub-items. \NRefItemsOneSubitem{}
+items have a single sub-item in the reference set; their specifications are resampled one by
+one, so their share of the uncertainty is understated. Method comparisons are
 paired: every method is scored on the same resamples, and the comparisons were fixed in
 code before the reference set was scored.
 

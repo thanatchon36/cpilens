@@ -104,14 +104,35 @@ def coverage_curve(
     return pl.DataFrame(rows)
 
 
-def bootstrap_indices(strata: Sequence[object], n: int = 1000, seed: int = 0) -> list[np.ndarray]:
-    """``n`` resamples of row indices, with replacement within each stratum (seeded)."""
+def bootstrap_indices(
+    strata: Sequence[object],
+    n: int = 1000,
+    seed: int = 0,
+    clusters: Sequence[object] | None = None,
+) -> list[np.ndarray]:
+    """``n`` resamples of row indices (seeded). Within each stratum, rows are drawn with
+    replacement; with ``clusters``, whole clusters are drawn instead (as many as the stratum
+    has) and all their rows kept. A stratum with a single cluster falls back to its rows,
+    which understates its variance but does not set it to zero."""
     rng = np.random.default_rng(seed)
     s = np.asarray([str(x) for x in strata])
-    groups = [np.flatnonzero(s == g) for g in np.unique(s)]
-    return [
-        np.concatenate([rng.choice(g, size=len(g), replace=True) for g in groups]) for _ in range(n)
-    ]
+    c = (
+        np.arange(len(s)).astype(str)
+        if clusters is None
+        else np.asarray([str(x) for x in clusters])
+    )
+    groups = []
+    for g in np.unique(s):
+        rows = np.flatnonzero(s == g)
+        ks = np.unique(c[rows])
+        groups.append([rows[c[rows] == k] for k in ks] if len(ks) > 1 else [[r] for r in rows])
+    out = []
+    for _ in range(n):
+        parts: list[np.ndarray] = []
+        for cl in groups:
+            parts.extend(cl[i] for i in rng.integers(0, len(cl), len(cl)))
+        out.append(np.concatenate(parts))
+    return out
 
 
 def bootstrap(

@@ -88,6 +88,9 @@ def products() -> None:
     h = Hierarchy.from_index(tpso.load_index())
     specs = moc.label_specs(moc.load_specs(), scope, h.leaves)
     specs.write_parquet(INTERIM / "moc_specs.parquet")
+    from cpilens.evaluate.gold import REFERENCE, build_reference_table
+
+    build_reference_table().write_csv(REFERENCE)
     typer.echo(
         f"{p.height} OFF/OBF products ({p['silver_label'].is_not_null().sum()} silver); "
         f"{specs.height} MOC specs"
@@ -243,7 +246,10 @@ def report() -> None:
     """Data summary and ``paper/numbers.tex``: every number the paper prints, from results/."""
     from cpilens.report import numbers
 
-    numbers.describe()
+    if (INTERIM / "off_products.parquet").exists():
+        numbers.describe()
+    else:  # a fresh clone has no corpus; keep the committed summary
+        typer.echo("no corpus in data/interim: keeping results/data_summary.json")
     typer.echo(f"{numbers.write()} macros -> {numbers.OUT.relative_to(numbers.ROOT)}")
     typer.echo(f"tables -> {', '.join(numbers.write_tables())}")
     if numbers.write_readme():

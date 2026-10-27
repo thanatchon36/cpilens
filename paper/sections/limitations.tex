@@ -13,7 +13,9 @@ and sugar and confectionery have no specifications in the published file. Their
 classification error is unknown, the simulator holds them at official values and drops the
 products a method sends to them, as if it had abstained, and the
 basis-point figures cover \RefWeightEqual\% of the headline weight rather than
-\InScopeWeightEqual\%. Items with few specifications have wide intervals.
+\InScopeWeightEqual\%. Items with few specifications have wide intervals, and the
+\NRefItemsOneSubitem{} items with a single held-out sub-item have intervals that are too
+narrow, since a resample cannot draw a sub-item they do not have.
 
 \paragraph{No human label ceiling.} The original design included a sample of Thai products
 labelled by hand with a blind second pass, to measure how consistent a labeller is and to
@@ -55,6 +57,11 @@ than estimates: leaked out-of-scope products move with the indices of the out-of
 the reference set shows them coming from, an item
 that receives no products takes its group's measured movement, and the product-level
 dispersion of the noise variants is assumed, not measured.
+
+\paragraph{One training run per classifier.} Every classifier is trained once, with one
+seed. The intervals cover the sampling of the reference set, not the variation between
+training runs, so small differences between trained classifiers, such as the text
+ablations, may not survive a second run.
 
 \paragraph{Closed models change.} The LLMs are reached through a commercial API. Model
 revisions, prices and refusal behaviour can change after the run date; every response is

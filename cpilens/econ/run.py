@@ -41,9 +41,9 @@ import numpy as np
 import polars as pl
 
 from cpilens.econ import simulate as s
-from cpilens.evaluate.gold import reference_table
+from cpilens.evaluate.gold import reference_table, sub_item
 from cpilens.evaluate.metrics import cpi_label_weights, group_of
-from cpilens.evaluate.run import is_headline, methods, subitems
+from cpilens.evaluate.run import is_headline, methods
 from cpilens.paths import RESULTS
 
 N_DRAWS = 1000
@@ -126,13 +126,12 @@ def run_econ(
     y = g["label"].to_list()
     observed = set(y)
     pi = g["incl_prob"].to_list()
-    sub = dict(subitems().rows())
-    cluster = [sub.get(i, i) for i in g["id"].to_list()]
+    cluster = [sub_item(i) for i in g["id"].to_list()]
     is_oos = (g["label"] == "OOS").to_numpy()
     oos_codes = [i[4:9] for i in g.filter(pl.col("label") == "OOS")["id"].to_list()]
     oos_dw = 1 / g.filter(pl.col("label") == "OOS")["incl_prob"].to_numpy()
     n_universe = float((1 / g["incl_prob"]).sum())
-    ms = methods(results)
+    ms = methods(results, ref=g)
     rng = np.random.default_rng(SEED)
     err_rows, series_rows, dec_rows, type_rows = [], [], [], []
     unobserved: list[str] = []

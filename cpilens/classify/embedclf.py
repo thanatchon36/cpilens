@@ -10,12 +10,13 @@ max(one pass, 50 steps) with batch <= n/4, so small training sets are still trai
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from itertools import pairwise
 
 import numpy as np
 import torch
 from torch import nn
+
+from cpilens.classify.config import KNN_KS, TrainCfg
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 FLOOR = 1e-4
@@ -52,7 +53,7 @@ def knn_tune(
     xva: np.ndarray,
     yva: np.ndarray,
     n_classes: int,
-    ks: tuple[int, ...] = (1, 3, 5, 10, 20, 50),
+    ks: tuple[int, ...] = KNN_KS,
 ) -> int:
     """k with the best macro recall on validation (ties: smaller k)."""
     best, best_k = -1.0, ks[0]
@@ -69,19 +70,6 @@ def macro_recall(y: np.ndarray, pred: np.ndarray) -> float:
 
 
 # ---------------------------------------------------------------- linear / MLP
-
-
-@dataclass
-class TrainCfg:
-    hidden: int = 0  # 0 = multinomial logistic regression
-    dropout: float = 0.2
-    lr: float = 1e-3
-    weight_decay: float = 1e-4
-    batch: int = 512
-    min_steps: int = 50  # per evaluation round, so small training sets still get trained
-    max_rounds: int = 40
-    patience: int = 3
-    seed: int = 20261027
 
 
 def _net(d: int, c: int, cfg: TrainCfg) -> nn.Module:

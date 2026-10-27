@@ -17,6 +17,7 @@ from pathlib import Path
 
 import polars as pl
 
+from cpilens.evaluate.gold import reference_table
 from cpilens.evaluate.run import CASCADE_CHEAP, LLMS
 from cpilens.paths import INTERIM, RESULTS, ROOT, TAXONOMY
 
@@ -155,6 +156,14 @@ def _gold(r: Path) -> dict[str, str]:
     for k in ("n_ref_specs", "n_ref_items", "n_ref_oos", "n_boot"):
         m[f"N{_camel(k.removeprefix('n_'))}"] = num(meta[k])
     m["NRefInScope"] = num(meta["n_ref_specs"] - meta["n_ref_oos"])
+    sub = (
+        reference_table()
+        .filter(pl.col("label") != "OOS")
+        .group_by("label")
+        .agg(pl.col("cluster").n_unique())
+    )
+    m["NRefSubitems"] = num(int(sub["cluster"].sum()))
+    m["NRefItemsOneSubitem"] = num(int((sub["cluster"] == 1).sum()))
     allw = pl.read_csv(f)
     for row in allw.filter(pl.col("weights") == "nnls").iter_rows(named=True):
         if (a := ALIAS.get(row["method"])) is not None:
@@ -180,6 +189,9 @@ def _gold(r: Path) -> dict[str, str]:
         m[f"Cost{a}"] = f"{row['usd_per_million']:,.2f}"
         if row["routed"] is not None:
             m[f"Routed{a}"] = pct(row["routed"], 0)
+            if row.get("routed_in_scope") is not None:
+                m[f"Routed{a}InScope"] = pct(row["routed_in_scope"], 0)
+                m[f"Routed{a}Oos"] = pct(row["routed_oos"], 0)
             m[f"Threshold{a}"] = f"{row['threshold']:.2f}"
     return m
 
@@ -258,6 +270,13 @@ def _errors(r: Path) -> dict[str, str]:
         m[f"NErrTopThree{a}"] = num(top)
         m[f"PctErrTopThree{a}"] = pct(top / total, 0)
         m[f"NErrSubitems{a}"] = num(by.height)
+    rec = r / "gold_label_recall.csv"
+    if rec.exists():  # the specification counts behind "misses whole items"
+        z = pl.read_csv(rec, schema_overrides={"label": pl.Utf8}).filter(pl.col("recall") == 0)
+        for name, d in z.group_by("method"):
+            if (a := ALIAS.get(str(name[0]))) is not None:
+                m[f"NZeroRecallMin{a}"] = num(int(d["n"].min()))  # type: ignore[arg-type]
+                m[f"NZeroRecallMax{a}"] = num(int(d["n"].max()))  # type: ignore[arg-type]
     return m
 
 
@@ -287,7 +306,7 @@ def _config(_: Path) -> dict[str, str]:
     """Design constants, read from the code that uses them."""
     import inspect
 
-    from cpilens.classify import embedclf, experiments, finetune, llm
+    from cpilens.classify import config, llm
     from cpilens.econ import run as econ
     from cpilens.embed import projection
     from cpilens.evaluate import frontier, gold, metrics
@@ -295,10 +314,8 @@ def _config(_: Path) -> dict[str, str]:
     def default(f: object, arg: str) -> object:
         return inspect.signature(f).parameters[arg].default  # type: ignore[arg-type]
 
-    cfg = embedclf.TrainCfg()
-    ft = {a: default(finetune.run, a) for a in ("epochs", "bs", "lr")}
-    ks = default(embedclf.knn_tune, "ks")
-    budgets = [b for b in experiments.BUDGETS if b != "all"]
+    cfg = config.TrainCfg()
+    budgets = [b for b in config.BUDGETS if b != "all"]
     return {
         "CfgBoot": num(gold.N_BOOT),
         "CfgOosN": num(gold.OOS_N),
@@ -310,17 +327,17 @@ def _config(_: Path) -> dict[str, str]:
         "CfgMinFlowBp": f"{econ.MIN_FLOW_BP:g}",
         "CfgCapUSD": f"{llm.CAP_USD:.0f}",
         "CfgGpuUSDHour": f"{frontier.GPU_USD_PER_HOUR:.2f}",
-        "CfgMLPHidden": num(experiments.MLP_HIDDEN),
+        "CfgMLPHidden": num(config.MLP_HIDDEN),
         "CfgDropout": f"{cfg.dropout:g}",
         "CfgLR": sci(cfg.lr),
         "CfgWeightDecay": sci(cfg.weight_decay),
         "CfgBatch": num(cfg.batch),
         "CfgPatience": str(cfg.patience),
-        "CfgKs": ", ".join(str(k) for k in ks),  # type: ignore[attr-defined]
-        "CfgFtEpochs": str(ft["epochs"]),
-        "CfgFtBatch": str(ft["bs"]),
-        "CfgFtLR": sci(ft["lr"]),  # type: ignore[arg-type]
-        "CfgFtMaxLen": str(finetune.MAX_LEN),
+        "CfgKs": ", ".join(str(k) for k in config.KNN_KS),
+        "CfgFtEpochs": str(config.FT_EPOCHS),
+        "CfgFtBatch": str(config.FT_BATCH),
+        "CfgFtLR": sci(config.FT_LR),
+        "CfgFtMaxLen": str(config.FT_MAX_LEN),
         "CfgFewShot": str(default(llm.few_shot, "per_label")),
         "CfgMaxTokens": num(llm.MAX_TOKENS),
         "CfgBudgets": ", ".join(num(b) for b in budgets),  # type: ignore[arg-type]

@@ -26,15 +26,14 @@ import numpy as np
 import polars as pl
 
 from cpilens.classify import embedclf as ec
+from cpilens.classify.config import BUDGETS, MLP_HIDDEN
 from cpilens.classify.data import bucket, corpus
 from cpilens.embed.encode import MODELS, embed
 from cpilens.evaluate import metrics as m
 from cpilens.paths import RESULTS, TAXONOMY
 
 PREDS = RESULTS / "preds" / "embed"
-BUDGETS = (100, 250, 500, 1000, "all")
 CLASSIFIERS = ("knn", "linear", "mlp")
-MLP_HIDDEN = 512
 
 
 def classes() -> list[str]:

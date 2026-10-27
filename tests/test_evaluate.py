@@ -71,6 +71,19 @@ def test_cpi_label_weights_cover_scope():
     assert set(m.cpi_label_weights("nnls")) == set(w)  # in-scope totals differ: 40.5 vs 43.5
 
 
+def test_cluster_bootstrap_keeps_clusters_whole():
+    from cpilens.evaluate import metrics as m
+
+    strata = ["s"] * 5 + ["t"] * 2
+    clusters = ["a", "a", "a", "b", "b", "c", "c"]
+    for idx in m.bootstrap_indices(strata, n=50, seed=0, clusters=clusters):
+        drawn = [clusters[i] for i in idx]
+        # a drawn cluster brings all its rows; a one-cluster stratum resamples its rows
+        assert all(drawn.count(k) % clusters.count(k) == 0 for k in set(drawn) - {"c"})
+        assert len([i for i in idx if strata[i] == "s"]) in (4, 5, 6)
+        assert len([i for i in idx if strata[i] == "t"]) == 2
+
+
 def test_cascade_routes_low_confidence_to_llm():
     from cpilens.evaluate import frontier as f
 
@@ -78,6 +91,9 @@ def test_cascade_routes_low_confidence_to_llm():
     assert pred == ["a", "y", "z"] and routed == pytest.approx(2 / 3)
     assert f.cascade(["a"], [0.9], ["x"], t=0.0) == (["a"], 0.0)
     assert f.cascade(["a"], [1.0], ["x"], t=1.01) == (["x"], 1.0)
+    # design-weighted: the routed product stands for three in the universe
+    _, routed_w = f.cascade(["a", "b"], [0.9, 0.2], ["x", "y"], t=0.6, w=[1.0, 3.0])
+    assert routed_w == pytest.approx(3 / 4)
     assert f.cascade_cost(0.5, 1.0, 10.0) == 6.0
     assert f.local_cost_per_item(3600.0) == pytest.approx(f.GPU_USD_PER_HOUR)
 
@@ -217,7 +233,7 @@ def test_run_agreement(tmp_path):
 
 
 def test_reference_table_keeps_every_in_scope_row_and_samples_oos():
-    from cpilens.evaluate.gold import reference_table
+    from cpilens.evaluate.gold import build_reference_table
 
     c = pl.DataFrame(
         {
@@ -227,8 +243,8 @@ def test_reference_table_keeps_every_in_scope_row_and_samples_oos():
             "label": ["11110"] * 10 + ["OOS"] * 50 + ["11110"] * 10 + ["11110"],
         }
     )
-    r = reference_table(c, oos_n=20)
+    r = build_reference_table(c, oos_n=20)
     assert r.height == 30 and set(r["stratum"]) == {"11110", "OOS"}
     assert r.filter(pl.col("label") == "11110")["incl_prob"].to_list() == [1.0] * 10
     assert r.filter(pl.col("label") == "OOS")["incl_prob"].to_list() == [20 / 50] * 20
-    assert reference_table(c, oos_n=0).height == 60  # no sampling: every held-out row
+    assert build_reference_table(c, oos_n=0).height == 60  # no sampling: every held-out row

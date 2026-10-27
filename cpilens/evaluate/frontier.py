@@ -36,12 +36,14 @@ def cascade(
     cheap_conf: Sequence[float],
     llm_pred: Sequence[str | None],
     t: float,
+    w: Sequence[float] | np.ndarray | None = None,
 ) -> tuple[list[str | None], float]:
-    """Predictions and routed share at threshold ``t``."""
+    """Predictions and routed share at threshold ``t`` (weighted by ``w``, e.g. 1/pi, so
+    that the share is of the product universe rather than of the sample)."""
     conf = np.asarray(cheap_conf, dtype=float)
     route = conf < t
     pred = [lp if r else cp for cp, lp, r in zip(cheap_pred, llm_pred, route, strict=True)]
-    return pred, float(route.mean())
+    return pred, float(np.average(route, weights=w))
 
 
 def cascade_cost(routed: float, cheap_cost: float, llm_cost: float) -> float:
