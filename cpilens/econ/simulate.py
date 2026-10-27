@@ -15,7 +15,8 @@ Abstained products (and products sent to OOS) are dropped. If nothing flows into
 weight is renormalised within its CPI group, i.e. j takes the weighted mean of the measured
 relatives of the other in-scope items of the group; if the whole group is empty, j is held
 at its official relative. True OOS products that leak into an item move with the official
-non-food aggregate (80000), a stated assumption. Items outside the scope are perfectly
+indices of the out-of-scope items they came from (``leak_relatives``; ``official`` starts
+from the non-food aggregate, 80000, as a placeholder). Items outside the scope are perfectly
 measured, so
 
     I^_{A,t} = I_{A,t} + I_{A,L} sum_{j in A, in scope} (w_j / W_A) (R~_{j,t} - R_{j,t}).
@@ -48,7 +49,7 @@ class Official:
     labels: list[str]  # in-scope labels, column order of R
     dates: list[object]  # months after L
     R: np.ndarray  # months x labels, true relatives
-    r_oos: np.ndarray  # months, relative of the OOS proxy
+    r_oos: np.ndarray  # months (one proxy) or months x labels (per destination): OOS leaks
     w: np.ndarray  # leaf weights (% of headline)
     agg_index: dict[str, np.ndarray]  # aggregate -> index levels, L first then months
     agg_w: dict[str, float]  # aggregate -> official price-updated weight
@@ -108,8 +109,7 @@ def measured_relatives(
     mass = n[:, None] * P[:, :k]  # true row -> predicted in-scope label
     inflow = mass.sum(0)
     phi = np.divide(mass, inflow, out=np.zeros_like(mass), where=inflow > 0)
-    r_true = np.column_stack([off.R, off.r_oos])  # months x (L+1)
-    rt = r_true @ phi
+    rt = off.R @ phi[:k] + _leak(off) * phi[k]
     if noise is not None:
         rt = rt * noise
     empty = inflow <= 0
@@ -122,6 +122,41 @@ def measured_relatives(
             else:
                 rt[:, j] = off.R[:, j]
     return rt, phi
+
+
+def _leak(off: Official) -> np.ndarray:
+    """Months x labels relative of the OOS products leaking into each label."""
+    r = off.r_oos if off.r_oos.ndim == 2 else off.r_oos[:, None]
+    return np.broadcast_to(r, off.R.shape)
+
+
+def item_relatives(off: Official, codes: list[str]) -> np.ndarray:
+    """Official relatives (months of ``off`` x ``codes``) of any published item indices."""
+    uniq = sorted(set(codes))
+    rel = relatives(load_index(), uniq)[: off.R.shape[0]]
+    if rel.shape[0] != off.R.shape[0]:
+        raise ValueError("item indices do not cover the simulated months")
+    col = {c: i for i, c in enumerate(uniq)}
+    return rel[:, [col[c] for c in codes]]
+
+
+def leak_relatives(
+    off: Official, R_spec: np.ndarray, dw: np.ndarray, dest: list[str | None]
+) -> np.ndarray:
+    """Months x labels: what true OOS products sent to each label move with.
+
+    ``R_spec``: own-item relatives of the out-of-scope reference specifications, ``dw`` their
+    design weights, ``dest`` the method's predictions for them. Label j gets the design-
+    weighted mean over the specifications sent to j; a label that received none (it can
+    still receive OOS mass in a posterior draw) gets the mean over all of them.
+    """
+    out = np.repeat((R_spec @ dw / dw.sum())[:, None], len(off.labels), axis=1)
+    d = np.array(dest, dtype=object)
+    for j, lab in enumerate(off.labels):
+        sel = d == lab
+        if sel.any():
+            out[:, j] = R_spec[:, sel] @ dw[sel] / dw[sel].sum()
+    return out
 
 
 def inflow(off: Official, P: np.ndarray, n: np.ndarray) -> np.ndarray:
@@ -195,7 +230,8 @@ def decompose(
     Exact for items with inflow; renormalised (empty) items are reported as ``k = EMPTY``."""
     rt, phi = measured_relatives(off, P, n)
     mbr = off.members[aggregate]
-    r_true = np.column_stack([off.R, off.r_oos])
+    k_oos = len(off.labels)
+    leak = _leak(off)
     rows_names = true_names or [*off.labels, "OOS"]
     scale = 1e4 * off.w / off.agg_w[aggregate]
     rows = []
@@ -215,7 +251,8 @@ def decompose(
         for k in np.flatnonzero(phi[:, j] > 0):
             if rows_names[k] == off.labels[j]:
                 continue
-            c = scale[j] * phi[k, j] * (r_true[:, k] - off.R[:, j])
+            r_k = leak[:, j] if k == k_oos else off.R[:, k]
+            c = scale[j] * phi[k, j] * (r_k - off.R[:, j])
             rows.append(
                 {
                     "true": rows_names[k],

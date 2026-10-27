@@ -5,7 +5,8 @@ abstract: >-
   Multilingual classification of Thai product text into the items of the Thai
   consumer price index, evaluated on held-out official specifications with
   CPI-expenditure weights, and an inflation simulator that turns each method's confusion matrix
-  into basis points of measured inflation. Public data only.
+  into basis points of measured inflation. Public data only. Code: MIT. Data
+  derived from Open Food Facts: ODbL 1.0.
 type: software
 authors:
   - family-names: Chongmankhong

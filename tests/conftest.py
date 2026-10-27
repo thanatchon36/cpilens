@@ -23,8 +23,9 @@ def synthetic_eval(tmp_path):
     rng = np.random.default_rng(0)
     scope = pl.read_csv(TAXONOMY / "thcpi_scope.csv", schema_overrides={"label": pl.Utf8})
     pool = [*scope.filter(pl.col("in_scope"))["label"].to_list(), "OOS"]
-    ids = [f"moc:{i:04d}" for i in range(120)]
-    labels = [str(rng.choice(pool)) for _ in ids]
+    labels = [str(rng.choice(pool)) for _ in range(120)]
+    # official spec ids: 5-digit item code first (an out-of-scope item, 61300, for OOS)
+    ids = [f"moc:{'61300' if lab == 'OOS' else lab}{i:011d}" for i, lab in enumerate(labels)]
     ref = pl.DataFrame({"id": ids, "label": labels}).with_columns(
         pl.col("label").alias("stratum"),
         pl.lit(1.0).alias("incl_prob"),

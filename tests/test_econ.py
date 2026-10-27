@@ -89,6 +89,27 @@ def test_abstention_renormalises_within_group_and_oos_leak():
     np.testing.assert_allclose(rt[:, 3], 0.5 * off.R[:, 3] + 0.5 * off.r_oos)
 
 
+def test_leaks_move_with_their_own_items():
+    off = synthetic()
+    R_spec = np.column_stack([off.R[:, 0] * 1.1, off.R[:, 1] * 0.9, off.R[:, 2]])
+    dw = np.array([1.0, 3.0, 2.0])
+    leak = s.leak_relatives(off, R_spec, dw, ["42100", "42100", None])
+    np.testing.assert_allclose(leak[:, 3], (R_spec[:, 0] + 3 * R_spec[:, 1]) / 4)
+    np.testing.assert_allclose(leak[:, 0], R_spec @ dw / 6)  # nothing sent: the overall mix
+    off2 = s.Official(**{**off.__dict__, "r_oos": leak})
+    P = perfect(4)
+    P[4] = 0.0
+    P[4, 3] = 1.0
+    rt, _ = s.measured_relatives(off2, P, np.full(5, 0.2))
+    np.testing.assert_allclose(rt[:, 3], 0.5 * off.R[:, 3] + 0.5 * leak[:, 3])
+    rt, _ = s.measured_relatives(off2, perfect(4), np.full(5, 0.2))
+    np.testing.assert_allclose(rt, off.R)
+    d = s.decompose(off2, P, np.full(5, 0.2))
+    est = s.measured_index(off2, s.measured_relatives(off2, P, np.full(5, 0.2))[0])
+    lev = 1e4 * (est["headline"][1:] - off.agg_index["headline"][1:]) / off.agg_index["headline"][0]
+    assert d["mean_bp"].sum() == pytest.approx(lev.mean(), abs=1e-9)
+
+
 def test_confusion_draws_are_seeded_row_stochastic():
     c = np.array([[8, 2, 0], [0, 0, 0]], float)
     pr = s.eb_prior(c)

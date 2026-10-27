@@ -29,16 +29,17 @@ classifies \AccWEfiveMLPZeroShot\% of the evaluated CPI weight correctly. Up to
 
 \emph{RQ2: what does accuracy cost?} On official Thai text the LLMs are far ahead:
 \NameOpus{} reaches \AccWOpus\% and \NameHaiku{} \AccWHaiku\%, against \AccWXlmrFT\% for the
-best cheap method. A cascade from the \NameEfive{} classifier to \NameOpus{} matches
+best cheap method with the full input. A cascade from the \NameEfive{} classifier to \NameOpus{} matches
 \NameOpus{} at \CostPctCasEfiveMLPOpus\% of its cost. Most of the remaining LLM error comes from
 two places where our description of the items differed from the office's practice, not from
 misreading Thai.
 
 \emph{RQ3: what does classification error cost in basis points?} With \NameOpus's confusion
 matrix, headline year-on-year inflation would be misstated by \BpYoyRmseHeadlineOpus{} basis
-points (RMSE; \CfgCI\% interval \BpYoyRmseHeadlineOpusLo--\BpYoyRmseHeadlineOpusHi) and food
-inflation by \BpYoyRmseFoodOpus. With the \NameEfive{} classifier the errors are
-\BpYoyRmseHeadlineEfiveMLP{} and \BpYoyRmseFoodEfiveMLP{} basis points. Accuracy does not rank
+points (RMSE; at most \BpYoyRmseHeadlineOpusClusterHi{} at the upper end of a \CfgCI\%
+interval that allows errors to cluster) and food inflation by \BpYoyRmseFoodOpus. The cheap
+classifiers trained on all labels misstate headline inflation by between
+\BpYoyRmseHeadlineBgeMLP{} and \BpYoyRmseHeadlineEfiveMLP{} basis points. Accuracy does not rank
 methods by this error: two classifiers with the same weighted accuracy differ several-fold in
 basis points, because what matters is whether the confused items' prices moved apart.
 

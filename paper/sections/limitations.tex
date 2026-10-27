@@ -10,7 +10,8 @@ have been seen by the LLMs in pre-training.
 
 \paragraph{Two items cannot be evaluated.} Ready-to-eat food, the heaviest in-scope item,
 and sugar and confectionery have no specifications in the published file. Their
-classification error is unknown, the simulator holds them at official values, and the
+classification error is unknown, the simulator holds them at official values and drops the
+products a method sends to them, as if it had abstained, and the
 basis-point figures cover \RefWeightEqual\% of the headline weight rather than
 \InScopeWeightEqual\%. Items with few specifications have wide intervals.
 
@@ -26,8 +27,8 @@ names and short descriptions that we wrote from TPSO's item headings, and the LL
 nothing else. Most of the LLMs' errors come from two places where those descriptions
 disagree with the office's practice: personal items that are not personal-care goods, and
 margarine. We left the descriptions unchanged, since changing them after seeing the
-reference set would tune on it, so the LLM scores are a lower bound on what a correct
-description of the official item contents would give.
+reference set would tune on it. A description that matched the official item contents might
+well raise the LLM scores, but we have not tested that.
 
 \paragraph{The development data are not the deployment text.} Cascade thresholds were chosen
 on the Thai weak-label validation split, which is Open Food Facts text. The confidence of the
@@ -50,7 +51,8 @@ inside a cell carries the weight are reported under both.
 relatives as the true price movements of every product and changes nothing but the
 assignment of products to items. A real web-price index would add sampling, matching,
 quality-adjustment and outlier error on top. Three modelling choices are assumptions rather
-than estimates: leaked out-of-scope products move with the official non-food index, an item
+than estimates: leaked out-of-scope products move with the indices of the out-of-scope items
+the reference set shows them coming from, an item
 that receives no products takes its group's measured movement, and the product-level
 dispersion of the noise variants is assumed, not measured.
 

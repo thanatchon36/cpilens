@@ -87,8 +87,8 @@ def main() -> None:
     a = e5.filter(pl.col("scenario") == "nonthai+thaiweak+mocall")["acc_w"][0]
     style.finish(
         fig,
-        f"Transfer without Thai labels gives {100 * z:.0f}%; 1,000 official labels "
-        f"{100 * k:.0f}%, all of them {100 * a:.0f}%",
+        f"No Thai labels: {100 * z:.0f}%; adding 1,000 official labels: {100 * k:.0f}%; "
+        f"adding all: {100 * a:.0f}%",
         style.source(
             style.SOURCE_CPI,
             style.SOURCE_OFF,

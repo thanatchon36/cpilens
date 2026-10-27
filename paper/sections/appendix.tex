@@ -105,3 +105,32 @@ Model & Stage & Calls & Input tokens & Output tokens & USD \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\section{Terms used in the figures}\label{app:glossary}
+
+\begin{description}[leftmargin=0pt, itemsep=0.2em]
+\item[OOS] Out of scope: a product of an item that the classifiers do not cover (energy,
+services, clothing, durable goods and the like). Sending a product to OOS removes it from
+measurement.
+\item[Weighted accuracy] The share of the evaluated CPI weight classified correctly,
+equation~\eqref{eq:accw}.
+\item[Zero-shot] Trained without any Thai label: only on products in other languages.
+\item[Weak labels] Labels derived automatically from Open Food Facts categories through the
+crosswalk of Appendix~\ref{app:items}, not assigned by a person or by the office.
+\item[Official labels] TPSO item codes attached to its price-collection specifications.
+\item[kNN, linear, MLP] Three classifiers on top of a fixed text embedding: nearest
+neighbours, logistic regression and a neural network with one hidden layer.
+\item[Fine-tuned XLM-R] A multilingual encoder whose own parameters are trained on the
+labels, rather than a classifier on a fixed embedding.
+\item[Cascade] A cheap classifier keeps the products it is confident about and sends the rest
+to an LLM.
+\item[Core] TPSO's core CPI, which excludes raw food (rice, flour and cereals; meat, poultry
+and fish; eggs and dairy products; vegetables and fruit) and energy. In the simulator every
+in-scope item outside those four food groups counts as core.
+\item[t-SNE] A method that draws high-dimensional embeddings on a plane for display; distances
+on the map are only roughly meaningful.
+\item[Dirichlet draws] Confusion matrices drawn from the posterior given the reference counts,
+used for the intervals of the basis-point errors.
+\item[RMSE] Root mean squared error of the simulated inflation rate against the official
+rate, over the simulated months.
+\end{description}

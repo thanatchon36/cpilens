@@ -8,10 +8,12 @@ of the evaluated CPI weight, and all {NMocTrainval} official labels raise it to 
 {NameOpus} reaches {AccWOpus}% and {NameHaiku} {AccWHaiku}%, and a cascade from {NameEfive} to
 {NameOpus} matches {NameOpus} at {CostPctCasEfiveMLPOpus}% of its cost. With {NameOpus}'s
 confusion matrix, headline year-on-year inflation would be misstated by
-{BpYoyRmseHeadlineOpus} basis points (RMSE; {CfgCI}% interval {BpYoyRmseHeadlineOpusLo}–{BpYoyRmseHeadlineOpusHi}),
-against {BpYoyRmseHeadlineEfiveMLP} for the {NameEfive} classifier. Accuracy does not rank
-methods by this error, and most of the LLMs' remaining errors are gaps in the documentation of
-the official basket, not misreadings of Thai.
+{BpYoyRmseHeadlineOpus} basis points (RMSE; at most {BpYoyRmseHeadlineOpusClusterHi} at the
+upper end of a {CfgCI}% interval that allows errors to cluster), against
+{BpYoyRmseHeadlineBgeMLP} to {BpYoyRmseHeadlineEfiveMLP} for cheaper classifiers trained on all
+labels. Accuracy does not rank
+methods by this error, and most of the LLMs' remaining errors trace to gaps in our
+description of the official basket, not to misreadings of Thai.
 
 *Numbers in this block are filled in from `results/` by `cpilens report` (template:
 `docs/readme_results.md`). Total LLM spend for the study: USD {LLMSpendUSD}.*

@@ -10,6 +10,7 @@
     "cpi",
     "list"
   ],
+  "n_clusters": 112,
   "unobserved_items": [
     "11710",
     "12300"

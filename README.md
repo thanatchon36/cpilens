@@ -35,10 +35,12 @@ of the evaluated CPI weight, and all 24,456 official labels raise it to 68.8%.
 Claude Opus 5.5 reaches 97.9% and Claude Haiku 5.5 95.4%, and a cascade from e5-large to
 Claude Opus 5.5 matches Claude Opus 5.5 at 47% of its cost. With Claude Opus 5.5's
 confusion matrix, headline year-on-year inflation would be misstated by
-2.2 basis points (RMSE; 95% interval 1.7–2.9),
-against 10.9 for the e5-large classifier. Accuracy does not rank
-methods by this error, and most of the LLMs' remaining errors are gaps in the documentation of
-the official basket, not misreadings of Thai.
+1.9 basis points (RMSE; at most 3.7 at the
+upper end of a 95% interval that allows errors to cluster), against
+1.9 to 10.4 for cheaper classifiers trained on all
+labels. Accuracy does not rank
+methods by this error, and most of the LLMs' remaining errors trace to gaps in our
+description of the official basket, not to misreadings of Thai.
 
 *Numbers in this block are filled in from `results/` by `cpilens report` (template:
 `docs/readme_results.md`). Total LLM spend for the study: USD 14.72.*

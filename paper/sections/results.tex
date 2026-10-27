@@ -24,18 +24,18 @@ how the weight is spread inside the official cells: under the NNLS split it is
 \DiffEfiveMLPEfiveMLPZeroShotNnls{} points [\DiffEfiveMLPEfiveMLPZeroShotNnlsLo,
 \DiffEfiveMLPEfiveMLPZeroShotNnlsHi], and the interval includes zero. Official labels on their
 own need the whole set: with \CfgBudgetMax{} of them the classifier reaches only
-\AccWEfiveMLPMocThousand\%, and with all of them \AccWEfiveMLPMocOnly\%. The
-other encoders tell the same story at lower levels: zero-shot \NameBge{} MLP reaches
-\AccWBgeMLPZeroShot\% and the zero-shot fine-tuned XLM-R \AccWXlmrFTZeroShot\%; with every
-label the three are within a few points of one another (\AccWEfiveMLP\%, \AccWBgeMLP\% and
+\AccWEfiveMLPMocThousand\%, and with all of them \AccWEfiveMLPMocOnly\%. For the other
+encoders transfer does less: zero-shot, the \NameBge{} MLP reaches \AccWBgeMLPZeroShot\% and
+the fine-tuned XLM-R \AccWXlmrFTZeroShot\%. Official labels add much more for them, and with
+every label the three end within a point of one another (\AccWEfiveMLP\%, \AccWBgeMLP\% and
 \AccWXlmrFT\%).
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig05_learning_curve.pdf}
 \caption{\textbf{Transfer from non-Thai products gives \AccWEfiveMLPZeroShot\% weighted
-accuracy with no Thai label; \CfgBudgetMax{} official labels give \AccWEfiveMLPPlusThousand\%
-and all of them \AccWEfiveMLP\%.} \NameEfive{} MLP by training pool: zero-shot (non-Thai weak
+accuracy with no Thai label; adding \CfgBudgetMax{} official labels gives
+\AccWEfiveMLPPlusThousand\% and adding all of them \AccWEfiveMLP\%.} \NameEfive{} MLP by training pool: zero-shot (non-Thai weak
 labels), plus Thai weak labels, plus $n$ official labels (solid), and $n$ official labels
 alone (dashed). Horizontal lines: the two LLMs, prompted with \CfgFewShot{} official examples
 per item. Bands: \CfgCI\% stratified bootstrap. Source: Open Food Facts; MOC; TPSO; author's
@@ -56,6 +56,10 @@ The input fields matter less than the labels. Dropping the brand from the input 
 \DiffEfiveMLPEfiveMLPNoBrand{} points [\DiffEfiveMLPEfiveMLPNoBrandLo,
 \DiffEfiveMLPEfiveMLPNoBrandHi]; dropping the quantity costs nothing measurable
 (\DiffEfiveMLPEfiveMLPNoQty{} [\DiffEfiveMLPEfiveMLPNoQtyLo, \DiffEfiveMLPEfiveMLPNoQtyHi]).
+Under the NNLS split the order turns: the quantity costs \DiffEfiveMLPEfiveMLPNoQtyNnls{}
+points [\DiffEfiveMLPEfiveMLPNoQtyNnlsLo, \DiffEfiveMLPEfiveMLPNoQtyNnlsHi] and the brand
+\DiffEfiveMLPEfiveMLPNoBrandNnls{} [\DiffEfiveMLPEfiveMLPNoBrandNnlsLo,
+\DiffEfiveMLPEfiveMLPNoBrandNnlsHi], so neither field can be called unimportant.
 Figure~\ref{fig:alignment} shows why transfer works for some items and not for others: in
 the embedding space, Thai beverages, eggs and dairy products sit among non-Thai products of
 the same item, while Thai processed seafood, processed meat and fresh fruit do not.
@@ -76,7 +80,7 @@ excluded. Source: Open Food Facts; MOC; author's calculations.}
 \textbf{Answer.} On official Thai text the LLMs are far ahead.
 \NameOpus{} classifies \AccWOpus\% [\AccWOpusLo, \AccWOpusHi] of the evaluated weight correctly
 and \NameHaiku{} \AccWHaiku\% [\AccWHaikuLo, \AccWHaikuHi], against \AccWXlmrFT\% for the best
-cheap method. A cascade that sends the \NameEfive{} MLP's unsure products to \NameOpus{}
+cheap method with the full input (the fine-tuned XLM-R). A cascade that sends the \NameEfive{} MLP's unsure products to \NameOpus{}
 matches \NameOpus{} at \CostPctCasEfiveMLPOpus\% of its cost.
 
 The gap between the LLMs and every cheap method is large and certain: \NameHaiku{} is ahead
@@ -86,8 +90,9 @@ of the \NameEfive{} MLP by \DiffHaikuEfiveMLP{} points [\DiffHaikuEfiveMLPLo,
 [\DiffOpusHaikuLo, \DiffOpusHaikuHi] and costs \CostRatioOpusHaiku{} times as much: USD
 \CostOpus{} per million products against USD \CostHaiku{}, while the embedding classifiers
 cost well under a dollar (USD \CostEfiveMLP{} for the \NameEfive{} MLP;
-Figure~\ref{fig:cost}). Under the NNLS split every score falls, because NNLS moves weight
-onto the item with the largest LLM error (below), but the ranking does not change
+Figure~\ref{fig:cost}). Under the NNLS split the scores of the headline methods fall,
+because NNLS moves weight onto the item with the largest LLM error (below), but the LLMs stay
+ahead
 (\NameOpus{} \AccWOpusNnls\%, \NameHaiku{} \AccWHaikuNnls\%, \NameEfive{} MLP
 \AccWEfiveMLPNnls\%).
 
@@ -96,21 +101,22 @@ onto the item with the largest LLM error (below), but the ranking does not chang
 \includegraphics[width=\textwidth]{fig04_cost.pdf}
 \caption{\textbf{A cascade from the \NameEfive{} MLP to \NameOpus{} matches \NameOpus{} at
 \CostPctCasEfiveMLPOpus\% of its cost; no cheap method comes close to either LLM.} Weighted
-accuracy at full coverage against cost per million products (log scale). Lines: each cascade
-over its candidate thresholds; diamonds: the threshold chosen on development data. API cost
+accuracy at full coverage against cost per million products (log scale). Lines:
+the two \NameEfive{} cascades over their candidate thresholds; diamonds: the threshold
+chosen on development data. API cost
 measured per call; local compute at an assumed USD~\CfgGpuUSDHour{} per GPU-hour. Source:
 Open Food Facts; MOC; TPSO; Anthropic API price list; author's calculations.}
 \label{fig:cost}
 \end{figure}
 
-Cascades work when the threshold is set where the cheap model is reliable. For the
-\NameEfive{} MLP and \NameOpus, the development data chose a confidence threshold of
+Cascades work when the threshold is set where the cheap model is reliable. Every threshold
+was chosen on the development data, the Thai weak-label validation split, which is Open Food
+Facts text. For the \NameEfive{} MLP and \NameOpus{} it chose a confidence threshold of
 \ThresholdCasEfiveMLPOpus; \RoutedCasEfiveMLPOpus\% of the reference products went to the LLM,
 and the cascade scored \AccWCasEfiveMLPOpus\%, a paired difference from \NameOpus{} of
 \DiffCasEfiveMLPOpusOpus{} points [\DiffCasEfiveMLPOpusOpusLo, \DiffCasEfiveMLPOpusOpusHi]. The
-other cascades were given lower thresholds by the development data (the Thai weak-label
-validation split, which is Open Food Facts text), routed fewer products and differed from the
-LLM they call by between \DiffCasXlmrFTHaikuHaiku{} and \DiffCasEfiveMLPHaikuHaiku{} points.
+other cascades were given lower thresholds, routed fewer products and differed from the LLM
+they call by between \DiffCasXlmrFTHaikuHaiku{} and \DiffCasEfiveMLPHaikuHaiku{} points.
 Confidence calibrated on one kind of text was too high on the other: a cheap classifier is
 confidently wrong on sub-items it has never seen.
 
@@ -144,7 +150,7 @@ LLMs sent the held-out wristwatches, school bags and hair dryers to \textsc{oos}
 largest error is margarine, which TPSO counts under milk and dairy products and our
 description listed under oils and fats; the LLMs followed the description. These are not
 failures to read Thai. They are gaps in our documentation of the official item contents, and
-they would be closed by better documentation, not by a better model. We did not change the
+better documentation is the likely remedy; we did not test it. We did not change the
 descriptions after seeing them, since that would tune on the reference set. Because NNLS gives
 the personal-items cell a much larger weight than the equal split does, it is this one gap
 that lowers the LLM scores under NNLS.
@@ -162,11 +168,11 @@ author's calculations.}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\textwidth]{fig07_group_confusion.pdf}
-\caption{\textbf{The best cheap method keeps rice and alcoholic drinks in the right group but
+\caption{\textbf{The best cheap method with the full input keeps rice and alcoholic drinks in the right group but
 sends tobacco and most personal-care products out of scope and mixes seasonings with beverages
 and cleaning with personal-care products.}
-Row-normalised confusion between CPI groups for the cheap method with the highest weighted
-accuracy (fine-tuned XLM-R); cells are \% of the true group's held-out specifications. Source:
+Row-normalised confusion between CPI groups for the cheap method with the full input and the
+highest weighted accuracy (fine-tuned XLM-R); cells are \% of the true group's held-out specifications. Source:
 MOC; TPSO; author's calculations.}
 \label{fig:confusion}
 \end{figure}
@@ -175,25 +181,34 @@ MOC; TPSO; author's calculations.}
 
 \textbf{Answer.} With \NameOpus's confusion matrix, measured headline inflation would differ
 from official inflation by \BpYoyRmseHeadlineOpus{} basis points (RMSE of the year-on-year
-rate, \CfgCI\% interval \BpYoyRmseHeadlineOpusLo--\BpYoyRmseHeadlineOpusHi), food inflation by
-\BpYoyRmseFoodOpus{} and core inflation by \BpYoyRmseCoreOpus. With the cheap \NameEfive{} MLP,
-the headline error is \BpYoyRmseHeadlineEfiveMLP{} basis points and the food error
-\BpYoyRmseFoodEfiveMLP. Accuracy does not rank methods by this error: two cheap methods with
-the same weighted accuracy can differ several-fold in basis points.
+rate), food inflation by \BpYoyRmseFoodOpus{} and core inflation by \BpYoyRmseCoreOpus. The
+\CfgCI\% interval for the sampling of specifications reaches \BpYoyRmseHeadlineOpusHi{} basis
+points for the headline; resampling whole sub-items, within which errors cluster, widens it to
+\BpYoyRmseHeadlineOpusClusterHi, and to \BpYoyRmseHeadlineOpusClusterNnlsHi{} under the NNLS
+split. The cheap methods trained on all labels misstate headline inflation by between
+\BpYoyRmseHeadlineBgeMLP{} and \BpYoyRmseHeadlineEfiveMLP{} basis points. The LLMs' lead is
+clear in accuracy; in basis points it is large on food against two of the three cheap
+methods, but once errors may cluster the intervals overlap. Accuracy does not rank methods by
+this error: two cheap methods with about the same weighted accuracy differ several-fold in
+basis points.
 
 The simulator covers \NMonthsYoy{} year-on-year rates (\SimFirstYoy{} to \SimLastYoy) and
 \NMonthsMom{} month-on-month rates (\SimFirstMom{} to \SimLastMom). Figure~\ref{fig:bp} gives
 the year-on-year error of every headline method. Both LLMs and the \NameEfive{}--\NameOpus{}
-cascade err by about two to five basis points on every aggregate, with tight intervals; on
-month-on-month inflation \NameOpus's headline error is \BpMomRmseHeadlineOpus{} basis points.
-For the cheap methods food is where errors bite: \BpYoyRmseFoodEfiveMLP{} basis points for
+cascade err by about two to five basis points on every aggregate; on month-on-month
+inflation \NameOpus's headline error is \BpMomRmseHeadlineOpus{} basis points. The errors lean
+one way: \NameOpus's mean headline error is \BpYoyMeanHeadlineOpus{} basis points, so measured
+inflation would on average be slightly too high. For the \NameEfive{} MLP and the fine-tuned
+XLM-R, food is where errors bite: \BpYoyRmseFoodEfiveMLP{} basis points for
 the \NameEfive{} MLP [\BpYoyRmseFoodEfiveMLPLo, \BpYoyRmseFoodEfiveMLPHi] and
 \BpYoyRmseFoodXlmrFT{} for the fine-tuned XLM-R, whose errors are one-sided (a mean of
 \BpYoyMeanFoodXlmrFT{} basis points): it understates food inflation in every month
 (Figure~\ref{fig:series}). The core proxy reverses the ranking. It excludes fresh food, where
 most of the cheap methods' costly confusions lie, and keeps oils and fats and personal care,
 where the LLMs' lie: the fine-tuned XLM-R's core error is \BpYoyRmseCoreXlmrFT{} basis points
-[\BpYoyRmseCoreXlmrFTLo, \BpYoyRmseCoreXlmrFTHi] against \BpYoyRmseCoreOpus{} for \NameOpus. Zero-shot transfer, which RQ1 found to get most of the weight
+[\BpYoyRmseCoreXlmrFTLo, \BpYoyRmseCoreXlmrFTHi] against \BpYoyRmseCoreOpus{} for \NameOpus{}
+under the equal split; under the NNLS split the two are close (\BpYoyRmseCoreXlmrFTNnls{}
+against \BpYoyRmseCoreOpusNnls). Zero-shot transfer, which RQ1 found to get most of the weight
 right, misstates headline inflation by \BpYoyRmseHeadlineEfiveMLPZeroShot{} basis points and
 food inflation by \BpYoyRmseFoodEfiveMLPZeroShot{}: getting most of the weight right does not
 bound the error from the rest.
@@ -202,17 +217,19 @@ bound the error from the rest.
 \centering
 \includegraphics[width=\textwidth]{fig10_bp_error.pdf}
 \caption{\textbf{\NameOpus{} misstates headline year-on-year inflation by at most
-\BpYoyRmseHeadlineOpusHi{} basis points (RMSE, upper end of the \CfgCI\% interval); every
-cheap method's upper end is higher.} RMSE of the year-on-year inflation error over
-\NMonthsYoy{} months, headline, food and the core proxy. Dots: posterior-mean confusion matrix;
-lines: \CfgCI\% interval over \CfgDraws{} Dirichlet draws. Products in proportion to CPI
+\BpYoyRmseHeadlineOpusClusterHi{} basis points (RMSE, upper end of the wider \CfgCI\%
+interval); for every cheap method trained on all labels the upper end is higher.} RMSE of the
+year-on-year inflation error over \NMonthsYoy{} months, headline, food and the core proxy.
+Dots: posterior-mean confusion matrix; thick lines: \CfgCI\% interval over \CfgDraws{}
+Dirichlet draws (specifications independent); thin lines: over \CfgDraws{} resamples of the
+\NClusters{} official sub-items (errors clustered). Products in proportion to CPI
 weights; out-of-scope items and items without specifications held at official values. Source:
 MOC; TPSO; author's calculations.}
 \label{fig:bp}
 \end{figure}
 
-The \NameBge{} MLP shows why accuracy is not enough. Its weighted accuracy equals the
-\NameEfive{} MLP's (\AccWBgeMLP\% against \AccWEfiveMLP\%), but its point estimate of the
+The \NameBge{} MLP shows why accuracy is not enough. Its weighted accuracy is about the same as
+the \NameEfive{} MLP's (\AccWBgeMLP\% against \AccWEfiveMLP\%), but its point estimate of the
 headline error is \BpYoyRmseHeadlineBgeMLP{} basis points against \BpYoyRmseHeadlineEfiveMLP.
 What matters is not how much weight is misclassified but whether the two items' prices
 diverged. The interval for \NameBge{} is wide (\BpYoyRmseHeadlineBgeMLPLo--\BpYoyRmseHeadlineBgeMLPHi)
@@ -247,17 +264,25 @@ calculations.}
 \label{fig:decomp}
 \end{figure}
 
-\paragraph{Robustness.} Three assumptions move these numbers. \emph{The product universe:} if
-products arrive in proportion to the office's specification list rather than to CPI weights,
-\NameOpus's headline error is \BpYoyRmseHeadlineOpusList{} basis points and the \NameEfive{}
-MLP's \BpYoyRmseHeadlineEfiveMLPList. \emph{Product-level noise:} if each product's price
-drifts from its item's with an annual standard deviation of \CfgSigmaHi\%, \NameOpus's
-headline error rises to \BpYoyRmseHeadlineOpusNoiseTen{} basis points
-[\BpYoyRmseHeadlineOpusNoiseTenLo, \BpYoyRmseHeadlineOpusNoiseTenHi], because each item is
-then measured from a finite sample of products; at \CfgSigmaLo\% it is \BpYoyRmseHeadlineOpusNoiseFive.
-\emph{Coverage alone:} a perfect classifier on the same universe has an error of
-\BpYoyRmseHeadlinePerfect{}, so none of the error above comes from the items held at official
-values.
+\paragraph{Robustness.} Four assumptions move these numbers. \emph{The weights inside
+cells:} under the NNLS split \NameOpus's headline error is \BpYoyRmseHeadlineOpusNnls{} basis
+points [\BpYoyRmseHeadlineOpusNnlsLo, \BpYoyRmseHeadlineOpusNnlsHi], the \NameEfive{} MLP's
+\BpYoyRmseHeadlineEfiveMLPNnls{} and the \NameBge{} MLP's \BpYoyRmseHeadlineBgeMLPNnls.
+\emph{Clustered errors:} resampling sub-items gives \NameOpus{} a headline interval of
+\BpYoyRmseHeadlineOpusClusterLo--\BpYoyRmseHeadlineOpusClusterHi{} and the \NameBge{} MLP one
+of \BpYoyRmseHeadlineBgeMLPClusterLo--\BpYoyRmseHeadlineBgeMLPClusterHi. \emph{The product
+universe:} if products arrive in proportion to the office's specification list rather than
+to CPI weights, \NameOpus's headline error is \BpYoyRmseHeadlineOpusList{} basis points and the
+\NameEfive{} MLP's \BpYoyRmseHeadlineEfiveMLPList. \emph{Product-level noise:} if each
+product's price drifts from its item's with an annual standard deviation of \CfgSigmaHi\%,
+\NameOpus's headline error rises to \BpYoyRmseHeadlineOpusNoiseTen{} basis points
+[\BpYoyRmseHeadlineOpusNoiseTenLo, \BpYoyRmseHeadlineOpusNoiseTenHi]. Most of that is not
+classification: a perfect classifier with the same noise has an error of
+\BpYoyRmseHeadlinePerfectNoiseTen, the cost of measuring each item from a finite sample of
+products. At \CfgSigmaLo\% the two are \BpYoyRmseHeadlineOpusNoiseFive{} and
+\BpYoyRmseHeadlinePerfectNoiseFive. Without noise a perfect classifier has an error of
+\BpYoyRmseHeadlinePerfect{}, as it must; that is a unit test of the simulator, not a
+finding.
 
 \paragraph{Basis points need accuracy alongside.} A product sent out of scope leaves
 measurement, and without product-level noise an item measured from a few correctly
@@ -266,5 +291,6 @@ scope therefore looks good in basis points: the \NameEfive{} linear classifier t
 hundred official labels alone gets only \AccWEfiveLinMocHundred\% of the weight right, yet its
 headline error is \BpYoyRmseHeadlineEfiveLinMocHundred{} basis points. Product-level noise
 exposes it: at \CfgSigmaHi\% its error is \BpYoyRmseHeadlineEfiveLinMocHundredNoiseTen{} basis
-points, against \BpYoyRmseHeadlineOpusNoiseTen{} for \NameOpus. Neither metric ranks methods
+points, against \BpYoyRmseHeadlineOpusNoiseTen{} for \NameOpus{} and
+\BpYoyRmseHeadlinePerfectNoiseTen{} for a perfect classifier. Neither metric ranks methods
 alone; a method should be chosen on both.

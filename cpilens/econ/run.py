@@ -14,10 +14,18 @@ In-scope items without official specifications cannot be evaluated; they are hel
 official values, like out-of-scope items. Variants:
 
 - ``full``: the method's confusion matrix.
-- ``coverage_only``: a perfect classifier on the same universe (a check: zero error).
+- ``coverage_only``: a perfect classifier on the same universe (a unit test: zero error).
 - ``noise_s{sigma}``: ``full`` plus product-level sampling noise with an *assumed* annual
   dispersion ``sigma``, the reference set's size standing in for the number of products.
   The estimate is the draw median, since one noise realisation is not a point estimate.
+  Method ``perfect`` gives the noise alone, the baseline the noise variants compare with.
+- ``cluster`` (primary universe): the interval from resampling whole official sub-items
+  (``N_DRAWS`` times, with replacement), since a method's errors cluster within sub-items;
+  each resample is smoothed and simulated like the point estimate.
+
+True OOS products that leak into an item move with the indices of their own items: the
+design-weighted mix of the out-of-scope specifications the method sent to that item
+(``simulate.leak_relatives``).
 
 Smoothing uses an empirical-Bayes prior (``simulate.eb_prior``), so a perfect classifier
 has zero error in every draw.
@@ -26,6 +34,7 @@ has zero error in every draw.
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 from pathlib import Path
 
 import numpy as np
@@ -34,7 +43,7 @@ import polars as pl
 from cpilens.econ import simulate as s
 from cpilens.evaluate.gold import reference_table
 from cpilens.evaluate.metrics import cpi_label_weights, group_of
-from cpilens.evaluate.run import is_headline, methods
+from cpilens.evaluate.run import is_headline, methods, subitems
 from cpilens.paths import RESULTS
 
 N_DRAWS = 1000
@@ -84,6 +93,21 @@ def _summarise(point: pl.DataFrame | None, draws: list[pl.DataFrame]) -> pl.Data
     return point.join(d, on=["aggregate", "kind"])
 
 
+def cluster_counts(
+    off: s.Official, y: list[str], pred: list[str | None], cluster: list[str]
+) -> np.ndarray:
+    """Confusion counts per cluster (clusters x rows x columns), in sorted cluster order."""
+    names = sorted(set(cluster))
+    pos = {c: i for i, c in enumerate(names)}
+    out = np.zeros((len(names), len(off.labels) + 1, len(off.labels) + 2))
+    for c in names:
+        idx = [i for i, x in enumerate(cluster) if x == c]
+        out[pos[c]] = s.counts_from_predictions(
+            off.labels, [y[i] for i in idx], [pred[i] for i in idx]
+        )[0]
+    return out
+
+
 def _series(est: dict[str, np.ndarray], kind: str) -> dict[str, np.ndarray]:
     lag = 1 if kind == "mom" else 12
     return {a: 1e4 * (v[lag:] / v[:-lag] - 1) for a, v in est.items()}
@@ -102,6 +126,11 @@ def run_econ(
     y = g["label"].to_list()
     observed = set(y)
     pi = g["incl_prob"].to_list()
+    sub = dict(subitems().rows())
+    cluster = [sub.get(i, i) for i in g["id"].to_list()]
+    is_oos = (g["label"] == "OOS").to_numpy()
+    oos_codes = [i[4:9] for i in g.filter(pl.col("label") == "OOS")["id"].to_list()]
+    oos_dw = 1 / g.filter(pl.col("label") == "OOS")["incl_prob"].to_numpy()
     n_universe = float((1 / g["incl_prob"]).sum())
     ms = methods(results)
     rng = np.random.default_rng(SEED)
@@ -110,10 +139,12 @@ def run_econ(
     for wm in weights:
         lw = cpi_label_weights(wm)
         unobserved = [k for k in lw if k not in observed]
-        off = s.official(wm, exclude=unobserved)
-        k = len(off.labels)
+        off0 = s.official(wm, exclude=unobserved)
+        R_spec = s.item_relatives(off0, oos_codes)
+        k = len(off0.labels)
         for uni in universes:
             primary = uni == universes[0] and wm == "equal"
+            off = off0
             n = universe_shares(off, lw, y, pi, uni)
             tag = {"weights": wm, "universe": uni}
             P_perfect = np.zeros((k + 1, k + 2))
@@ -122,8 +153,23 @@ def run_econ(
                 pl.lit("perfect").alias("method"), pl.lit("coverage_only").alias("variant")
             )
             err_rows.append(cov.with_columns(**{c: pl.lit(v) for c, v in tag.items()}))
+            for sigma in SIGMAS:
+                fl = s.inflow(off, P_perfect, n)
+                sims = [
+                    s.simulate(off, P_perfect, n, s.product_noise(off, fl, n_universe, sigma, rng))
+                    for _ in range(n_draws)
+                ]
+                err_rows.append(
+                    _summarise(None, sims).with_columns(
+                        pl.lit("perfect").alias("method"),
+                        pl.lit(f"noise_s{sigma:.2f}").alias("variant"),
+                        **{c: pl.lit(v) for c, v in tag.items()},
+                    )
+                )
             for name, (p, meta) in ms.items():
                 pred = g.select("id").join(p, on="id", how="left")["pred"].to_list()
+                dest = [x for x, o in zip(pred, is_oos, strict=True) if o]
+                off = replace(off0, r_oos=s.leak_relatives(off0, R_spec, oos_dw, dest))
                 counts, _ = s.counts_from_predictions(off.labels, y, pred, pi)
                 prior = s.eb_prior(counts, ALPHA)
                 P = s.point_confusion(counts, prior)
@@ -147,6 +193,20 @@ def run_econ(
                         tab.with_columns(
                             pl.lit(name).alias("method"),
                             pl.lit(f"noise_s{sigma:.2f}").alias("variant"),
+                            **{c: pl.lit(v) for c, v in tag.items()},
+                        )
+                    )
+                if uni == universes[0]:
+                    cc = cluster_counts(off, y, pred, cluster)
+                    sims = []
+                    for _ in range(n_draws):
+                        m = rng.multinomial(len(cc), np.full(len(cc), 1 / len(cc)))
+                        c = np.tensordot(m, cc, axes=1)
+                        sims.append(s.simulate(off, s.point_confusion(c, s.eb_prior(c, ALPHA)), n))
+                    err_rows.append(
+                        _summarise(point, sims).with_columns(
+                            pl.lit(name).alias("method"),
+                            pl.lit("cluster").alias("variant"),
                             **{c: pl.lit(v) for c, v in tag.items()},
                         )
                     )
@@ -202,6 +262,7 @@ def run_econ(
         "sigmas": SIGMAS,
         "n_universe": n_universe,
         "universes": list(universes),
+        "n_clusters": len(set(cluster)),
         "unobserved_items": unobserved,
     }
     (out / "rq3_meta.json").write_text(json.dumps(meta, indent=2))

@@ -51,7 +51,13 @@ for _c in CASCADE_CHEAP:
 
 AGG = {"headline": "Headline", "food": "Food", "core": "Core"}
 BP_STATS = {"rmse_bp": "Rmse", "max_abs_bp": "MaxAbs", "mean_bp": "Mean"}
-VARIANT = {"full": "", "noise_s0.05": "NoiseFive", "noise_s0.10": "NoiseTen"}
+VARIANT = {
+    "full": "",
+    "coverage_only": "",
+    "noise_s0.05": "NoiseFive",
+    "noise_s0.10": "NoiseTen",
+    "cluster": "Cluster",
+}
 
 
 def pct(x: float, d: int = 1) -> str:
@@ -182,12 +188,15 @@ def _rq3(r: Path) -> dict[str, str]:
     f = r / "rq3_errors.csv"
     if not f.exists():
         return {}
-    e = pl.read_csv(f).filter(pl.col("weights") == "equal")
+    e = pl.read_csv(f)
     if "universe" not in e.columns:
         e = e.with_columns(pl.lit("cpi").alias("universe"))
     m: dict[str, str] = {}
+    meta = r / "rq3_meta.json"
+    if meta.exists() and "n_clusters" in (d := json.loads(meta.read_text())):
+        m["NClusters"] = num(d["n_clusters"])
     for kind, tag in (("yoy", "Yoy"), ("mom", "Mom")):
-        k = e.filter(pl.col("kind") == kind)
+        k = e.filter((pl.col("kind") == kind) & (pl.col("weights") == "equal"))
         if k.height:
             m[f"NMonths{tag}"] = str(k["n_months"].cast(pl.Int64).max())
     ser = r / "rq3_series.csv"
@@ -198,17 +207,17 @@ def _rq3(r: Path) -> dict[str, str]:
             if dates:
                 m[f"SimFirst{tag}"] = dates[0].strftime("%B %Y")
                 m[f"SimLast{tag}"] = dates[-1].strftime("%B %Y")
-    # the primary universe (products in proportion to CPI weights) has no suffix
+    # the primary universe (products in proportion to CPI weights) and weights (equal split)
+    # have no suffix
     uni = {"cpi": "", "list": "List"}
+    wts = {"equal": "", "nnls": "Nnls"}
     for row in e.filter(pl.col("universe").is_in(list(uni))).iter_rows(named=True):
-        a = "Perfect" if row["variant"] == "coverage_only" else ALIAS.get(row["method"])
-        if a is None or row["variant"] not in {*VARIANT, "coverage_only"}:
+        a = "Perfect" if row["method"] == "perfect" else ALIAS.get(row["method"])
+        if a is None or row["variant"] not in VARIANT:
             continue
-        v = VARIANT.get(row["variant"], "")
+        v = VARIANT[row["variant"]] + uni[row["universe"]] + wts[row["weights"]]
         for stat, tag in BP_STATS.items():
-            name = (
-                f"Bp{row['kind'].title()}{tag}{AGG[row['aggregate']]}{a}{v}{uni[row['universe']]}"
-            )
+            name = f"Bp{row['kind'].title()}{tag}{AGG[row['aggregate']]}{a}{v}"
             m[name] = signed(row[stat], 1)
             if row.get(f"{stat}_lo") is not None:
                 m[f"{name}Lo"] = signed(row[f"{stat}_lo"], 1)

@@ -5,7 +5,7 @@ scanner data in languages for which little labelled product text exists. The Tha
 suggest five points for that work. Each holds for one index, one language and the office's
 own text, and should be checked on other data before it is relied on.
 
-\paragraph{Ask for basis points, not accuracy.} Weighted accuracy reversed the ranking that
+\paragraph{Basis points are the measure that matters.} Weighted accuracy reversed the ranking that
 plain accuracy gave, and even weighted accuracy did not rank methods by their effect on
 measured inflation, and basis points alone flatter a classifier that measures little of the
 weight. Two classifiers that each get about \AccWEfiveMLP\% of the weight right
@@ -32,12 +32,13 @@ can run itself. The cheap methods were not close enough to make that choice free
 method trained on all labels, the upper end of the interval for the headline error was above
 the LLMs'.
 
-\paragraph{Document the basket, not just the codes.} The LLMs' largest errors came from two
-items whose official contents differ from what their headings suggest: TPSO's personal items
-include wristwatches, school bags and hair dryers, and its milk and dairy products include
-margarine. A classifier can only follow the definition it is given. A short, public
-description of what each item includes and excludes, maintained with the classification,
-would remove these errors for every method at once and is cheaper than any model.
+\paragraph{Documentation of the basket may matter as much as the model.} The LLMs' largest
+errors came from two items whose official contents differ from what their headings suggest:
+TPSO's personal items include wristwatches, school bags and hair dryers, and its milk and
+dairy products include margarine. A classifier can only follow the definition it is given.
+A description of what each item includes and excludes, maintained with the classification,
+might remove most of these errors for the LLMs; this paper does not test that, and whether
+such a description can be published is a decision for each office.
 
 \paragraph{Transfer gets a long way, but not all the way.} With no Thai label at all,
 non-Thai products taught an embedding classifier to place \AccWEfiveMLPZeroShot\% of the
