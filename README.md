@@ -60,9 +60,8 @@ own labels instead (see the paper's Limitations).
 
 ```bash
 uv sync                                   # Python 3.11; a GPU helps for embeddings and fine-tuning
-make data                                 # public sources (checksums verified), corpus, gold sample
-make label                                # local labelling app, pass 1 (`cpilens label --pass 2` for the blind second pass)
-make models eval econ agreement figures   # classifiers, gold evaluation, simulator, label ceiling, figures
+make data                                 # public sources (checksums verified), corpus, splits
+make models eval econ figures             # classifiers, evaluation on the reference set, simulator, figures
 make paper                                # numbers.tex from results/, typed-number check, PDF via tectonic
 make check                                # ruff, mypy, pytest with a coverage gate, typed-number check
 ```

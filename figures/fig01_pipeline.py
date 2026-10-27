@@ -87,11 +87,9 @@ def main() -> None:
             (1.25, "Cascade", "cheap model; the LLM only\nwhen it is unsure", "cascade"),
         )
     ]
-    ev = box(ax, c3, 3.0, "Evaluation on gold", "CPI-weighted accuracy,\ncoverage, cost; bootstrap")
+    ev = box(ax, c3, 3.0, "Evaluation", "CPI-weighted accuracy,\ncoverage, cost; bootstrap")
     sim = box(ax, c4, 3.0, "Inflation simulator", "confusion matrix → item\nrelatives → bp error")
-    gold = box(
-        ax, c3, 0.3, "Gold labels", "stratified Thai sample,\nlabelled by hand, blind", f["human"]
-    )
+    ref = box(ax, c3, 0.3, "Reference set", "MOC specifications of\nheld-out sub-items")
     tpso = box(ax, c4, 0.3, "TPSO", "CPI indices and weights\n(base 2566)")
     arrow(ax, off, tax)
     arrow(ax, moc, tax)
@@ -100,7 +98,7 @@ def main() -> None:
         arrow(ax, tax, m, a_frac=frac)
         arrow(ax, m, ev, b_frac=frac)
     arrow(ax, ev, sim)
-    arrow(ax, gold, ev, up=True)
+    arrow(ax, ref, ev, up=True)
     arrow(ax, tpso, sim, up=True)
     style.finish(
         fig,
