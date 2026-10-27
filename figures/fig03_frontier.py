@@ -42,7 +42,7 @@ def main() -> None:
         fig,
         f"At full coverage, {names.method(top['method'])} classifies "
         f"{100 * top['acc_w']:.0f}% of CPI weight correctly",
-        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
+        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         "Accuracy is on the classified products; those below a confidence threshold are left "
         f"unclassified. Bands (first method of each family): 95% stratified bootstrap "
         f"({n_boot:,} resamples). Weights: equal split within residual cells.",

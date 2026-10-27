@@ -22,11 +22,16 @@ def test_macros_from_results(tmp_path):
     pytest.importorskip("torch")  # the Cfg macros are read from the model code (ml group)
     (tmp_path / "data_summary.json").write_text(
         json.dumps(
-            {"gold_sample": 600, "in_scope_weight_equal": 40.46, "in_scope_weight_nnls": 43.5}
+            {
+                "moc_test": 6000,
+                "in_scope_weight_equal": 40.46,
+                "in_scope_weight_nnls": 43.5,
+                "ref_weight_equal": 24.9,
+            }
         )
     )
     (tmp_path / "gold_summary.json").write_text(
-        json.dumps({"n_labelled": 600, "n_unk": 3, "n_unsure": 9, "n_scored": 597, "n_boot": 1000})
+        json.dumps({"n_ref_specs": 6000, "n_ref_items": 26, "n_ref_oos": 4000, "n_boot": 1000})
     )
     row = {
         "method": "claude-haiku-5-5",
@@ -39,9 +44,9 @@ def test_macros_from_results(tmp_path):
         row |= {s: 0.5, f"{s}_lo": 0.4, f"{s}_hi": 0.6}
     pl.DataFrame([row]).write_csv(tmp_path / "gold_scores.csv")
     m = numbers.macros(tmp_path)
-    assert m["NGoldSample"] == "600" and m["InScopeWeightEqual"] == "40.5"
+    assert m["NMocTest"] == "6{,}000" and m["InScopeWeightEqual"] == "40.5"
+    assert m["RefWeightEqual"] == "24.9" and m["NRefItems"] == "26"
     assert (m["AccWHaiku"], m["AccWHaikuLo"], m["CostHaiku"]) == ("50.0", "40.0", "79.10")
-    assert m["NGoldUnk"] == "3"
     assert "RoutedHaiku" not in m
     out = tmp_path / "numbers.tex"
     numbers.write(tmp_path, out)

@@ -74,9 +74,15 @@ def describe(out: Path = RESULTS) -> dict[str, object]:
     c = corpus()
     moc = c.filter(pl.col("source") == "moc")
     weak = c.filter(pl.col("label_kind") == "weak")
-    s = pl.read_csv(ROOT / "data" / "gold" / "sample.csv", schema_overrides={"barcode": pl.Utf8})
+    from cpilens.classify.data import moc_test_duplicates
+
     scope = pl.read_csv(TAXONOMY / "thcpi_scope.csv", schema_overrides={"label": pl.Utf8})
-    cov = pl.read_csv(RESULTS / "coverage.csv").filter(pl.col("label") != "OOS")
+    cov = pl.read_csv(RESULTS / "coverage.csv", schema_overrides={"label": pl.Utf8}).filter(
+        pl.col("label") != "OOS"
+    )
+    test = moc.filter(pl.col("split") == "test")
+    ref_items = sorted(set(test["label"]) - {"OOS"})
+    with_specs = set(moc["label"])
     d: dict[str, object] = {
         "off_products": o.height,
         "off_markets": o["market"].n_unique(),
@@ -87,14 +93,16 @@ def describe(out: Path = RESULTS) -> dict[str, object]:
         "weak_nonthai": weak.filter(pl.col("region") != "thai").height,
         "weak_thai": weak.filter(pl.col("region") == "thai").height,
         "moc_specs": moc.height,
-        "moc_test": moc.filter(pl.col("split") == "test").height,
+        "moc_test": test.height,
+        "moc_test_items": len(ref_items),
+        "moc_test_oos": test.filter(pl.col("label") == "OOS").height,
         "moc_trainval": moc.filter(pl.col("split") != "test").height,
-        "gold_sample": s.height,
-        "gold_double": int(s["double"].sum()),
-        "gold_strata": s["stratum"].n_unique(),
+        "moc_dup_dropped": moc_test_duplicates(),
+        "items_without_specs": int((~cov["label"].is_in(list(with_specs))).sum()),
         "labels_in_scope": int(scope["in_scope"].sum()),
         "in_scope_weight_equal": float(cov["w_equal"].sum()),
         "in_scope_weight_nnls": float(cov["w_nnls"].sum()),
+        "ref_weight_equal": float(cov.filter(pl.col("label").is_in(ref_items))["w_equal"].sum()),
     }
     (out / "data_summary.json").write_text(json.dumps(d, indent=2))
     return d
@@ -108,6 +116,7 @@ def _data(r: Path) -> dict[str, str]:
     m = {f"N{_camel(k)}": num(v) for k, v in d.items() if isinstance(v, int)}
     m["InScopeWeightEqual"] = f"{d['in_scope_weight_equal']:.1f}"
     m["InScopeWeightNnls"] = f"{d['in_scope_weight_nnls']:.1f}"
+    m["RefWeightEqual"] = f"{d['ref_weight_equal']:.1f}"
     return m
 
 
@@ -125,8 +134,8 @@ def _gold(r: Path) -> dict[str, str]:
         return {}
     m: dict[str, str] = {}
     meta = json.loads((r / "gold_summary.json").read_text())
-    for k in ("n_labelled", "n_unk", "n_unsure", "n_scored", "n_boot"):
-        m[f"NGold{_camel(k.removeprefix('n_'))}"] = num(meta[k])
+    for k in ("n_ref_specs", "n_ref_items", "n_ref_oos", "n_boot"):
+        m[f"N{_camel(k.removeprefix('n_'))}"] = num(meta[k])
     s = pl.read_csv(f).filter(pl.col("weights") == "equal")
     for row in s.iter_rows(named=True):
         a = ALIAS.get(row["method"])
@@ -148,6 +157,8 @@ def _rq3(r: Path) -> dict[str, str]:
     if not f.exists():
         return {}
     e = pl.read_csv(f).filter(pl.col("weights") == "equal")
+    if "universe" in e.columns:  # the primary universe: products in proportion to CPI weights
+        e = e.filter(pl.col("universe") == "cpi")
     m: dict[str, str] = {}
     for row in e.iter_rows(named=True):
         a = "Perfect" if row["variant"] == "coverage_only" else ALIAS.get(row["method"])
@@ -193,7 +204,6 @@ def _config(_: Path) -> dict[str, str]:
     from cpilens.econ import run as econ
     from cpilens.embed import projection
     from cpilens.evaluate import frontier, gold
-    from cpilens.label import store
 
     def default(f: object, arg: str) -> object:
         return inspect.signature(f).parameters[arg].default  # type: ignore[arg-type]
@@ -227,7 +237,6 @@ def _config(_: Path) -> dict[str, str]:
         "CfgMaxTokens": num(llm.MAX_TOKENS),
         "CfgBudgets": ", ".join(num(b) for b in budgets),  # type: ignore[arg-type]
         "CfgAlignK": str(projection.K),
-        "CfgGapHours": f"{store.MIN_GAP.total_seconds() / 3600:.0f}",
         "CfgThresholds": ", ".join(f"{t:g}" for t in frontier.THRESHOLDS),
     }
 

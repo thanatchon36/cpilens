@@ -11,8 +11,8 @@ Scenarios (training pools; every pool uses only ``train``/``val`` rows):
   full MOC train and val splits.
 
 Hyper-parameters (k for k-NN, early stopping) and the temperature are fitted on the
-scenario's own validation rows. Predictions are written for the MOC test split, the Thai
-OFF validation split (weak labels; development only) and the gold sample.
+scenario's own validation rows. Predictions are written for the MOC test split (the
+reference set) and the Thai OFF validation split (weak labels; development only).
 """
 
 from __future__ import annotations
@@ -79,11 +79,8 @@ def eval_sets(c: pl.DataFrame) -> pl.DataFrame:
             & (pl.col("label_kind") == "weak")
             & (pl.col("split") == "val")
         )
-        | (pl.col("split") == "gold")
     ).with_columns(
-        pl.when(pl.col("split") == "gold")
-        .then(pl.lit("gold"))
-        .when(pl.col("source") == "moc")
+        pl.when(pl.col("source") == "moc")
         .then(pl.lit("moc_test"))
         .otherwise(pl.lit("thai_val_weak"))
         .alias("eval_set")

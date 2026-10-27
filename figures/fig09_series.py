@@ -53,6 +53,7 @@ def main() -> None:
         .filter(
             (pl.col("variant") == "full")
             & (pl.col("weights") == "equal")
+            & (pl.col("universe") == "cpi")
             & (pl.col("kind") == "yoy")
             & (pl.col("aggregate") == "food")
             & (pl.col("method") == cheap)
@@ -62,9 +63,11 @@ def main() -> None:
     style.finish(
         fig,
         f"{names.method(cheap)} would misstate food inflation by {e['max_abs_bp']:.0f} bp at worst",
-        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
-        "Simulated with each method's gold confusion matrix; bands: 95% over Dirichlet draws. "
-        "Out-of-scope items held at official values. Panels have their own scales.",
+        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
+        "Simulated with each method's confusion matrix on the held-out official "
+        "specifications, products in proportion to CPI weights; bands: 95% over Dirichlet "
+        "draws. Out-of-scope items and items without specifications held at official values. "
+        "Panels have their own scales.",
         legend=(handles[::-1], labels[::-1]),  # official first
     )
     style.save(fig, "fig09_series", out)

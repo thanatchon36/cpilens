@@ -1,9 +1,12 @@
-"""Scoring on the gold sample: headline metrics with stratified-bootstrap intervals, the
+"""Scoring on the reference set: headline metrics with stratified-bootstrap intervals, the
 expenditure-weighted accuracy-coverage frontier, and paired method comparisons.
 
-Gold = pass-1 labels (latest per product). ``UNK`` products are excluded from accuracy and
-counted separately. The bootstrap resamples gold products within the sampling strata, and a
-paired comparison uses the same resampled indices for both methods.
+The reference set is the held-out split of the official price-collection specifications
+(``reference_table``); the ``gold_*`` result files keep their names. ``gold_table`` reads a
+hand-labelled sample instead (the labelling app in ``cpilens.label``; not used in the paper).
+``UNK`` rows are excluded from accuracy and counted separately. The bootstrap resamples rows
+within strata (the item, for the reference set), and a paired comparison uses the same
+resampled indices for both methods.
 """
 
 from __future__ import annotations
@@ -33,9 +36,39 @@ def gold_table(gold: Path = store.GOLD) -> pl.DataFrame:
     )
 
 
-def _stats(y: list[str], p: list[str | None], w: np.ndarray) -> dict[str, float]:
+OOS_N = 1500  # held-out out-of-scope specifications kept in the reference set
+
+
+def reference_table(c: pl.DataFrame | None = None, oos_n: int = OOS_N) -> pl.DataFrame:
+    """One row per reference specification: ``id``, label, the item as stratum and the
+    inclusion probability. Every held-out in-scope specification is kept (probability 1).
+    The out-of-scope class would otherwise be two thirds of the set, so a fixed hash-ordered
+    ``oos_n`` of its held-out specifications are kept, with the matching design weight."""
+    from cpilens.classify.data import bucket, corpus
+
+    t = (corpus() if c is None else c).filter(
+        (pl.col("source") == "moc") & (pl.col("split") == "test")
+    )
+    ins = t.filter(pl.col("label") != "OOS").with_columns(pl.lit(1.0).alias("incl_prob"))
+    oos = t.filter(pl.col("label") == "OOS")
+    n_oos = oos.height
+    if oos_n and n_oos > oos_n:
+        h = [bucket("ref:" + k, 10**9) for k in oos["id"]]
+        oos = oos.with_columns(pl.Series("_h", h)).sort("_h").head(oos_n).drop("_h")
+    oos = oos.with_columns(pl.lit(oos.height / max(n_oos, 1)).alias("incl_prob"))
+    return (
+        pl.concat([ins, oos])
+        .select("id", "label", "incl_prob")
+        .with_columns(pl.col("label").alias("stratum"), pl.lit(False).alias("unsure"))
+    )
+
+
+def _stats(
+    y: list[str], p: list[str | None], w: np.ndarray, inv: np.ndarray | None = None
+) -> dict[str, float]:
+    """``acc`` over the design (1/pi) weights, ``acc_w`` over CPI item weights."""
     return {
-        "acc": m.accuracy(y, p),
+        "acc": m.accuracy(y, p, inv),
         "acc_w": m.accuracy(y, p, w),
         "macro_f1": m.macro_f1(y, p),
         "within_group_errors": m.within_group_error_share(y, p),
@@ -48,6 +81,7 @@ class Scorer:
         self.g = g
         self.y = g["label"].to_list()
         self.pi = g["incl_prob"].to_numpy()
+        self.inv = 1.0 / self.pi
         self.strata = g["stratum"].to_list()
         self.lw = m.cpi_label_weights(method)
         # the same resamples for every method make comparisons paired
@@ -63,10 +97,12 @@ class Scorer:
     def score(self, preds: pl.DataFrame) -> dict[str, object]:
         p, _ = self.align(preds)
         full = np.arange(len(self.y))
-        point = _stats(self.y, p, self.weights(full))
+        point = _stats(self.y, p, self.weights(full), self.inv)
         draws: dict[str, list[float]] = {k: [] for k in point}
         for idx in self.boot_idx:
-            st = _stats([self.y[i] for i in idx], [p[i] for i in idx], self.weights(idx))
+            st = _stats(
+                [self.y[i] for i in idx], [p[i] for i in idx], self.weights(idx), self.inv[idx]
+            )
             for k, v in st.items():
                 draws[k].append(v)
         out: dict[str, object] = {"n": len(self.y)}

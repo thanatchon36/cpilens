@@ -22,7 +22,10 @@ def main() -> None:
     results, out = style.dirs()
     n_draws = json.loads((results / "rq3_meta.json").read_text())["n_draws"]
     e = pl.read_csv(results / "rq3_errors.csv").filter(
-        (pl.col("variant") == "full") & (pl.col("weights") == "equal") & (pl.col("kind") == "yoy")
+        (pl.col("variant") == "full")
+        & (pl.col("weights") == "equal")
+        & (pl.col("universe") == "cpi")
+        & (pl.col("kind") == "yoy")
     )
     ms = [m for m in order() if m in set(e["method"])][::-1]
     fig, axes = style.figure(3.0, ncols=3, sharey=True)
@@ -47,10 +50,11 @@ def main() -> None:
         fig,
         f"Lowest headline error: {names.method(best['method'])}, "
         f"{best['rmse_bp']:.0f} bp RMSE on year-on-year inflation",
-        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
+        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         f"Dots: posterior-mean confusion matrix; lines: 95% interval over {n_draws:,} "
-        "Dirichlet draws. Out-of-scope items held at official values. Panels have their own "
-        "scales.",
+        "Dirichlet draws; confusion matrices from the held-out official specifications, "
+        "products in proportion to CPI weights. Out-of-scope items and items without "
+        "specifications held at official values. Panels have their own scales.",
     )
     style.save(fig, "fig10_bp_error", out)
 

@@ -62,9 +62,10 @@ def main() -> None:
     style.finish(
         fig,
         f"For {names.method(m)}, {TOP} confusions carry {100 * share:.0f}% of the headline error",
-        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
+        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         "Contribution = item weight × misallocated product share × gap between the true and the "
-        "predicted item's price relative (true → predicted). Posterior-mean confusion matrix.",
+        "predicted item's price relative (true → predicted). Posterior-mean confusion matrix "
+        "on the held-out official specifications; products in proportion to CPI weights.",
         legend=(handles, [h.get_label() for h in handles]),
         legend_cols=5,
     )

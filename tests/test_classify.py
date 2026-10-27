@@ -1,4 +1,5 @@
 import numpy as np
+import polars as pl
 import pytest
 
 torch = pytest.importorskip("torch")
@@ -35,3 +36,27 @@ def test_knn_and_temperature():
     p = ec.softmax(lg, t)
     np.testing.assert_allclose(p.sum(1), 1.0)
     assert 0 <= ec.ece(p, yva) <= 1
+
+
+def test_moc_split_holds_out_subitems_and_covers_every_item():
+    from cpilens.classify import data
+    from cpilens.paths import INTERIM
+
+    if not (INTERIM / "moc_specs.parquet").exists():
+        pytest.skip("needs the official specifications")
+    raw = pl.read_parquet(INTERIM / "moc_specs.parquet").select("spec_id", "item_code")
+    d = data.moc_rows().with_columns(pl.col("id").str.strip_prefix("moc:").alias("spec_id"))
+    d = d.join(raw, on="spec_id")
+    test = d.filter(pl.col("split") == "test")
+    assert set(test["label"]) == set(d["label"])  # every item (and OOS) has test rows
+    multi = d.group_by("label").agg(pl.col("item_code").n_unique().alias("n"))
+    multi = multi.filter(pl.col("n") >= 2)["label"]
+    per_code = (
+        d.filter(pl.col("label").is_in(multi))
+        .group_by("item_code")
+        .agg(pl.col("split").n_unique().alias("k"))
+    )
+    assert (per_code["k"] == 1).all()  # a sub-item sits in one split only
+    key = pl.col("text").str.to_lowercase().str.replace_all(r"\s+", "")
+    train_keys = d.filter(pl.col("split") != "test").with_columns(key.alias("k")).select("k")
+    assert test.with_columns(key.alias("k")).join(train_keys.unique(), on="k").height == 0

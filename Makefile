@@ -3,7 +3,7 @@
 UV := uv run
 .PHONY: all data label models eval econ agreement figures paper check test lint smoke
 
-all: data models eval econ agreement figures paper check
+all: data models eval econ figures paper check
 
 data:
 	$(UV) cpilens fetch-raw

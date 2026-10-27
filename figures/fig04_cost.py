@@ -88,7 +88,7 @@ def main() -> None:
         f"A cascade routing {100 * best['routed']:.0f}% of products to "
         f"{names.LLM[best['llm']]} costs USD {best['usd_per_million']:,.0f} per million products",
         style.source(
-            style.SOURCE_OFF, style.SOURCE_GOLD, "Anthropic API price list", style.SOURCE_CALC
+            style.SOURCE_OFF, style.SOURCE_REF, "Anthropic API price list", style.SOURCE_CALC
         ),
         f"Full coverage throughout. API cost measured per call; local compute at an assumed USD "
         f"{GPU_USD_PER_HOUR:.2f} per GPU-hour. Lines: the cascade over its thresholds.",

@@ -161,8 +161,8 @@ def models(
     (RESULTS / "embed_timing.json").write_text(json.dumps(timing, indent=2))
     projection.run()
     if llm:
-        llm_mod.run_eval("claude-haiku-5-5", max_usd=2.0)
-        llm_mod.run_eval("claude-opus-5-5", moc_n=1500, max_usd=8.0)
+        llm_mod.run_eval("claude-haiku-5-5", max_usd=3.0)
+        llm_mod.run_eval("claude-opus-5-5", max_usd=16.0)
 
 
 @app.command()
@@ -187,7 +187,7 @@ def cascade() -> None:
             d = cp.join(
                 lp.select("id", "eval_set", pl.col("pred").alias("llm_pred")), on=["id", "eval_set"]
             )
-            for s in ("moc_test", "thai_val_weak"):
+            for s in ("thai_val_weak",):  # the test split is never used to choose
                 e = d.filter(pl.col("eval_set") == s)
                 y = e["label"].to_list()
                 w = m.item_weights(y, lw)
@@ -216,15 +216,15 @@ def cascade() -> None:
 
 @app.command("eval")
 def eval_() -> None:
-    """Score every method on the gold sample (needs pass-1 labels)."""
-    from cpilens.evaluate.run import run_gold
+    """Score every method on the reference set (held-out official specifications)."""
+    from cpilens.evaluate.run import run_eval
 
-    run_gold()
+    run_eval()
 
 
 @app.command()
 def econ() -> None:
-    """RQ3: basis-point inflation errors implied by each method's gold confusion matrix."""
+    """RQ3: basis-point inflation errors implied by each method's confusion matrix."""
     from cpilens.econ.run import run_econ
 
     run_econ()

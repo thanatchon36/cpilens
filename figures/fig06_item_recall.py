@@ -38,10 +38,10 @@ def main() -> None:
         fig,
         f"{100 * low:.0f}% of in-scope CPI weight sits in items that {names.method(cheap)} "
         "recalls less than half the time",
-        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
-        "Bars: share of each item's Thai product universe classified correctly "
-        "(Horvitz–Thompson); grey line: cumulative in-scope CPI weight in bar order. Items "
-        "without gold products are omitted.",
+        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
+        "Bars: share of each item's held-out official specifications classified correctly; "
+        "grey line: cumulative in-scope CPI weight in bar order. Items without specifications "
+        "are omitted.",
     )
     style.save(fig, "fig06_item_recall", out)
 

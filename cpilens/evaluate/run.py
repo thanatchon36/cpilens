@@ -1,10 +1,11 @@
-"""Gold evaluation of every method: scores with stratified-bootstrap intervals, coverage
-frontiers, paired comparisons, and the dev-chosen cascades.
+"""Evaluation of every method on the reference set (held-out official specifications):
+scores with stratified-bootstrap intervals, coverage frontiers, paired comparisons, and the
+dev-chosen cascades.
 
 Methods are read from the prediction files written by ``cpilens models``. A cascade's
-threshold is chosen on the dev sets (``results/cascade_dev.csv``) before gold is touched:
-the threshold with the highest Thai weak-validation weighted accuracy (the dev set closest
-to the gold population), ties broken by lower cost. Gold then scores that one threshold.
+threshold is chosen on the development set (``results/cascade_dev.csv``) before the
+reference set is touched: the threshold with the highest Thai weak-validation weighted
+accuracy, ties broken by lower cost. The reference set then scores that one threshold.
 """
 
 from __future__ import annotations
@@ -15,9 +16,8 @@ from pathlib import Path
 import polars as pl
 
 from cpilens.evaluate import frontier as fr
-from cpilens.evaluate.gold import N_BOOT, Scorer, gold_table
+from cpilens.evaluate.gold import N_BOOT, Scorer, reference_table
 from cpilens.evaluate.metrics import group_of
-from cpilens.label import store
 from cpilens.paths import RESULTS
 
 PREDS = RESULTS / "preds"
@@ -45,8 +45,11 @@ def choose_threshold(dev: pl.DataFrame, cheap: str, llm: str) -> float:
     return float(best["threshold"])
 
 
-def methods(results: Path = RESULTS) -> dict[str, tuple[pl.DataFrame, dict[str, object]]]:
-    """Method name -> (gold predictions: id, pred, conf; metadata incl. USD per million)."""
+def methods(
+    results: Path = RESULTS, eval_set: str = "moc_test"
+) -> dict[str, tuple[pl.DataFrame, dict[str, object]]]:
+    """Method name -> (reference-set predictions: id, pred, conf; metadata incl. USD per
+    million)."""
     grid = pl.read_csv(results / "rq1_dev_grid.csv")
     costs = pl.read_csv(results / "llm_costs.csv")
     embed_s = json.loads((results / "embed_timing.json").read_text())
@@ -54,7 +57,9 @@ def methods(results: Path = RESULTS) -> dict[str, tuple[pl.DataFrame, dict[str, 
     preds = results / "preds"
 
     def gold(p: Path) -> pl.DataFrame:
-        return pl.read_parquet(p).filter(pl.col("eval_set") == "gold").select("id", "pred", "conf")
+        return (
+            pl.read_parquet(p).filter(pl.col("eval_set") == eval_set).select("id", "pred", "conf")
+        )
 
     out: dict[str, tuple[pl.DataFrame, dict[str, object]]] = {}
     cheap_cost: dict[str, float] = {}
@@ -197,18 +202,20 @@ def cascade_sweep(
     return pl.DataFrame(out)
 
 
-def run_gold(
-    gold: Path = store.GOLD, results: Path = RESULTS, out: Path = RESULTS, n_boot: int = N_BOOT
+def run_eval(
+    ref: pl.DataFrame | None = None,
+    results: Path = RESULTS,
+    out: Path = RESULTS,
+    n_boot: int = N_BOOT,
+    eval_set: str = "moc_test",
 ) -> None:
-    g = gold_table(gold)
-    if g.height == 0:
-        raise SystemExit("no gold labels yet: label pass 1 first (cpilens label --pass 1)")
-    ms = methods(results)
+    """Score every method on the reference set (``ref``: a table like ``reference_table``)."""
+    g = reference_table() if ref is None else ref
+    ms = methods(results, eval_set)
     summary = {
-        "n_labelled": g.height,
-        "n_unk": int((g["label"] == "UNK").sum()),
-        "n_unsure": int(g["unsure"].sum()),
-        "n_scored": int((g["label"] != "UNK").sum()),
+        "n_ref_specs": g.height,
+        "n_ref_items": g.filter(pl.col("label") != "OOS")["label"].n_unique(),
+        "n_ref_oos": int((g["label"] == "OOS").sum()),
         "n_boot": n_boot,
     }
     (out / "gold_summary.json").write_text(json.dumps(summary, indent=2))

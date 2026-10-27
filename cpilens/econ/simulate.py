@@ -27,6 +27,7 @@ of (k -> j) is weight x misallocation mass x divergence of price movements.
 
 from __future__ import annotations
 
+from collections.abc import Collection
 from dataclasses import dataclass
 
 import numpy as np
@@ -54,9 +55,10 @@ class Official:
     members: dict[str, np.ndarray]  # aggregate -> boolean mask over labels
 
 
-def official(method: str = "equal") -> Official:
+def official(method: str = "equal", exclude: Collection[str] = ()) -> Official:
+    """The official series; ``exclude``: in-scope items held at official values (not simulated)."""
     lw = cpi_label_weights(method)
-    labels = list(lw)
+    labels = [k for k in lw if k not in set(exclude)]
     idx = load_index()
     codes = [*labels, OOS_PROXY, *AGGREGATES.values()]
     rel = relatives(idx, codes)

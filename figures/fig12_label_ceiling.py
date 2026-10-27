@@ -16,6 +16,9 @@ LEVELS = (("item", "Item"), ("group", "Group"), ("division", "Division"))
 
 def main() -> None:
     results, out = style.dirs()
+    if not (results / "rq4_agreement.csv").exists():
+        print("fig12: no RQ4 results (no human relabelling was done); skipped")
+        return
     meta = json.loads((results / "rq4_meta.json").read_text())
     a = pl.read_csv(results / "rq4_agreement.csv")
     by = pl.read_csv(results / "rq4_by_class.csv", schema_overrides={"class": pl.Utf8})
@@ -59,7 +62,7 @@ def main() -> None:
         fig,
         f"Relabelling blind, the labeller changes {item:.0f}% of item labels "
         f"and {group:.0f}% of group labels",
-        style.source(style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
+        style.source(style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         f"{meta['n_pairs']:,} products labelled twice by the same person, at least "
         f"{MIN_GAP.total_seconds() / 3600:.0f} hours apart{excluded}. Groups by the first-pass "
         f"label; groups with fewer than {MIN_N} products omitted. Lines: 95% bootstrap "

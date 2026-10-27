@@ -50,7 +50,7 @@ BLUE_RAMP = ("#c6dbef", "#9ecae1", "#6baed6", "#3182bd", "#08519c", "#08306b")
 
 SOURCE_CPI = "TPSO consumer price indices and weights (base 2566)"
 SOURCE_OFF = "Open Food Facts (ODbL)"
-SOURCE_GOLD = "author's gold labels"
+SOURCE_REF = "TPSO price-collection specifications (official labels; held-out split)"
 SOURCE_CALC = "author's calculations"
 
 

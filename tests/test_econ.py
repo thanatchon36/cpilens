@@ -154,41 +154,19 @@ def test_flow_type():
     assert flow_type("EMPTY", "11600") == "empty_item"
 
 
-def test_run_econ_on_synthetic_labels(tmp_path):
-    """End to end on the real prediction files with fake labels (Haiku's own answers)."""
-    import shutil
-
+def test_run_econ_end_to_end(synthetic_eval, tmp_path):
+    """End to end on a synthetic reference set (needs the raw TPSO index)."""
     import polars as pl
 
     from cpilens.econ.run import run_econ
-    from cpilens.label import store
-    from cpilens.paths import RESULTS
 
-    if not (RESULTS / "cascade_dev.csv").exists() or not (RAW / "tpso").exists():
-        pytest.skip("needs cpilens models outputs and raw TPSO data")
-    shutil.copy(store.GOLD / "sample.csv", tmp_path / "sample.csv")
-    smp = pl.read_csv(tmp_path / "sample.csv", schema_overrides={"barcode": pl.Utf8})
-    h = pl.read_parquet(RESULTS / "preds/llm/claude-haiku-5-5__low.parquet").filter(
-        pl.col("eval_set") == "gold"
-    )
-    lab = dict(zip(h["id"], h["pred"].fill_null("UNK"), strict=True))
-    for r in smp.iter_rows(named=True):
-        store.append_label(
-            1,
-            {
-                "order": r["order"],
-                "barcode": r["barcode"],
-                "label": lab["off:" + r["barcode"]],
-                "unsure": "False",
-                "seconds": "1",
-                "labelled_utc": "2026-10-27T00:00:00Z",
-            },
-            tmp_path,
-        )
+    if not (RAW / "tpso").exists():
+        pytest.skip("needs raw TPSO data")
+    ref, res = synthetic_eval
     out = tmp_path / "out"
     out.mkdir()
-    run_econ(tmp_path, RESULTS, out, n_draws=10, weights=("equal",))
-    e = pl.read_csv(out / "rq3_errors.csv")
+    run_econ(ref, res, out, n_draws=10, weights=("equal",))
+    e = pl.read_csv(out / "rq3_errors.csv").filter(pl.col("universe") == "cpi")
     haiku = e.filter(
         (pl.col("method") == "claude-haiku-5-5")
         & (pl.col("variant") == "full")

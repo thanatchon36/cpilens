@@ -92,7 +92,7 @@ def main() -> None:
             style.SOURCE_CPI,
             style.SOURCE_OFF,
             "Ministry of Commerce product specifications",
-            style.SOURCE_GOLD,
+            style.SOURCE_REF,
             style.SOURCE_CALC,
         ),
         "Budgets count every official label a run touches (training and validation). "

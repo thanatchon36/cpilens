@@ -270,26 +270,17 @@ def classify(
     )
 
 
-def moc_subsample(ev: pl.DataFrame, n: int) -> pl.DataFrame:
-    """A fixed hash-ordered subsample of the MOC test set (for the frontier model)."""
-    from cpilens.classify.data import bucket
-
-    moc = ev.filter(pl.col("eval_set") == "moc_test")
-    h = [bucket("llm:" + k, 10**9) for k in moc["id"]]
-    return moc.with_columns(pl.Series("_h", h)).sort("_h").head(n).drop("_h")
-
-
-def run_eval(
-    model: str, moc_n: int | None = None, effort: str = "low", max_usd: float | None = None
-) -> pl.DataFrame:
-    """LLM predictions on gold, Thai weak validation and MOC test (all, or ``moc_n``)."""
+def run_eval(model: str, effort: str = "low", max_usd: float | None = None) -> pl.DataFrame:
+    """LLM predictions on the Thai weak validation split and the reference set (the rows of
+    ``reference_table``, not the whole MOC test split: its out-of-scope part is sampled)."""
     from cpilens.classify import experiments as ex
     from cpilens.classify.data import corpus
+    from cpilens.evaluate.gold import reference_table
 
     c = corpus()
     ev = ex.eval_sets(c)
-    moc = moc_subsample(ev, moc_n) if moc_n else ev.filter(pl.col("eval_set") == "moc_test")
-    ev = pl.concat([ev.filter(pl.col("eval_set") != "moc_test"), moc])
+    ref_ids = reference_table(c)["id"].to_list()
+    ev = ev.filter((pl.col("eval_set") != "moc_test") | pl.col("id").is_in(ref_ids))
     sp = system_prompt(few_shot(c))
     t0 = datetime.now(UTC)
     r = classify(ev["text"].to_list(), model, sp, f"eval:{model}", effort, max_usd=max_usd)
