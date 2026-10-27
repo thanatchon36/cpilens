@@ -1,4 +1,5 @@
 import numpy as np
+import polars as pl
 import pytest
 
 from cpilens.evaluate import metrics as m
@@ -122,12 +123,7 @@ def test_gold_scorer_on_synthetic_labels(tmp_path):
             },
             tmp_path,
         )
-    old = g.N_BOOT
-    g.N_BOOT = 50
-    try:
-        sc = g.Scorer(g.gold_table(tmp_path))
-    finally:
-        g.N_BOOT = old
+    sc = g.Scorer(g.gold_table(tmp_path), n_boot=50)
     assert len(sc.y) == 7  # UNK dropped
     ids = sc.g["id"].to_list()
     perfect = pl.DataFrame({"id": ids, "pred": sc.y, "conf": [0.9] * 7})
@@ -156,3 +152,42 @@ def test_cascade_sweep_endpoints():
     assert sw["acc"].to_list() == [1 / 3, 1, 1]
     assert sw["usd_per_million"][0] == 1.0
     assert abs(sw["usd_per_million"][2] - 101.0) < 1e-9
+
+
+def test_run_gold_on_synthetic_labels(tmp_path):
+    """End to end on the real prediction files with fake labels (Haiku's own answers)."""
+    import shutil
+
+    from cpilens.evaluate import run
+    from cpilens.label import store
+    from cpilens.paths import RESULTS
+
+    if not (RESULTS / "cascade_dev.csv").exists() or not (store.GOLD / "sample.csv").exists():
+        pytest.skip("needs cpilens models outputs")
+    shutil.copy(store.GOLD / "sample.csv", tmp_path / "sample.csv")
+    s = pl.read_csv(tmp_path / "sample.csv", schema_overrides={"barcode": pl.Utf8}).head(120)
+    h = pl.read_parquet(RESULTS / "preds/llm/claude-haiku-5-5__low.parquet").filter(
+        pl.col("eval_set") == "gold"
+    )
+    lab = dict(zip(h["id"], h["pred"].fill_null("UNK"), strict=True))
+    for r in s.iter_rows(named=True):
+        store.append_label(
+            1,
+            {
+                "order": r["order"],
+                "barcode": r["barcode"],
+                "label": lab["off:" + r["barcode"]],
+                "unsure": "False",
+                "seconds": "1",
+                "labelled_utc": "2026-10-27T00:00:00Z",
+            },
+            tmp_path,
+        )
+    out = tmp_path / "out"
+    out.mkdir()
+    run.run_gold(tmp_path, RESULTS, out, n_boot=20)
+    sc = pl.read_csv(out / "gold_scores.csv")
+    haiku = sc.filter((pl.col("method") == "claude-haiku-5-5") & (pl.col("weights") == "equal"))
+    assert haiku["acc"][0] == 1.0  # scored against its own answers
+    assert set(sc["family"]) == {"embedding", "finetune", "llm", "cascade"}
+    assert pl.read_csv(out / "gold_paired.csv").height > 0

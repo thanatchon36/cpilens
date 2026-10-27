@@ -21,6 +21,7 @@ each resample (the label normalisation depends on the resample).
 from __future__ import annotations
 
 import warnings
+from collections import Counter
 from collections.abc import Callable, Sequence
 
 import numpy as np
@@ -63,12 +64,15 @@ def accuracy(y: Labels, yhat: Labels, w: np.ndarray | None = None) -> float:
 def macro_f1(y: Labels, yhat: Labels, labels: Sequence[str] | None = None) -> float:
     """Mean F1 over ``labels`` (default: labels present in ``y``); abstentions are misses."""
     ks = sorted({k for k in y if k is not None}) if labels is None else list(labels)
-    f1 = []
-    for k in ks:
-        tp = sum(a == k and b == k for a, b in zip(y, yhat, strict=True))
-        fp = sum(a != k and b == k for a, b in zip(y, yhat, strict=True))
-        fn = sum(a == k and b != k for a, b in zip(y, yhat, strict=True))
-        f1.append(2 * tp / (2 * tp + fp + fn) if tp + fp + fn else 0.0)
+    tp: Counter[str | None] = Counter()
+    n_true: Counter[str | None] = Counter()
+    n_pred: Counter[str | None] = Counter()
+    for a, b in zip(y, yhat, strict=True):
+        n_true[a] += 1
+        n_pred[b] += 1
+        tp[a] += a == b
+    # 2tp + fp + fn = (tp + fn) + (tp + fp) = n_true + n_pred
+    f1 = [2 * tp[k] / (n_true[k] + n_pred[k]) if n_true[k] + n_pred[k] else 0.0 for k in ks]
     return float(np.mean(f1)) if f1 else float("nan")
 
 

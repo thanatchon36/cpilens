@@ -19,7 +19,10 @@ models:
 	$(UV) cpilens models
 	$(UV) cpilens cascade
 
-eval econ figures paper:
+eval:
+	$(UV) cpilens eval
+
+econ figures paper:
 	@echo "$@: not built yet"; exit 1
 
 check: lint test

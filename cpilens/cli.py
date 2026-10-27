@@ -162,18 +162,12 @@ def models(
         llm_mod.run_eval("claude-opus-5-5", moc_n=1500, max_usd=8.0)
 
 
-CASCADE_CHEAP = (
-    "e5-large__mlp__nonthai+thaiweak+mocall",
-    "bge-m3__mlp__nonthai+thaiweak+mocall",
-    "xlmr__finetune__nonthai+thaiweak+mocall",
-)
-
-
 @app.command()
 def cascade() -> None:
     """Dev-set cascade sweep: cheap classifier first, LLM for low-confidence products."""
     from cpilens.evaluate import frontier as fr
     from cpilens.evaluate import metrics as m
+    from cpilens.evaluate.run import CASCADE_CHEAP
     from cpilens.paths import RESULTS
 
     lw = m.cpi_label_weights()
@@ -215,6 +209,14 @@ def cascade() -> None:
                     )
                 )
     pl.concat(out).write_csv(RESULTS / "cascade_dev.csv")
+
+
+@app.command("eval")
+def eval_() -> None:
+    """Score every method on the gold sample (needs pass-1 labels)."""
+    from cpilens.evaluate.run import run_gold
+
+    run_gold()
 
 
 if __name__ == "__main__":

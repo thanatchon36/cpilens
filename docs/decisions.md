@@ -60,3 +60,10 @@ One line per non-obvious choice, newest last. `[default]` = taken without a repl
 - Cost model: API cost is the measured mean logged USD per call (cache writes included). Local compute is an *assumed* USD 1.00 per GPU-hour times measured wall-clock seconds per item (embedding plus prediction).
   - Encoding cost is timed separately from the corpus cache run: 5,000 sampled corpus texts, model load and one warm-up batch excluded, CUDA synchronised (`results/embed_timing.json`). A fine-tuned encoder's prediction time already includes its encoder.
 - Cascade: a cheap classifier (e5-large MLP, bge-m3 MLP, or XLM-R, all on the full pool) keeps its prediction when its calibrated confidence is at least t; otherwise the product goes to the LLM. The dev sweep (`results/cascade_dev.csv`, MOC test and Thai weak validation) is used only to *choose* t and the cheap model. The chosen cascade is then scored once on gold, so the gold estimate is not tuned on gold.
+- Gold evaluation (`cpilens eval`): every prediction file is scored with 1,000 stratified resamples, under equal and NNLS leaf weights. The outputs are `results/gold_scores.csv`, `gold_frontier.csv` (LLMs, cascades, cascade base models) and `gold_paired.csv`. Paired acc_w comparisons are fixed in code before any gold label exists:
+  - Opus vs Haiku;
+  - Haiku vs each cascade base model;
+  - each cascade vs its LLM alone;
+  - the brand/quantity ablations;
+  - the cross-lingual transfer steps.
+  - A cascade's threshold maximises Thai weak-validation acc_w (ties: cheaper). Its confidence is that of whichever model answered.

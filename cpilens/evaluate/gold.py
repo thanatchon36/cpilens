@@ -43,7 +43,7 @@ def _stats(y: list[str], p: list[str | None], w: np.ndarray) -> dict[str, float]
 
 
 class Scorer:
-    def __init__(self, g: pl.DataFrame, method: str = "equal") -> None:
+    def __init__(self, g: pl.DataFrame, method: str = "equal", n_boot: int = N_BOOT) -> None:
         g = g.filter(pl.col("label") != "UNK")
         self.g = g
         self.y = g["label"].to_list()
@@ -51,7 +51,7 @@ class Scorer:
         self.strata = g["stratum"].to_list()
         self.lw = m.cpi_label_weights(method)
         # the same resamples for every method make comparisons paired
-        self.boot_idx = m.bootstrap_indices(self.strata, N_BOOT, SEED)
+        self.boot_idx = m.bootstrap_indices(self.strata, n_boot, SEED)
 
     def align(self, preds: pl.DataFrame) -> tuple[list[str | None], np.ndarray]:
         d = self.g.select("id").join(preds.select("id", "pred", "conf"), on="id", how="left")
