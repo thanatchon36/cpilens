@@ -360,9 +360,9 @@ def _names(_: Path) -> dict[str, str]:
         "HfEfive": MODELS["e5-large"]["hf"],
         "HfBge": MODELS["bge-m3"]["hf"],
     }
-    from cpilens.classify.finetune import HF
+    from cpilens.classify.config import FT_HF
 
-    return m | {"HfXlmr": HF}
+    return m | {"HfXlmr": FT_HF}
 
 
 def _camel(key: str) -> str:
