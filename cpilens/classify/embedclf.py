@@ -4,7 +4,8 @@ All return logits over a fixed class list so one temperature-scaling step calibr
 them. k-NN logits are log similarity-weighted vote shares (with a small floor). The linear
 model and the MLP share one PyTorch trainer: Adam, class weights proportional to
 1/sqrt(class frequency) (per-label recall drives the CPI-weighted metric, so rare labels are
-up-weighted, but not fully), early stopping on validation loss.
+up-weighted, but not fully), early stopping on validation loss. Validation is checked every
+max(one pass, 50 steps) with batch <= n/4, so small training sets are still trained.
 """
 
 from __future__ import annotations
@@ -37,7 +38,7 @@ def knn_logits(
     out = []
     for s in range(0, len(xte), chunk):
         b = torch.from_numpy(xte[s : s + chunk]).to(DEVICE)
-        sim, idx = (b @ a.T).topk(k, dim=1)
+        sim, idx = (b @ a.T).topk(min(k, len(a)), dim=1)
         votes = torch.zeros(len(b), n_classes, device=DEVICE)
         votes.scatter_add_(1, lab[idx], sim.clamp(min=0))
         p = votes / votes.sum(1, keepdim=True).clamp(min=1e-12)
@@ -55,7 +56,7 @@ def knn_tune(
 ) -> int:
     """k with the best macro recall on validation (ties: smaller k)."""
     best, best_k = -1.0, ks[0]
-    for k in ks:
+    for k in [k for k in ks if k <= len(xtr)] or [1]:
         pred = knn_logits(xtr, ytr, xva, k, n_classes).argmax(1)
         score = macro_recall(yva, pred)
         if score > best + 1e-9:
@@ -77,7 +78,8 @@ class TrainCfg:
     lr: float = 1e-3
     weight_decay: float = 1e-4
     batch: int = 512
-    max_epochs: int = 40
+    min_steps: int = 50  # per evaluation round, so small training sets still get trained
+    max_rounds: int = 40
     patience: int = 3
     seed: int = 20261027
 
@@ -108,14 +110,20 @@ def train_net(
     xt, yt = torch.from_numpy(xtr).to(DEVICE), torch.from_numpy(ytr).to(DEVICE)
     xv, yv = torch.from_numpy(xva).to(DEVICE), torch.from_numpy(yva).to(DEVICE)
     g = torch.Generator(device="cpu").manual_seed(cfg.seed)
+    batch = min(cfg.batch, max(16, len(xt) // 4))
     best, best_state, bad = float("inf"), None, 0
-    for _ in range(cfg.max_epochs):
+    for _ in range(cfg.max_rounds):  # a round = max(one pass, min_steps steps)
         net.train()
-        for idx in torch.randperm(len(xt), generator=g).split(cfg.batch):
-            idx = idx.to(DEVICE)
-            opt.zero_grad()
-            loss_fn(net(xt[idx]), yt[idx]).backward()
-            opt.step()
+        steps = 0
+        while steps < cfg.min_steps or steps * batch < len(xt):
+            for idx in torch.randperm(len(xt), generator=g).split(batch):
+                idx = idx.to(DEVICE)
+                opt.zero_grad()
+                loss_fn(net(xt[idx]), yt[idx]).backward()
+                opt.step()
+                steps += 1
+                if steps >= cfg.min_steps and steps * batch >= len(xt):
+                    break
         net.eval()
         with torch.no_grad():
             v = float(loss_fn(net(xv), yv))
