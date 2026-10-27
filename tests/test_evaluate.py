@@ -138,3 +138,21 @@ def test_gold_scorer_on_synthetic_labels(tmp_path):
     assert d["est"] > 0 and d["p_le_0"] == 0.0
     f = sc.frontier(worse.with_columns(pl.Series("conf", [0.1 * i for i in range(7)])))
     assert f["coverage_w"][0] == 1.0 and f["coverage_w"][-1] == 0.0
+
+
+def test_cascade_sweep_endpoints():
+    from cpilens.evaluate import frontier as fr
+
+    cheap, conf, llm = ["a", "b", "a"], [0.9, 0.2, 0.6], ["a", "a", "b"]
+    y = ["a", "a", "b"]
+
+    def score(p):
+        return {"acc": sum(a == b for a, b in zip(y, p, strict=True)) / 3}
+
+    sw = fr.sweep(
+        cheap, conf, llm, score, cheap_cost=1e-6, llm_cost=1e-4, thresholds=(0, 0.7, 1.01)
+    )
+    assert sw["routed"].to_list() == [0, 2 / 3, 1]
+    assert sw["acc"].to_list() == [1 / 3, 1, 1]
+    assert sw["usd_per_million"][0] == 1.0
+    assert abs(sw["usd_per_million"][2] - 101.0) < 1e-9

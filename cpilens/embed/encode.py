@@ -7,6 +7,7 @@ Vectors are L2-normalised float32, so cosine similarity is a dot product. The ca
 from __future__ import annotations
 
 import hashlib
+import time
 from pathlib import Path
 
 import numpy as np
@@ -60,3 +61,20 @@ def embed(texts: list[str], model: str, root: Path = EMB_DIR, batch_size: int = 
         pl.DataFrame({"hash": known}).write_parquet(idx_p)
         pos = {h: i for i, h in enumerate(known)}
     return mat[[pos[h] for h in hashes]]
+
+
+def seconds_per_item(model: str, texts: list[str], batch_size: int = 128) -> float:
+    """Measured encoding time per text (model load excluded, cache bypassed), for the cost
+    model. A warm-up batch is run first so CUDA start-up is not counted."""
+    import torch
+    from sentence_transformers import SentenceTransformer
+
+    spec = MODELS[model]
+    st = SentenceTransformer(spec["hf"], device="cuda")
+    batch = [spec["prefix"] + t for t in texts]
+    st.encode(batch[:batch_size], batch_size=batch_size, normalize_embeddings=True)
+    torch.cuda.synchronize()
+    t0 = time.perf_counter()
+    st.encode(batch, batch_size=batch_size, normalize_embeddings=True)
+    torch.cuda.synchronize()
+    return (time.perf_counter() - t0) / len(texts)

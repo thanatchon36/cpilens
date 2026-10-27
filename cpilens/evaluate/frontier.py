@@ -13,12 +13,13 @@ cost-accuracy curve.
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 
 import numpy as np
 import polars as pl
 
 GPU_USD_PER_HOUR = 1.00
+THRESHOLDS = (0.0, 0.3, 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95, 0.98, 1.01)
 
 
 def local_cost_per_item(seconds_per_item: float) -> float:
@@ -45,3 +46,34 @@ def cascade(
 
 def cascade_cost(routed: float, cheap_cost: float, llm_cost: float) -> float:
     return cheap_cost + routed * llm_cost
+
+
+def cheap_cost_per_item(run: dict[str, object], embed_s: dict[str, float]) -> float:
+    """Local cost of one grid run: prediction time plus, for frozen-embedding classifiers,
+    encoding time (a fine-tuned encoder's prediction time already includes its encoder)."""
+    s = float(run["pred_s_per_item"]) + embed_s.get(str(run["emb"]), 0.0)  # type: ignore[arg-type]
+    return local_cost_per_item(s)
+
+
+def sweep(
+    cheap_pred: Sequence[str | None],
+    cheap_conf: Sequence[float],
+    llm_pred: Sequence[str | None],
+    score: Callable[[list[str | None]], dict[str, float]],
+    cheap_cost: float,
+    llm_cost: float,
+    thresholds: Sequence[float] = THRESHOLDS,
+) -> pl.DataFrame:
+    """Cost (USD per million products) and scores of the cascade at each threshold."""
+    rows = []
+    for t in thresholds:
+        pred, routed = cascade(cheap_pred, cheap_conf, llm_pred, t)
+        rows.append(
+            {
+                "threshold": t,
+                "routed": routed,
+                "usd_per_million": 1e6 * cascade_cost(routed, cheap_cost, llm_cost),
+                **score(pred),
+            }
+        )
+    return pl.DataFrame(rows)

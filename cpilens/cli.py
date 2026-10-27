@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import UTC, datetime
 
 import polars as pl
@@ -141,6 +142,8 @@ def models(
     """Embeddings, the RQ1 grid of embedding classifiers, XLM-R fine-tune, LLM predictions."""
     from cpilens.classify import experiments, finetune
     from cpilens.classify import llm as llm_mod
+    from cpilens.classify.data import corpus
+    from cpilens.embed import encode
     from cpilens.paths import RESULTS
 
     grid = [experiments.run()]
@@ -151,9 +154,67 @@ def models(
     pl.concat([*grid, pl.DataFrame(ft)], how="diagonal_relaxed").write_csv(
         RESULTS / "rq1_dev_grid.csv"
     )
+    sample = corpus().sample(5000, seed=20261027)["text"].to_list()
+    timing = {m: encode.seconds_per_item(m, sample) for m in encode.MODELS}
+    (RESULTS / "embed_timing.json").write_text(json.dumps(timing, indent=2))
     if llm:
         llm_mod.run_eval("claude-haiku-5-5", max_usd=2.0)
         llm_mod.run_eval("claude-opus-5-5", moc_n=1500, max_usd=8.0)
+
+
+CASCADE_CHEAP = (
+    "e5-large__mlp__nonthai+thaiweak+mocall",
+    "bge-m3__mlp__nonthai+thaiweak+mocall",
+    "xlmr__finetune__nonthai+thaiweak+mocall",
+)
+
+
+@app.command()
+def cascade() -> None:
+    """Dev-set cascade sweep: cheap classifier first, LLM for low-confidence products."""
+    from cpilens.evaluate import frontier as fr
+    from cpilens.evaluate import metrics as m
+    from cpilens.paths import RESULTS
+
+    lw = m.cpi_label_weights()
+    costs = pl.read_csv(RESULTS / "llm_costs.csv")
+    grid = pl.read_csv(RESULTS / "rq1_dev_grid.csv")
+    embed_s = json.loads((RESULTS / "embed_timing.json").read_text())
+    out = []
+    for llm_model in ("claude-haiku-5-5", "claude-opus-5-5"):
+        lp = pl.read_parquet(RESULTS / "preds" / "llm" / f"{llm_model}__low.parquet")
+        llm_cost = fr.api_cost_per_item(costs, llm_model)
+        for run in CASCADE_CHEAP:
+            row = grid.filter(pl.col("run") == run).row(0, named=True)
+            cp = pl.read_parquet(RESULTS / "preds" / "embed" / f"{run}.parquet")
+            d = cp.join(
+                lp.select("id", "eval_set", pl.col("pred").alias("llm_pred")), on=["id", "eval_set"]
+            )
+            for s in ("moc_test", "thai_val_weak"):
+                e = d.filter(pl.col("eval_set") == s)
+                y = e["label"].to_list()
+                w = m.item_weights(y, lw)
+
+                def score(p: list[str | None], y: list[str] = y, w=w) -> dict[str, float]:  # type: ignore[no-untyped-def]
+                    return {"acc": m.accuracy(y, p), "acc_w": m.accuracy(y, p, w)}
+
+                sw = fr.sweep(
+                    e["pred"].to_list(),
+                    e["conf"].to_list(),
+                    e["llm_pred"].to_list(),
+                    score,
+                    fr.cheap_cost_per_item(row, embed_s),
+                    llm_cost,
+                )
+                out.append(
+                    sw.with_columns(
+                        pl.lit(run).alias("cheap"),
+                        pl.lit(llm_model).alias("llm"),
+                        pl.lit(s).alias("eval_set"),
+                        pl.lit(e.height).alias("n"),
+                    )
+                )
+    pl.concat(out).write_csv(RESULTS / "cascade_dev.csv")
 
 
 if __name__ == "__main__":
