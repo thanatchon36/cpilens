@@ -246,6 +246,8 @@ def report() -> None:
     numbers.describe()
     typer.echo(f"{numbers.write()} macros -> {numbers.OUT.relative_to(numbers.ROOT)}")
     typer.echo(f"tables -> {', '.join(numbers.write_tables())}")
+    if numbers.write_readme():
+        typer.echo("README results block updated")
     from cpilens.report import manifest
 
     typer.echo(f"manifest -> {manifest.write().relative_to(numbers.ROOT)}")

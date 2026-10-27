@@ -1,0 +1,116 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{libertinus}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{enumitem}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage{microtype}
+
+\graphicspath{{../figures/out/}}
+\input{numbers.tex}
+\pagestyle{empty}
+\setlist{leftmargin=1.2em, itemsep=0.3em, topsep=0.3em}
+
+\begin{document}
+
+{\Large\bfseries How much does product classification cost in basis points?}\par
+\vspace{0.3em}
+{\large Policy brief: classifying Thai product text for price measurement}\par
+\vspace{0.4em}
+Thanatchon Chongmankhong\quad\textbullet\quad \today\par
+\vspace{0.3em}
+{\small\itshape The views expressed are the author's own and do not necessarily reflect those
+of the Bank of Thailand. This work uses only publicly available data.}
+\vspace{0.8em}
+
+\noindent\textbf{Why it matters.} Prices from retailers' websites and scanner data can make
+price measurement faster and more detailed. Before such prices can enter a consumer price
+index, every product has to be assigned to an item of the official basket: a bag of jasmine
+rice to rice, a carton of UHT milk to milk and dairy products. Done by hand this does not
+scale; done by a model it introduces errors. This study asks how large those errors would be
+in the unit that matters for policy: basis points (hundredths of a percentage point) of
+measured inflation.
+
+\medskip\noindent\textbf{What we did.} Using only public data, we tested four kinds of method on
+Thai product descriptions: low-cost text-matching models, a fine-tuned language model,
+two commercial large language models (LLMs) instructed with a few examples, and
+``cascades'' that send only the hard cases to an LLM. Each was scored on \NRefSpecs{}
+official Thai price-collection descriptions published by the Ministry of Commerce and held
+out from all training, with every item weighted by its share of household spending. We
+then fed each method's mistakes through a reconstruction of the Thai CPI to see how far
+measured inflation would move.
+
+\subsection*{Three findings}
+
+\begin{enumerate}
+\item \textbf{The best LLM classifies almost all of the basket correctly; low-cost models do
+not.} \NameOpus{} assigned \AccWOpus\% of the evaluated CPI weight to the right item and
+\NameHaiku{} \AccWHaiku\%. The best low-cost model reached \AccWXlmrFT\%. A cascade that lets a
+low-cost model handle the easy cases and sends the rest to \NameOpus{} matched \NameOpus's
+accuracy at \CostPctCasEfiveMLPOpus\% of its cost. All LLM runs for this study together cost
+USD~\LLMSpendUSD.
+
+\item \textbf{With the best LLM, classification would move headline inflation by about
+\BpYoyRmseHeadlineOpus{} basis points.} That is the typical error of the year-on-year rate
+over \NMonthsYoy{} months (at most \BpYoyRmseHeadlineOpusHi{} basis points with \CfgCI\%
+confidence); for food inflation it is \BpYoyRmseFoodOpus{} basis points. With a low-cost text-matching
+model the headline error is \BpYoyRmseHeadlineEfiveMLP{} basis points and the food error
+\BpYoyRmseFoodEfiveMLP; another low-cost model would have understated food inflation in every
+month.
+
+\item \textbf{Accuracy alone is a poor guide, and better documentation beats a better model.}
+Two models with the same accuracy differed several-fold in basis points, because what
+matters is whether the confused items' prices moved apart. Most of the LLMs' remaining errors
+came from two items whose official contents differ from what their names suggest: the
+official ``personal items'' include wristwatches, school bags and hair dryers, and margarine
+is counted with milk and dairy products, not with oils and fats.
+\end{enumerate}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\textwidth]{fig10_bp_error.pdf}
+\caption{\textbf{The LLMs and the cascade to \NameOpus{} would misstate inflation by a few
+basis points; for headline and food inflation, every low-cost model's interval reaches
+higher than theirs.} Typical error (RMSE) of
+year-on-year inflation caused by each method's classification mistakes, over \NMonthsYoy{}
+months. Dots: central estimate; lines: \CfgCI\% interval. On core inflation, which excludes fresh food, the
+low-cost models do as well as the LLMs. Source: Ministry of Commerce; Trade
+Policy and Strategy Office; author's calculations.}
+\end{figure}
+
+\subsection*{What it means for central banks in Asia}
+
+\begin{itemize}
+\item \textbf{Ask for basis points, not accuracy.} The method needs only a test set of labelled
+products, the published CPI weights and the published item indices. Any office can use it
+to state the classification error of a new data source before the source is used.
+\item \textbf{Publish the specification list and the basket's contents.} The Ministry of
+Commerce's open specifications made this study possible. A public description of what each
+item includes and excludes would remove the largest errors found here, for every method.
+\item \textbf{LLMs are affordable at this scale; the issue is governance.} Commercial models
+change over time. Responses should be stored and versioned, and an office may prefer a model
+it can run itself.
+\item \textbf{Languages with few labelled data can start from other languages.} With no Thai
+training labels at all, a low-cost model trained on products in other languages placed
+\AccWEfiveMLPZeroShot\% of the weight correctly. That is a starting point, not a result an index
+can rely on.
+\end{itemize}
+
+\subsection*{Caveats}
+
+The test descriptions are the statistical office's own short texts; shop descriptions are
+longer and noisier, and accuracy on them will be lower. The basis-point figures assume a mix
+of products in proportion to household spending, cover the \RefWeightEqual\% of the headline
+weight that the test set can evaluate, and measure classification error only, not the other
+errors of a web-price index. A low basis-point error is meaningful only together with high
+accuracy: a model that classifies little of the basket also moves the index little. The
+results are for one country and one point in time and are not directly comparable with
+studies of other markets.
+
+\vspace{0.5em}
+{\small\noindent Full paper, code and data:
+\url{https://github.com/thanatchon36/cpilens} (DOI \href{https://doi.org/10.5281/zenodo.23686886}{10.5281/zenodo.23686886}).} % numbers-ok: DOI
+
+\end{document}

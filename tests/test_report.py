@@ -80,3 +80,22 @@ def test_manifest_reads_hf_refs_and_cached_llm_models(tmp_path):
     for i, m in enumerate(["b", "a", "a"]):
         (cache / f"{i}.json").write_text(f'{{"model": "{m}"}}')
     assert manifest.llm_models_returned(cache) == {"a": 2, "b": 1}
+
+
+def test_readme_block(tmp_path, monkeypatch):
+    monkeypatch.setattr(numbers, "macros", lambda _r: {"AccWOpus": "97.9", "NBoot": "1{,}000",
+                                                       "Diff": "\\textminus{}0.1"})  # fmt: skip
+    tpl = tmp_path / "tpl.md"
+    tpl.write_text("Opus {AccWOpus}% over {NBoot} resamples, {Diff} pp.\n")
+    monkeypatch.setattr(numbers, "README_TEMPLATE", tpl)
+    readme = tmp_path / "README.md"
+    readme.write_text(f"top\n{numbers.START}\nold\n{numbers.END}\nbottom\n")
+    assert numbers.write_readme(tmp_path, readme)
+    assert readme.read_text() == (
+        f"top\n{numbers.START}\nOpus 97.9% over 1,000 resamples, −0.1 pp.\n{numbers.END}\nbottom\n"
+    )
+    tpl.write_text("{Missing}")
+    with pytest.raises(KeyError):
+        numbers.write_readme(tmp_path, readme)
+    readme.write_text("no markers")
+    assert not numbers.write_readme(tmp_path, readme)

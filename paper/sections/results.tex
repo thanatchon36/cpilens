@@ -190,7 +190,10 @@ For the cheap methods food is where errors bite: \BpYoyRmseFoodEfiveMLP{} basis 
 the \NameEfive{} MLP [\BpYoyRmseFoodEfiveMLPLo, \BpYoyRmseFoodEfiveMLPHi] and
 \BpYoyRmseFoodXlmrFT{} for the fine-tuned XLM-R, whose errors are one-sided (a mean of
 \BpYoyMeanFoodXlmrFT{} basis points): it understates food inflation in every month
-(Figure~\ref{fig:series}). Zero-shot transfer, which RQ1 found to get most of the weight
+(Figure~\ref{fig:series}). The core proxy reverses the ranking. It excludes fresh food, where
+most of the cheap methods' costly confusions lie, and keeps oils and fats and personal care,
+where the LLMs' lie: the fine-tuned XLM-R's core error is \BpYoyRmseCoreXlmrFT{} basis points
+[\BpYoyRmseCoreXlmrFTLo, \BpYoyRmseCoreXlmrFTHi] against \BpYoyRmseCoreOpus{} for \NameOpus. Zero-shot transfer, which RQ1 found to get most of the weight
 right, misstates headline inflation by \BpYoyRmseHeadlineEfiveMLPZeroShot{} basis points and
 food inflation by \BpYoyRmseFoodEfiveMLPZeroShot{}: getting most of the weight right does not
 bound the error from the rest.
