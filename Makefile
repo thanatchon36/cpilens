@@ -15,7 +15,10 @@ data:
 label:
 	$(UV) cpilens label --pass 1
 
-models eval econ figures paper:
+models:
+	$(UV) cpilens models
+
+eval econ figures paper:
 	@echo "$@: not built yet"; exit 1
 
 check: lint test

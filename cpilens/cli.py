@@ -134,5 +134,27 @@ def label(
     serve(pass_no, port)
 
 
+@app.command()
+def models(
+    llm: bool = typer.Option(True, help="also run the LLM passes (cached responses are free)"),
+) -> None:
+    """Embeddings, the RQ1 grid of embedding classifiers, XLM-R fine-tune, LLM predictions."""
+    from cpilens.classify import experiments, finetune
+    from cpilens.classify import llm as llm_mod
+    from cpilens.paths import RESULTS
+
+    grid = [experiments.run()]
+    main = {"nonthai+thaiweak+mocall"}
+    for b, q in ((False, True), (True, False), (False, False)):
+        grid.append(experiments.run(only=main, with_brand=b, with_quantity=q))
+    ft = [finetune.run(s) for s in ("nonthai", "nonthai+thaiweak+mocall")]
+    pl.concat([*grid, pl.DataFrame(ft)], how="diagonal_relaxed").write_csv(
+        RESULTS / "rq1_dev_grid.csv"
+    )
+    if llm:
+        llm_mod.run_eval("claude-haiku-5-5", max_usd=2.0)
+        llm_mod.run_eval("claude-opus-5-5", moc_n=1500, max_usd=8.0)
+
+
 if __name__ == "__main__":
     app()
