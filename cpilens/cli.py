@@ -238,5 +238,14 @@ def agreement() -> None:
     run_agreement()
 
 
+@app.command()
+def report() -> None:
+    """Data summary and ``paper/numbers.tex``: every number the paper prints, from results/."""
+    from cpilens.report import numbers
+
+    numbers.describe()
+    typer.echo(f"{numbers.write()} macros -> {numbers.OUT.relative_to(numbers.ROOT)}")
+
+
 if __name__ == "__main__":
     app()
