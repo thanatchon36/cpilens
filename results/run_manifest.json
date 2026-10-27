@@ -1,6 +1,4 @@
 {
-  "created_utc": "2026-10-27T08:23:14Z",
-  "git_commit": "318697c12e8856b5b6283d6b85ded9dd661d5b75",
   "python": "3.11.17",
   "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.39",
   "packages": {

@@ -1,7 +1,9 @@
-"""``results/run_manifest.json``: what produced the results (code, packages, model revisions).
+"""``results/run_manifest.json``: what produced the results (packages, model revisions, seed).
 
 Embedding and encoder revisions are the commits the Hugging Face cache resolved; LLM
-revisions are the model names the API returned in the cached responses.
+revisions are the model names the API returned in the cached responses. The file carries no
+timestamp, so it changes only when a version or revision does; the code version is the git
+commit that holds it.
 """
 
 from __future__ import annotations
@@ -9,12 +11,10 @@ from __future__ import annotations
 import json
 import os
 import platform
-import subprocess
-from datetime import UTC, datetime
 from importlib import metadata
 from pathlib import Path
 
-from cpilens.paths import RESULTS, ROOT
+from cpilens.paths import RESULTS
 
 PACKAGES = (
     "anthropic", "duckdb", "matplotlib", "numpy", "polars", "pyarrow", "scikit-learn",
@@ -38,16 +38,6 @@ def llm_models_returned(cache: Path) -> dict[str, int]:
     return dict(sorted(out.items()))
 
 
-def _git() -> str | None:
-    try:
-        r = subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True
-        )
-    except (OSError, subprocess.CalledProcessError):
-        return None
-    return r.stdout.strip()
-
-
 def build() -> dict[str, object]:
     from cpilens.classify import finetune
     from cpilens.classify.llm import LLM_CACHE
@@ -63,8 +53,6 @@ def build() -> dict[str, object]:
             continue
     hf = [m["hf"] for m in MODELS.values()] + [finetune.HF]
     return {
-        "created_utc": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "git_commit": _git(),
         "python": platform.python_version(),
         "platform": platform.platform(),
         "packages": pkgs,
