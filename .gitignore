@@ -1,0 +1,16 @@
+# data: raw downloads are large or not redistributable; see data/SOURCES.md
+data/raw/
+!data/SOURCES.md
+.cache/
+# environment and secrets
+.env
+.env.*
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.DS_Store
