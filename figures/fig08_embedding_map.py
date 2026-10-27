@@ -15,7 +15,7 @@ def main() -> None:
     al = pl.read_csv(results / "crosslingual_alignment.csv", schema_overrides={"label": pl.Utf8})
     al = al.filter(pl.col("alignment").is_not_null() & (pl.col("label") != "OOS")).sort("alignment")
     lab = names.labels()
-    fig, (a, b) = style.figure(4.0, ncols=2, gridspec_kw={"width_ratios": [1.1, 1]})
+    fig, (a, b) = style.figure(4.6, ncols=2, gridspec_kw={"width_ratios": [1.1, 1]})
     for lang, label, col, z in (  # grey and the embedding family's blue: no method colour
         ("Other", "Non-Thai products", "#b0b0b0", 1),
         ("Thai", "Thai products", style.FAMILY["embedding"], 2),
@@ -29,7 +29,7 @@ def main() -> None:
     a.set_title("(a) t-SNE map of product texts", fontsize=8.5)
     y = range(al.height)
     b.barh(y, al["alignment"], color=style.FAMILY["embedding"], height=0.7)
-    b.set_yticks(y, [lab[k] for k in al["label"]], fontsize=7)
+    b.set_yticks(y, [lab[k] for k in al["label"]], fontsize=6.5)
     b.set_xlim(0, 1)
     style.percent_axis(b, "x")
     b.grid(axis="x")
