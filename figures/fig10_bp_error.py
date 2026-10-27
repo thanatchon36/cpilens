@@ -8,7 +8,7 @@ import json
 import polars as pl
 
 from cpilens.evaluate.run import CASCADE_CHEAP, LLMS
-from cpilens.viz import names, style
+from cpilens.viz import names, select, style
 
 AGGS = (("headline", "Headline"), ("food", "Food"), ("core", "Core proxy"))
 
@@ -16,14 +16,6 @@ AGGS = (("headline", "Headline"), ("food", "Food"), ("core", "Core proxy"))
 def order() -> list[str]:
     cascades = [f"cascade__{c}__{m}" for m in LLMS for c in CASCADE_CHEAP]
     return [*CASCADE_CHEAP, *LLMS, *cascades]
-
-
-def family(m: str) -> str:
-    if m in LLMS:
-        return "llm"
-    if m.startswith("cascade__"):
-        return "cascade"
-    return "finetune" if m.startswith("xlmr") else "embedding"
 
 
 def main() -> None:
@@ -38,7 +30,7 @@ def main() -> None:
         d = e.filter(pl.col("aggregate") == agg)
         for y, m in enumerate(ms):
             r = d.filter(pl.col("method") == m).row(0, named=True)
-            c = style.FAMILY[family(m)]
+            c = style.FAMILY[select.family(m)]
             ax.plot([r["rmse_bp_lo"], r["rmse_bp_hi"]], [y, y], color=c, lw=1.6, alpha=0.45)
             ax.plot(r["rmse_bp"], y, "o", color=c, ms=4)
         ax.set_title(title, fontsize=8.5, weight="semibold")

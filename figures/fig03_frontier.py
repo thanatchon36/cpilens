@@ -7,17 +7,9 @@ import json
 import polars as pl
 
 from cpilens.evaluate.run import CASCADE_CHEAP, LLMS
-from cpilens.viz import names, style
+from cpilens.viz import names, select, style
 
 SHOWN = (*CASCADE_CHEAP, *LLMS, *(f"cascade__{CASCADE_CHEAP[0]}__{m}" for m in LLMS))
-
-
-def family(m: str) -> str:
-    if m in LLMS:
-        return "llm"
-    if m.startswith("cascade__"):
-        return "cascade"
-    return "finetune" if m.startswith("xlmr") else "embedding"
 
 
 def main() -> None:
@@ -30,7 +22,7 @@ def main() -> None:
         d = f.filter(pl.col("method") == m).sort("coverage_w")
         if d.height == 0:
             continue
-        fam = family(m)
+        fam = select.family(m)
         ls = "-" if fam not in dashes else (0, (3, 1.5))
         dashes[fam] = True
         c = style.FAMILY[fam]

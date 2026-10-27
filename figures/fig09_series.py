@@ -1,0 +1,72 @@
+"""Figure 9: official vs simulated measured year-on-year inflation, best cheap and best overall
+method, with posterior bands."""
+
+from __future__ import annotations
+
+import matplotlib.dates as mdates
+import polars as pl
+
+from cpilens.viz import names, select, style
+
+
+def main() -> None:
+    results, out = style.dirs()
+    s = pl.read_csv(results / "rq3_series.csv", try_parse_dates=True).filter(
+        pl.col("kind") == "yoy"
+    )
+    cheap, best = select.best_cheap(results), select.best_overall(results)
+    fig, axes = style.figure(3.0, ncols=2, sharey=False)
+    for ax, agg, title in zip(
+        axes, ("headline", "food"), ("(a) Headline", "(b) Food"), strict=True
+    ):
+        d = s.filter(pl.col("aggregate") == agg)
+        o = d.filter(pl.col("method") == cheap).sort("date")
+        ax.plot(
+            o["date"],
+            o["official_bp"] / 100,
+            color=style.FAMILY["official"],
+            lw=1.6,
+            label="Official",
+        )
+        for m, ls in ((cheap, (0, (3, 1.5))), (best, "-")):
+            e = d.filter(pl.col("method") == m).sort("date")
+            c = style.FAMILY[select.family(m)]
+            ax.fill_between(
+                e["date"],
+                e["measured_lo_bp"] / 100,
+                e["measured_hi_bp"] / 100,
+                color=c,
+                alpha=0.15,
+                lw=0,
+            )
+            ax.plot(e["date"], e["measured_bp"] / 100, color=c, ls=ls, label=names.method(m))
+        ax.axhline(0, color=style.RULE, lw=0.6)
+        ax.set_title(title, fontsize=8.5)
+        ax.set_ylabel("Year-on-year inflation (%)")
+        ax.xaxis.set_major_locator(mdates.MonthLocator(bymonth=(3, 6, 9, 12)))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter("%b\n%Y"))
+        ax.tick_params(axis="x", labelsize=7)
+    axes[0].legend(loc="best", fontsize=7)
+    e = (
+        pl.read_csv(results / "rq3_errors.csv")
+        .filter(
+            (pl.col("variant") == "full")
+            & (pl.col("weights") == "equal")
+            & (pl.col("kind") == "yoy")
+            & (pl.col("aggregate") == "food")
+            & (pl.col("method") == cheap)
+        )
+        .row(0, named=True)
+    )
+    style.finish(
+        fig,
+        f"{names.method(cheap)} would misstate food inflation by {e['max_abs_bp']:.0f} bp at worst",
+        style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_GOLD, style.SOURCE_CALC),
+        "Simulated with each method's gold confusion matrix; bands: 95% over Dirichlet draws. "
+        "Out-of-scope items held at official values.",
+    )
+    style.save(fig, "fig09_series", out)
+
+
+if __name__ == "__main__":
+    main()
