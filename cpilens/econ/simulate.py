@@ -93,12 +93,14 @@ def official(method: str = "equal") -> Official:
 
 
 def measured_relatives(
-    off: Official, P: np.ndarray, n: np.ndarray
+    off: Official, P: np.ndarray, n: np.ndarray, noise: np.ndarray | None = None
 ) -> tuple[np.ndarray, np.ndarray]:
     """R~ (months x labels) and phi (true rows incl. OOS x labels).
 
     ``P``: (L+1) x (L+2) row-stochastic, rows = labels + OOS, columns = labels + OOS +
-    ABSTAIN. ``n``: universe shares of the L+1 true rows.
+    ABSTAIN. ``n``: universe shares of the L+1 true rows. ``noise``: optional months x
+    labels multiplicative factor (product-level sampling noise, see ``product_noise``),
+    applied before empty items are renormalised.
     """
     k = len(off.labels)
     mass = n[:, None] * P[:, :k]  # true row -> predicted in-scope label
@@ -106,6 +108,8 @@ def measured_relatives(
     phi = np.divide(mass, inflow, out=np.zeros_like(mass), where=inflow > 0)
     r_true = np.column_stack([off.R, off.r_oos])  # months x (L+1)
     rt = r_true @ phi
+    if noise is not None:
+        rt = rt * noise
     empty = inflow <= 0
     if empty.any():
         groups = np.array([group_of(lab) for lab in off.labels])
@@ -116,6 +120,27 @@ def measured_relatives(
             else:
                 rt[:, j] = off.R[:, j]
     return rt, phi
+
+
+def inflow(off: Official, P: np.ndarray, n: np.ndarray) -> np.ndarray:
+    """Universe share of products measured in each in-scope label."""
+    return (n[:, None] * P[:, : len(off.labels)]).sum(0)
+
+
+def product_noise(
+    off: Official, flow: np.ndarray, n_products: float, sigma: float, rng: np.random.Generator
+) -> np.ndarray:
+    """Multiplicative noise from measuring item j with a finite set of products.
+
+    Each product's log price deviates from its item's by a random walk with annual standard
+    deviation ``sigma``; item j averages ``n_products * flow_j`` products, so its log
+    relative carries a random walk with monthly variance sigma^2 / (12 n_products flow_j).
+    An item with any inflow is measured from at least one product.
+    """
+    m, k = off.R.shape
+    n_j = np.maximum(n_products * flow, 1.0)
+    sd = np.where(flow > 0, sigma / np.sqrt(12 * n_j), 0.0)
+    return np.exp(np.cumsum(rng.normal(size=(m, k)) * sd, axis=0))
 
 
 def measured_index(off: Official, rt: np.ndarray) -> dict[str, np.ndarray]:
@@ -149,8 +174,10 @@ def inflation_errors_bp(off: Official, est: dict[str, np.ndarray]) -> pl.DataFra
     return pl.DataFrame(rows)
 
 
-def simulate(off: Official, P: np.ndarray, n: np.ndarray) -> pl.DataFrame:
-    rt, _ = measured_relatives(off, P, n)
+def simulate(
+    off: Official, P: np.ndarray, n: np.ndarray, noise: np.ndarray | None = None
+) -> pl.DataFrame:
+    rt, _ = measured_relatives(off, P, n, noise)
     return inflation_errors_bp(off, measured_index(off, rt))
 
 
@@ -207,20 +234,51 @@ def decompose(
     return pl.DataFrame(rows).sort("mean_abs_bp", descending=True)
 
 
+def eb_prior(counts: np.ndarray, alpha: float = 1.0) -> np.ndarray:
+    """Empirical-Bayes Dirichlet prior for each confusion row, worth ``alpha`` products.
+
+    Row k's prior mean puts the method's pooled accuracy rho on its own column k and spreads
+    1 - rho over the other columns in proportion to where the method's errors go overall
+    (pooled over rows, column k excluded). Sparse rows are shrunk towards the method's own
+    behaviour, not towards a flat matrix: a flat prior would send mass to arbitrary items and
+    manufacture inflation error even for a perfect classifier, whereas a perfect classifier
+    (rho = 1) keeps an identity prior and so no error.
+    """
+    r = counts.shape[0]
+    diag = counts[np.arange(r), np.arange(r)]
+    total = counts.sum()
+    rho = diag.sum() / total if total > 0 else 1.0
+    wrong = counts.copy()
+    wrong[np.arange(r), np.arange(r)] = 0
+    err_cols = wrong.sum(0)
+    prior = np.zeros_like(counts, dtype=float)
+    for k in range(r):
+        q = err_cols.copy()
+        q[k] = 0
+        if q.sum() > 0:
+            prior[k] = alpha * (1 - rho) * q / q.sum()
+            prior[k, k] = alpha * rho
+        else:
+            prior[k, k] = alpha
+    return prior
+
+
 def confusion_draws(
-    counts: np.ndarray, n_draws: int, alpha: float = 1.0, seed: int = 0
+    counts: np.ndarray, n_draws: int, prior: np.ndarray, seed: int = 0
 ) -> np.ndarray:
-    """Posterior draws of a row-stochastic confusion matrix: each row ~ Dirichlet(counts +
-    alpha / C). Rows without observations draw from the flat prior and should carry no
-    universe mass (n_k = 0) in the simulation."""
+    """Posterior draws of a row-stochastic confusion matrix, row k ~ Dirichlet(counts_k +
+    prior_k). Columns with zero parameter are exactly zero (gamma representation)."""
     rng = np.random.default_rng(seed)
-    a = counts + alpha / counts.shape[1]
-    return np.stack([np.vstack([rng.dirichlet(row) for row in a]) for _ in range(n_draws)])
+    a = counts + prior
+    pos = a > 0
+    g = np.zeros((n_draws, *a.shape))
+    g[:, pos] = rng.gamma(a[pos], size=(n_draws, int(pos.sum())))
+    return g / g.sum(2, keepdims=True)
 
 
-def point_confusion(counts: np.ndarray, alpha: float = 1.0) -> np.ndarray:
+def point_confusion(counts: np.ndarray, prior: np.ndarray) -> np.ndarray:
     """Posterior-mean confusion matrix (the smoothed point estimate)."""
-    a = counts + alpha / counts.shape[1]
+    a = counts + prior
     return a / a.sum(1, keepdims=True)
 
 

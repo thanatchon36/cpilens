@@ -67,3 +67,12 @@ One line per non-obvious choice, newest last. `[default]` = taken without a repl
   - the brand/quantity ablations;
   - the cross-lingual transfer steps.
   - A cascade's threshold maximises Thai weak-validation acc_w (ties: cheaper). Its confidence is that of whichever model answered.
+
+## Phase 4 — 2026-10-27 (materiality on gold: `cpilens econ`)
+- Confusion counts per method come from the gold labels (UNK excluded). Universe shares of the true labels are Horvitz–Thompson estimates. Uncertainty comes from 1,000 Dirichlet posterior draws of the confusion matrix; the shares are held at their point estimates.
+- Smoothing is empirical Bayes, worth α = 1 product per row. Row k's prior mean puts the method's pooled accuracy ρ on column k and spreads 1 − ρ over the other columns in proportion to where that method's errors go overall. A flat Dirichlet(α/C) prior was tried first and rejected. A sanity run scored one model against its own answers (a perfect classifier by construction) and showed about −13 bp headline YoY error, coming purely from flat mass sent to arbitrary items in sparse rows. Under the empirical-Bayes prior a perfect classifier gives exactly zero error in every draw (unit test).
+- Variants:
+  - `full`.
+  - `coverage_only`: a perfect classifier on the gold universe. It is non-zero only if an item has no gold products and is renormalised within its group. The part due to classification is `full` minus `coverage_only`.
+  - `noise_s0.05` / `noise_s0.10`: product-level sampling noise as a sensitivity. Each product's log price deviates from its item's by a random walk with an *assumed* annual s.d. σ. Item j averages max(1, N·inflow_j) products, with N the HT universe size. The estimate is the draw median.
+- Flows in the decomposition are typed as within group (same 3-digit group), within division, cross division, OOS leak, or empty item. Outputs: `results/rq3_errors.csv`, `rq3_series.csv` (MoM/YoY official vs measured with draw bands) and `rq3_decomposition.csv`.

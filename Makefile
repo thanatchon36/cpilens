@@ -22,7 +22,10 @@ models:
 eval:
 	$(UV) cpilens eval
 
-econ figures paper:
+econ:
+	$(UV) cpilens econ
+
+figures paper:
 	@echo "$@: not built yet"; exit 1
 
 check: lint test

@@ -219,5 +219,13 @@ def eval_() -> None:
     run_gold()
 
 
+@app.command()
+def econ() -> None:
+    """RQ3: basis-point inflation errors implied by each method's gold confusion matrix."""
+    from cpilens.econ.run import run_econ
+
+    run_econ()
+
+
 if __name__ == "__main__":
     app()
