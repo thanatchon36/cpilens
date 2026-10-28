@@ -36,6 +36,7 @@ paper:
 	$(UV) python scripts/check_numbers.py
 	cd paper && tectonic -X compile main.tex
 	cd paper && tectonic -X compile brief.tex
+	$(UV) python scripts/web_paper.py
 
 check: lint test
 

@@ -8,7 +8,8 @@
 [![Release](https://img.shields.io/badge/release-v0.1.0-blue)](https://github.com/thanatchon36/cpilens/releases/tag/v0.1.0)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23686886.svg)](https://doi.org/10.5281/zenodo.23686886)
 
-📄 **[Read the paper (PDF)](paper/main.pdf)** ·
+📄 **[Read the paper on the web](https://thanatchon36.github.io/cpilens/paper/)** ·
+📑 **[Paper (PDF)](paper/main.pdf)** ·
 📝 **[Policy brief (PDF)](paper/brief.pdf)** ·
 📊 **[Figures](figures/out/)** ·
 📚 **[Documentation](docs/)** ·
