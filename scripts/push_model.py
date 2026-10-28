@@ -112,8 +112,8 @@ weights:
 | Metric | This model | For comparison |
 |---|---|---|
 | Expenditure-weighted accuracy | {v[f"AccW{tag}"]}% | {v["AccWOpus"]}% ({v["NameOpus"]} prompted) |
-| Accuracy over the whole held-out list | {v[f"Acc{tag}"]}% | — |
-| Macro-F1 | {v[f"MacroF{tag}"]}% | — |
+| Accuracy over the whole held-out list | {v[f"Acc{tag}"]}% | {v["AccOpus"]}% ({v["NameOpus"]}) |
+| Macro-F1 | {v[f"MacroF{tag}"]}% | {v["MacroFOpus"]}% ({v["NameOpus"]}) |
 {rows}
 
 **A frontier LLM is far better at this task.** The paper's finding is that prompting
