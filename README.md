@@ -13,6 +13,7 @@
 📝 **[Policy brief (PDF)](paper/brief.pdf)** ·
 📊 **[Figures](figures/out/)** ·
 📚 **[Documentation](https://thanatchon36.github.io/cpilens/)** ·
+🤗 **[Model on Hugging Face](https://huggingface.co/thanatchon36/cpilens-xlmr-thcpi)** ·
 🧾 **[Data sources](data/SOURCES.md)**
 
 **How much does product classification cost in basis points?** Multilingual classification of

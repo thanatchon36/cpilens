@@ -16,6 +16,11 @@ in-scope items of the Thai CPI (base 2566) or to `OOS`, with a calibrated confid
 | LLM prompting | Claude Haiku 5.5, Claude Opus 5.5 (Anthropic API), few-shot, JSON-schema output | No training; official examples in the prompt |
 | Cascade | A cheap classifier, routing low-confidence products to an LLM | Threshold chosen on development data |
 
+The fine-tuned encoder trained on all official labels is on the Hugging Face Hub as
+[`thanatchon36/cpilens-xlmr-thcpi`](https://huggingface.co/thanatchon36/cpilens-xlmr-thcpi)
+(MIT; uploaded by `scripts/push_model.py`). It is published as a cheap local baseline, not as
+the recommended classifier.
+
 Exact revisions, package versions and the seed are in `results/run_manifest.json`;
 hyperparameters are in the paper's appendix (generated from the code).
 

@@ -11,8 +11,8 @@ Usage::
     python scripts/push_model.py --repo <user>/<name> --push          # stage and upload
     python scripts/push_model.py --repo <user>/<name> --scenario nonthai --push
 
-The token comes from ``HF_TOKEN`` in the environment or in ``.env`` (gitignored); nothing is
-uploaded without ``--push``.
+The token comes from ``HF_TOKEN`` in the environment or ``.env`` (gitignored), else from
+``hf auth login``; nothing is uploaded without ``--push``.
 """
 
 from __future__ import annotations
@@ -58,7 +58,9 @@ def token() -> str | None:
         for line in env.read_text(encoding="utf-8").splitlines():
             if line.startswith("HF_TOKEN="):
                 return line.split("=", 1)[1].strip().strip("\"'")
-    return None
+    from huggingface_hub import get_token
+
+    return get_token()  # the login saved by `hf auth login`, if any
 
 
 def card(scenario: str, repo: str, licence: str) -> str:
