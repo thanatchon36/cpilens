@@ -1,0 +1,45 @@
+site_name: cpilens
+site_description: What product classification costs in basis points of measured inflation
+site_url: https://thanatchon36.github.io/cpilens/
+repo_url: https://github.com/thanatchon36/cpilens
+repo_name: thanatchon36/cpilens
+copyright: >
+  MIT (code) · ODbL 1.0 (data derived from Open Food Facts) ·
+  The views expressed are the author's own and do not necessarily reflect those of the Bank of
+  Thailand. This work uses only publicly available data.
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/logo.svg
+  features: [navigation.sections, content.code.copy]
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: blue grey
+      accent: blue
+      toggle: {icon: material/brightness-7, name: Switch to dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: blue grey
+      accent: blue
+      toggle: {icon: material/brightness-4, name: Switch to light mode}
+strict: true
+nav:
+  - Home: index.md
+  - Read the paper: paper/index.html
+  - Cards:
+      - Data card: data_card.md
+      - Model card: model_card.md
+  - How it was built:
+      - Design decisions: decisions.md
+  - Sources:
+      - References checked: references_verified.md
+      - Project Spectrum notes: spectrum_notes.md
+exclude_docs: |
+  readme_results.md
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - toc:
+      permalink: true

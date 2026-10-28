@@ -12,7 +12,7 @@
 **[PDF](paper/main.pdf)** ·
 📝 **[Policy brief (PDF)](paper/brief.pdf)** ·
 📊 **[Figures](figures/out/)** ·
-📚 **[Documentation](docs/)** ·
+📚 **[Documentation](https://thanatchon36.github.io/cpilens/)** ·
 🧾 **[Data sources](data/SOURCES.md)**
 
 **How much does product classification cost in basis points?** Multilingual classification of

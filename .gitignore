@@ -31,3 +31,6 @@ paper/*.bbl
 paper/*.blg
 paper/*.log
 paper/*.out
+
+# MkDocs site (built by `make docs`, deployed by the pages workflow)
+site/

@@ -32,6 +32,9 @@ dev = [
     "pytest-cov>=5.0",
     "ruff>=0.6",
 ]
+docs = [
+    "mkdocs-material>=9.5",
+]
 ml = [
     "scikit-learn>=1.5",
     "sentence-transformers>=6.2.0",

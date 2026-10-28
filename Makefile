@@ -1,7 +1,7 @@
 # cpilens pipeline. `make all` rebuilds everything from public sources.
 # Stages not built yet print a notice instead of failing silently.
 UV := uv run
-.PHONY: all data label models eval econ agreement figures paper arxiv check test lint smoke
+.PHONY: all data label models eval econ agreement figures paper docs arxiv check test lint smoke
 
 all: data models eval econ figures paper check
 
@@ -37,6 +37,9 @@ paper:
 	cd paper && tectonic -X compile main.tex
 	cd paper && tectonic -X compile brief.tex
 	$(UV) python scripts/web_paper.py
+
+docs: paper
+	$(UV) --group docs mkdocs build --strict
 
 arxiv: paper
 	$(UV) python scripts/arxiv_bundle.py
