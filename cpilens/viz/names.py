@@ -9,6 +9,13 @@ from cpilens.paths import TAXONOMY
 EMB = {"e5-large": "e5-large", "bge-m3": "bge-m3", "xlmr": "XLM-R"}
 CLF = {"knn": "k-NN", "linear": "logistic", "mlp": "MLP", "finetune": "fine-tuned"}
 LLM = {"claude-haiku-5-5": "Claude Haiku 5.5", "claude-opus-5-5": "Claude Opus 5.5"}
+# the method families that ``style.FAMILY`` colours, as a legend names them
+FAMILY = {
+    "embedding": "Frozen embeddings + classifier",
+    "finetune": "Fine-tuned encoder",
+    "llm": "LLM prompting",
+    "cascade": "Cascade: cheap model, unsure cases to an LLM",
+}
 
 
 def method(name: str) -> str:

@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 
 import polars as pl
+from matplotlib.lines import Line2D
 
 from cpilens.evaluate.run import CASCADE_CHEAP, LLMS
 from cpilens.viz import names, select, style
@@ -28,7 +29,7 @@ def main() -> None:
     e = allv.filter(pl.col("variant") == "full")
     cl = allv.filter(pl.col("variant") == "cluster")
     ms = [m for m in order() if m in set(e["method"])][::-1]
-    fig, axes = style.figure(3.0, ncols=3, sharey=True)
+    fig, axes = style.figure(3.6, ncols=3, sharey=True)
     for ax, (agg, title) in zip(axes, AGGS, strict=True):
         d = e.filter(pl.col("aggregate") == agg)
         dc = cl.filter(pl.col("aggregate") == agg)
@@ -52,6 +53,11 @@ def main() -> None:
     )
     best = head.row(0, named=True)
     cheap = head.filter(pl.col("method").is_in(CASCADE_CHEAP)).row(0, named=True)
+    fams = list(dict.fromkeys(select.family(m) for m in ms[::-1]))
+    key = [
+        Line2D([], [], color=style.FAMILY[f], lw=3.2, alpha=0.6, marker="o", ms=4, mew=0)
+        for f in fams
+    ]
     style.finish(
         fig,
         f"Headline error, upper end of the wider interval: {names.method(best['method'])} "
@@ -63,6 +69,7 @@ def main() -> None:
         "sub-items (errors clustered). Products in proportion to CPI weights. Out-of-scope "
         "items and items without specifications held at official values. Panels have their "
         "own scales.",
+        legend=(key, [names.FAMILY[f] for f in fams]),
     )
     style.save(fig, "fig10_bp_error", out)
 

@@ -41,7 +41,8 @@ def main() -> None:
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         "Bars: share of each item's held-out official specifications classified correctly; "
         "grey line: cumulative evaluated CPI weight in bar order. Items without specifications "
-        "are omitted.",
+        "are omitted. Bar colour marks the method family, as in the other figures "
+        f"({names.FAMILY[select.family(cheap)]}; {names.FAMILY[select.family(best)]}).",
     )
     style.save(fig, "fig06_item_recall", out)
 

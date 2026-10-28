@@ -12,6 +12,7 @@ import textwrap
 
 import matplotlib.pyplot as plt
 import polars as pl
+from matplotlib.lines import Line2D
 from matplotlib.patches import FancyBboxPatch
 
 from cpilens.evaluate.run import CASCADE_CHEAP, LLMS
@@ -127,7 +128,7 @@ def main() -> None:
     full = d.filter(pl.col("variant") == "full")
     cl = d.filter(pl.col("variant") == "cluster")
     ms = METHODS[::-1]
-    ax = fig.add_axes((0.30, 0.165, 0.62, 0.29))
+    ax = fig.add_axes((0.30, 0.225, 0.62, 0.235))
     for y, m in enumerate(ms):
         r = full.filter(pl.col("method") == m).row(0, named=True)
         rc = cl.filter(pl.col("method") == m).row(0, named=True)
@@ -159,6 +160,21 @@ def main() -> None:
     ax.grid(axis="x")
     ax.grid(axis="y", visible=False)
     ax.set_xlabel("RMSE of the year-on-year headline inflation error (basis points)", fontsize=15)
+    fams = list(dict.fromkeys(select.family(m) for m in METHODS))
+    fig.legend(
+        [
+            Line2D([], [], color=style.FAMILY[f], lw=9, alpha=0.5, marker="o", ms=11, mew=0)
+            for f in fams
+        ],
+        [names.FAMILY[f] for f in fams],
+        loc="upper left",
+        bbox_to_anchor=(left - 0.008, 0.170),
+        ncols=2,
+        fontsize=14,
+        frameon=False,
+        handlelength=2.2,
+        columnspacing=2.0,
+    )
     fig.text(
         left,
         0.505,
