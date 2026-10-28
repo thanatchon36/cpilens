@@ -45,14 +45,16 @@ RESULTS = [
     ),
     (
         "RQ2",
-        r"Cascade \AccWCasEfiveMLPOpus% at \CostPctCasEfiveMLPOpus% of the LLM's cost",
+        r"Cascade \AccWCasEfiveMLPOpus% at \CostPctCasEfiveMLPOpus% of the LLM's cost "
+        "on the held-out list",
         r"\NameEfive keeps the products it is sure of and sends the rest to \NameOpus",
     ),
     (
         "RQ3",
-        r"Headline inflation off by \BpYoyRmseHeadlineOpus bp with the LLM",
+        r"Headline inflation off by \BpYoyRmseHeadlineOpus basis points with the LLM",
         r"year-on-year RMSE; at most \BpYoyRmseHeadlineOpusClusterHi if errors cluster; "
-        r"\BpYoyRmseHeadlineBgeMLP to \BpYoyRmseHeadlineEfiveMLP bp for cheaper classifiers",
+        r"\BpYoyRmseHeadlineBgeMLP to \BpYoyRmseHeadlineEfiveMLP basis points "
+        "for cheaper classifiers",
     ),
 ]
 
@@ -104,6 +106,14 @@ def flatten(tex: str) -> str:
         )
     )
     tex = re.sub(r"\\([A-Za-z]+)(?:\{\})?", lambda m: raw.get(m.group(1), m.group(0)), tex)
+    # pandoc drops \textminus and keeps {,} as a span; enumitem options and \path are unknown to it
+    tex = (
+        tex.replace("\\textminus{}", "\u2212").replace("\\textminus", "\u2212").replace("{,}", ",")
+    )
+    tex = re.sub(r"\\begin\{description\}\[[^\]]*\]", r"\\begin{description}", tex)
+    tex = re.sub(
+        r"\\path\{([^}]*)\}", lambda m: "\\texttt{" + m.group(1).replace("_", "\\_") + "}", tex
+    )
     # pandoc drops the first token of a cell whose column has a >{...} prefix
     tex = tex.replace(">{\\raggedright\\arraybackslash}", "")
     # \paragraph would become a numbered heading; in the PDF it is a run-in bold lead

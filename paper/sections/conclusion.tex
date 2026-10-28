@@ -4,8 +4,8 @@ Classification is the step that turns a list of products into a price index, and
 can be stated in the unit of the index. For Thai product text, transfer from other languages
 gets an embedding classifier to \AccWEfiveMLPZeroShot\% of the evaluated CPI weight without a
 single Thai label; official labels raise this to \AccWEfiveMLP\%; and a frontier LLM reaches
-\AccWOpus\%, at a cost that a cascade cuts to \CostPctCasEfiveMLPOpus\% with no loss the reference set can
-detect. Passed
+\AccWOpus\%, at a cost that a cascade cuts to \CostPctCasEfiveMLPOpus\% on the held-out list with no loss
+the reference set can detect. Passed
 through a simulator of the Thai CPI, the LLM's errors would misstate headline year-on-year
 inflation by \BpYoyRmseHeadlineOpus{} basis points and the cheaper classifiers' by
 \BpYoyRmseHeadlineBgeMLP{} to \BpYoyRmseHeadlineEfiveMLP. Accuracy does not rank methods by that error, and neither does the

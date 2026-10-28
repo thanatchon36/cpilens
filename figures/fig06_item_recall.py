@@ -36,11 +36,11 @@ def main() -> None:
     low = d.filter(pl.col("recall") < 0.5)["weight"].sum() / d["weight"].sum()
     style.finish(
         fig,
-        f"{100 * low:.0f}% of in-scope CPI weight sits in items that {names.method(cheap)} "
+        f"{100 * low:.0f}% of evaluated CPI weight sits in items that {names.method(cheap)} "
         "recalls less than half the time",
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         "Bars: share of each item's held-out official specifications classified correctly; "
-        "grey line: cumulative in-scope CPI weight in bar order. Items without specifications "
+        "grey line: cumulative evaluated CPI weight in bar order. Items without specifications "
         "are omitted.",
     )
     style.save(fig, "fig06_item_recall", out)

@@ -38,7 +38,7 @@ estimated weights. The crosswalk from Open Food Facts category tags to these ite
 
 \begin{table}[H]
 \centering\small
-\caption{In-scope items. Weight: price-updated CPI weight, \% of headline, estimated inside
+\caption{In-scope items. Equal, NNLS: price-updated CPI weight, \% of headline, estimated inside
 official weight cells by an equal split or by NNLS. Ref.: specifications in the reference
 set (zero where the office publishes none). Source: TPSO; MOC; UNSD; author's calculations.}
 \label{tab:items}
@@ -114,7 +114,7 @@ Model & Stage & Calls & Input tokens & Output tokens & USD \\
 
 \begin{description}[leftmargin=0pt, itemsep=0.2em]
 \item[OOS] Out of scope: a product of an item that the classifiers do not cover (energy,
-services, clothing, durable goods and the like). Sending a product to OOS removes it from
+services, clothing, durable goods and the like). Sending a product to \textsc{oos} removes it from
 measurement.
 \item[Weighted accuracy] The share of the evaluated CPI weight classified correctly,
 equation~\eqref{eq:accw}.

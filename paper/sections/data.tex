@@ -6,7 +6,7 @@ and the weight each carries in headline, food and core inflation
 (Section~\ref{sec:cpi}). The same weights show which part of the index a product classifier
 can reach at all (Section~\ref{sec:scope}). Product text comes from two places: Open Food
 Facts and Open Beauty Facts, crowd-sourced product names in many languages with weak
-category labels, and the Ministry of Commerce's price-collection specifications, Thai text
+category labels; and the Ministry of Commerce's price-collection specifications, Thai text
 that the office itself labels with item codes (Section~\ref{sec:text}). Specifications held
 out from training form the reference set on which every method is scored
 (Section~\ref{sec:ref}). Table~\ref{tab:sources} in Appendix~\ref{app:repro} lists the sources
@@ -19,19 +19,19 @@ The Thai consumer price index is compiled monthly by the Trade Policy and Strate
 and the series on this base has been in use since January 2568 (2025)
 \citep{tpso2025cpinote}. Like most national CPIs it is a Lowe index
 \citep{imf2020cpimanual}: expenditure weights from a base period, price-updated to a price
-reference month, here December 2567. TPSO's open API publishes monthly indices for the
-headline, divisions, groups and items \citep{tpso2026api}. It publishes no weights. The
+reference month, here December 2567 (2024). TPSO's open API publishes monthly indices for the
+headline, divisions, groups and items \citep{tpso2026api}, but no weights. The
 monthly release publishes price-updated weight shares for the official aggregates only
 (headline, the divisions, the food groups and the analytical series such as core CPI). We
-recover those shares from the releases and check that they add up the hierarchy and
+recover those shares from the releases and check that they add up across the hierarchy and
 reproduce the official headline from the published sub-indices.
 
 Below the published aggregates, item weights are not public. We partition the item codes
 into \emph{cells}: each official aggregate owns the items whose deepest published ancestor it
 is, and the cell weight is the aggregate's weight minus that of the published aggregates
 nested below it. Within a cell we estimate item weights in two ways and report both: an equal
-split (primary) and non-negative least squares on the Lowe identity, which chooses the split
-that best reproduces the cell's index from its items' indices (sensitivity). Neither is an
+split (primary) and non-negative least squares (NNLS) on the Lowe identity, which chooses the
+split that best reproduces the cell's index from its items' indices (sensitivity). Neither is an
 official weight, and the paper never calls it one.
 
 \subsection{Scope: the items a product classifier can reach}\label{sec:scope}
@@ -70,7 +70,7 @@ about COICOP (for example, snacks belong to flour products in the Thai CPI). Thi
 labels: \NWeakNonthai{} non-Thai products and \NWeakThai{} Thai products. Weak labels are
 used for training and development, never for evaluation.
 
-\paragraph{Official specifications.} The Ministry of Commerce publishes the product
+\paragraph{Official specifications.} The Ministry of Commerce (MOC) publishes the product
 specifications TPSO uses for price collection: short Thai descriptions with brand and pack
 size, each under an official item code \citep{moc2026specs}. They cover the whole basket, so
 specifications of items outside our scope carry the label \textsc{oos}. Each specification
@@ -78,16 +78,16 @@ sits under a sub-item (a seven-digit code; jasmine rice under rice, say). We hol
 sub-items: within every item, a fifth of its sub-items (at least one) form the test split,
 another fifth validation and the rest training, so that a test specification's sub-item is
 never seen in training; an item with a single sub-item is split by specification instead.
-\NMocDupDropped{} test specifications whose text duplicates a training one are dropped. This
+We drop the \NMocDupDropped{} test specifications whose text duplicates a training one. This
 leaves \NMocTrainval{} specifications for training and validation and \NMocTest{} held out,
-\NMocTestOos{} of them out of scope. \NItemsWithoutSpecs{} in-scope items, ready-to-eat food
-and sugar and confectionery, have no specifications in the published file and cannot be
+\NMocTestOos{} of them out of scope. The \NItemsWithoutSpecs{} in-scope items with no
+specifications in the published file, ready-to-eat food and sugar and confectionery, cannot be
 evaluated; the \NMocTestItems{} evaluated items carry \RefWeightEqual\% of the headline
 weight under the equal split (\InScopeWeightEqual\% for the full scope).
 
 \subsection{The reference set}\label{sec:ref}
 
-Every method is evaluated on the held-out specifications, which we call the reference set:
+Every method is evaluated on the reference set, drawn from the held-out specifications:
 labels assigned by the office that defines the classification, on text it wrote for its own
 price collection. The set holds every held-out in-scope specification and, because the
 out-of-scope class would otherwise be two thirds of it, a fixed random \NRefOos{} of the

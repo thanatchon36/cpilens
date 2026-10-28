@@ -12,9 +12,9 @@ web scraping for the HICP treat classification as one of the main processing ste
 \citep{eurostat2017scanner, eurostat2020webscraping}, and euro-area statistics have moved
 towards these sources \citep{eiglsperger2019hicp}. National statistical offices have
 classified products with machine learning: the ONS with clustering and decision trees
-\citep{metcalfe2016clip} and with semi-supervised label propagation into CPIH basket items
-\citep{martindale2020semi}, Statistics Netherlands with supervised classifiers, of which
-logistic regression performed best \citep{harms2019cbs}, and the U.S. Census Bureau with
+\citep{metcalfe2016clip} and with semi-supervised label propagation into the items of the
+UK CPIH basket \citep{martindale2020semi}, Statistics Netherlands with supervised classifiers, of which
+logistic regression performed best \citep{harms2019cbs}, and the US Census Bureau with
 text classification of product descriptions for the Economic Census
 \citep{roberson2021applying}. The Australian Bureau of Statistics reported that it was
 investigating machine learning to automate the classification of web-scraped products
@@ -22,8 +22,8 @@ investigating machine learning to automate the classification of web-scraped pro
 \citep{unece2021ml}. These studies report accuracy; they do not translate it into the
 error of the resulting index.
 
-\paragraph{Project Spectrum.} The closest work is the BIS Innovation Hub's Project Spectrum
-\citep{bis2026spectrum}, which classifies the ECB's Daily Price Dataset into ECOICOP 2018
+\paragraph{Project Spectrum.} The BIS Innovation Hub's Project Spectrum
+\citep{bis2026spectrum} classifies the ECB's Daily Price Dataset into ECOICOP 2018
 subclasses. It finds that text embeddings with classic classifiers reach accuracy comparable
 to LLM prompting at a small fraction of the cost and time \citep[p.~3]{bis2026spectrum}, and
 reports accuracy weighted by CPI expenditure at the subclass level

@@ -22,3 +22,12 @@ htmlcov/
 # private planning notes (kept out of the public repo)
 MISSION.md
 PROGRESS.md
+
+# arXiv bundle (built by scripts/arxiv_bundle.py)
+paper/arxiv/
+paper/arxiv.tar.gz
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out

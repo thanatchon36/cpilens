@@ -34,7 +34,8 @@ the Thai CPI and measure what each method's errors would do to measured inflatio
 Transfer from non-Thai products alone gets an e5-large classifier to 60.3%
 of the evaluated CPI weight, and all 24,456 official labels raise it to 68.8%.
 Claude Opus 5.5 reaches 97.9% and Claude Haiku 5.5 95.4%, and a cascade from e5-large to
-Claude Opus 5.5 scores 97.8% at 27% of its cost. With Claude Opus 5.5's
+Claude Opus 5.5 scores 97.8% at 27% of its cost on the held-out
+list. With Claude Opus 5.5's
 confusion matrix, headline year-on-year inflation would be misstated by
 1.9 basis points (RMSE; at most 3.7 at the
 upper end of a 95% interval that allows errors to cluster), against

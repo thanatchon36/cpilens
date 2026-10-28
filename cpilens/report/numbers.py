@@ -46,6 +46,7 @@ for _n, _w in BUDGET_WORD.items():  # the learning curve of the e5-large MLP
     ALIAS[f"e5-large__mlp__moc{_n}"] = f"EfiveMLPMoc{_w}"
 for _v, _w in (("nobrand", "NoBrand"), ("noqty", "NoQty"), ("nobrand-noqty", "NoBrandNoQty")):
     ALIAS[f"e5-large__mlp__nonthai+thaiweak+mocall-{_v}"] = f"EfiveMLP{_w}"
+ALIAS["bge-m3__mlp__nonthai+thaiweak+mocall-nobrand"] = "BgeMLPNoBrand"
 for _c in CASCADE_CHEAP:
     for _l in LLMS:
         ALIAS[f"cascade__{_c}__{_l}"] = f"Cas{ALIAS[_c]}{ALIAS[_l]}"
@@ -369,9 +370,18 @@ def _camel(key: str) -> str:
     return "".join(p.title() for p in key.split("_"))
 
 
+def _dev(r: Path) -> dict[str, str]:
+    """The LLMs as the development set scored them: the sweep rows that route every product."""
+    f = r / "cascade_dev.csv"
+    if not f.exists():
+        return {}
+    d = pl.read_csv(f).filter((pl.col("threshold") > 1) & (pl.col("cheap") == CASCADE_CHEAP[0]))
+    return {f"DevAccW{ALIAS[row['llm']]}": pct(row["acc_w"]) for row in d.iter_rows(named=True)}
+
+
 def macros(results: Path = RESULTS) -> dict[str, str]:
     m: dict[str, str] = {}
-    for part in (_config, _names, _data, _costs, _gold, _paired, _errors, _rq3, _rq4):
+    for part in (_config, _names, _data, _costs, _gold, _dev, _paired, _errors, _rq3, _rq4):
         m |= part(results)
     bad = [k for k in m if not k.isalpha()]
     if bad:

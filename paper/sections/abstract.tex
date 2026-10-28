@@ -6,7 +6,7 @@ price-collection specifications, weight every score by CPI expenditure, and pass
 method's confusion matrix through a simulator of the Thai CPI. Transfer from non-Thai
 products alone classifies \AccWEfiveMLPZeroShot\% of the evaluated weight correctly, and all
 official labels raise this to \AccWEfiveMLP\%. A frontier LLM reaches \AccWOpus\%, and a cascade
-scores \AccWCasEfiveMLPOpus\% at \CostPctCasEfiveMLPOpus\% of its cost. With the LLM's confusion matrix, headline
+scores \AccWCasEfiveMLPOpus\% at \CostPctCasEfiveMLPOpus\% of its cost on the held-out list. With the LLM's confusion matrix, headline
 year-on-year inflation would be misstated by \BpYoyRmseHeadlineOpus{} basis points (RMSE);
 with cheaper classifiers, by \BpYoyRmseHeadlineBgeMLP{} to \BpYoyRmseHeadlineEfiveMLP. Accuracy does not rank methods by
 this error. Code and derived data are open.

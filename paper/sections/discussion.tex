@@ -1,15 +1,15 @@
 \section{Discussion: what this means for central banks in Asia}\label{sec:discussion}
 
-Many central banks and statistical offices in Asia are building price measures from web and
-scanner data in languages for which little labelled product text exists. The Thai results
+Central banks and statistical offices in Asia that build price measures from web and
+scanner data work in languages for which little labelled product text exists. The Thai results
 suggest five points for that work. Each holds for one index, one language and the office's
 own text, and should be checked on other data before it is relied on.
 
-\paragraph{Basis points are the measure that matters.} Weighted accuracy reversed the ranking that
-plain accuracy gave, and even weighted accuracy did not rank methods by their effect on
-measured inflation, and basis points alone flatter a classifier that measures little of the
-weight. Two classifiers that each get about \AccWEfiveMLP\% of the weight right
-differ several-fold in basis points. The simulator of Section~\ref{sec:sim} needs only a
+\paragraph{Basis points are the unit that matters, alongside accuracy.} Weighted accuracy reversed the ranking that
+plain accuracy gave; even weighted accuracy did not rank methods by their effect on
+measured inflation; and basis points alone flatter a classifier that measures little of the
+weight. Two classifiers that get \AccWEfiveMLP\% and \AccWBgeMLP\% of the weight right have point
+estimates that differ several-fold in basis points, though their intervals overlap. The simulator of Section~\ref{sec:sim} needs only a
 confusion matrix on held-out labels, the published weights and the published item indices.
 An office that already publishes an index can therefore state the
 classification error of a new source in the unit its users care about before the source
@@ -23,9 +23,9 @@ could have been computed. Where an office publishes such a list, every researche
 has a common benchmark in the local language at no cost to the office.
 
 \paragraph{LLM classification is affordable at the scale of a price index.} \NameHaiku{}
-classified official Thai text with \AccWHaiku\% weighted accuracy at USD \CostHaiku{} per
+classified official Thai text with \AccWHaiku\% weighted accuracy at USD~\CostHaiku{} per
 million products, and the \NameEfive{}--\NameOpus{} cascade came within sampling error of
-\NameOpus{} at USD \CostCasEfiveMLPOpus{} per million. The whole set of LLM runs for this paper cost USD
+\NameOpus{} at USD~\CostCasEfiveMLPOpus{} per million products of the held-out list's mix. The whole set of LLM runs for this paper cost USD
 \LLMSpendUSD. The question is then one of governance more than budget: closed models
 change, responses must be cached and versioned, and an office may prefer an open model it
 can run itself. The cheap methods were not close enough to make that choice free: for every cheap
@@ -42,7 +42,7 @@ such a description can be published is a decision for each office.
 
 \paragraph{Transfer gets a long way, but not all the way.} With no Thai label at all,
 non-Thai products taught an embedding classifier to place \AccWEfiveMLPZeroShot\% of the
-evaluated weight, and the alignment of Thai products with their non-Thai neighbours varied
+evaluated weight correctly, and the alignment of Thai products with their non-Thai neighbours varied
 widely by item. For languages with even fewer resources than Thai, this is a usable
 starting point and a guide to where official labels are needed first: in the items where
 local products look least like foreign ones. But the error of the zero-shot classifier in

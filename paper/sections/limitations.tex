@@ -34,8 +34,10 @@ well raise the LLM scores, but we have not tested that.
 
 \paragraph{The development data are not the deployment text.} Cascade thresholds were chosen
 on the Thai weak-label validation split, which is Open Food Facts text. The confidence of the
-cheap classifiers on that text did not carry over to official specifications, and most
-cascades routed too few products. An office would have to choose thresholds on data like the
+cheap classifiers on that text did not carry over to official specifications, and the weak
+labels rate the LLMs far below their reference-set scores, so the development data could not
+see the value of routing: most cascades routed too few products, and the one that works owes
+its threshold to a tie-break among the highest candidates. An office would have to choose thresholds on data like the
 text it classifies.
 
 \paragraph{The product universe is assumed.} The reference set is a list, not a stream of
@@ -55,7 +57,8 @@ assignment of products to items. A real web-price index would add sampling, matc
 quality-adjustment and outlier error on top. Three modelling choices are assumptions rather
 than estimates: leaked out-of-scope products move with the indices of the out-of-scope items
 the reference set shows them coming from, an item
-that receives no products takes its group's measured movement, and the product-level
+that receives no products has its weight redistributed within its CPI group, and the
+product-level
 dispersion of the noise variants is assumed, not measured.
 
 \paragraph{One training run per classifier.} Every classifier is trained once, with one

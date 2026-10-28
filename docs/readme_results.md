@@ -6,7 +6,8 @@ the Thai CPI and measure what each method's errors would do to measured inflatio
 Transfer from non-Thai products alone gets an {NameEfive} classifier to {AccWEfiveMLPZeroShot}%
 of the evaluated CPI weight, and all {NMocTrainval} official labels raise it to {AccWEfiveMLP}%.
 {NameOpus} reaches {AccWOpus}% and {NameHaiku} {AccWHaiku}%, and a cascade from {NameEfive} to
-{NameOpus} scores {AccWCasEfiveMLPOpus}% at {CostPctCasEfiveMLPOpus}% of its cost. With {NameOpus}'s
+{NameOpus} scores {AccWCasEfiveMLPOpus}% at {CostPctCasEfiveMLPOpus}% of its cost on the held-out
+list. With {NameOpus}'s
 confusion matrix, headline year-on-year inflation would be misstated by
 {BpYoyRmseHeadlineOpus} basis points (RMSE; at most {BpYoyRmseHeadlineOpusClusterHi} at the
 upper end of a {CfgCI}% interval that allows errors to cluster), against
