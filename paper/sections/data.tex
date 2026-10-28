@@ -1,9 +1,18 @@
 \section{Data}\label{sec:data}
 
-All data are public. Table~\ref{tab:sources} in Appendix~\ref{app:repro} lists the sources
+All data are public, and each source has one job. The monthly indices and weights of the
+Trade Policy and Strategy Office define the target: the items a product must be assigned to
+and the weight each carries in headline, food and core inflation
+(Section~\ref{sec:cpi}). The same weights show which part of the index a product classifier
+can reach at all (Section~\ref{sec:scope}). Product text comes from two places: Open Food
+Facts and Open Beauty Facts, crowd-sourced product names in many languages with weak
+category labels, and the Ministry of Commerce's price-collection specifications, Thai text
+that the office itself labels with item codes (Section~\ref{sec:text}). Specifications held
+out from training form the reference set on which every method is scored
+(Section~\ref{sec:ref}). Table~\ref{tab:sources} in Appendix~\ref{app:repro} lists the sources
 and their licences; the repository records the retrieval date and checksum of every file.
 
-\subsection{The Thai CPI}
+\subsection{The Thai CPI}\label{sec:cpi}
 
 The Thai consumer price index is compiled monthly by the Trade Policy and Strategy Office
 (TPSO) of the Ministry of Commerce. The current base year is 2566 in the Buddhist era (2023),
@@ -25,7 +34,7 @@ split (primary) and non-negative least squares on the Lowe identity, which choos
 that best reproduces the cell's index from its items' indices (sensitivity). Neither is an
 official weight, and the paper never calls it one.
 
-\subsection{Scope: the items a product classifier can reach}
+\subsection{Scope: the items a product classifier can reach}\label{sec:scope}
 
 A classifier of packaged-product text can only measure items sold as packaged products. We
 define \NLabelsInScope{} in-scope CPI items: food at home, ready-to-eat food, non-alcoholic
@@ -45,7 +54,7 @@ are an equal split (estimated). Source: TPSO; author's calculations.}
 \label{fig:coverage}
 \end{figure}
 
-\subsection{Product text}
+\subsection{Product text}\label{sec:text}
 
 \paragraph{Open Food Facts.} Open Food Facts (OFF) is a crowd-sourced, openly licensed
 database of packaged products \citep{off2026}. We use its Parquet export and that of its

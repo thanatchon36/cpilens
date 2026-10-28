@@ -2,7 +2,13 @@
 
 Figure~\ref{fig:pipeline} summarises the pipeline. Every method maps a product text to one
 of the \NLabelsInScope{} in-scope items or \textsc{oos}, with a calibrated confidence; some
-may abstain.
+may abstain. Section~\ref{sec:classifiers} describes the four families of classifier: light
+classifiers on frozen multilingual embeddings, a fine-tuned multilingual encoder, few-shot
+prompting of two commercial LLMs, and cascades that pass a cheap classifier's least
+confident products to an LLM. Section~\ref{sec:eval} defines how they are scored: accuracy
+weighted by CPI expenditure, the accuracy--coverage and cost--accuracy frontiers, and
+bootstrap intervals for paired comparisons. Section~\ref{sec:sim} builds the simulator that
+turns a confusion matrix into basis points of measured inflation.
 
 \begin{figure}[t]
 \centering
@@ -14,7 +20,7 @@ design.}
 \label{fig:pipeline}
 \end{figure}
 
-\subsection{Classifiers}
+\subsection{Classifiers}\label{sec:classifiers}
 
 \paragraph{Frozen multilingual embeddings.} Following Spectrum's design \citep[pp.~3, 19--20]{bis2026spectrum}, the
 first family embeds each text once and trains a light classifier on the vectors.
@@ -60,7 +66,7 @@ own validation rows by negative log-likelihood \citep{guo2017calibration}; for $
 logits are log vote shares. The calibrated top-class probability is the confidence used by
 the coverage frontier and the cascade.
 
-\subsection{Evaluation}
+\subsection{Evaluation}\label{sec:eval}
 
 \paragraph{Expenditure-weighted accuracy.} What matters for a price index is not how many
 products are classified correctly but how much CPI weight is measured correctly. Let $w_k$ be

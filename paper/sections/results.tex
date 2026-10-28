@@ -1,10 +1,22 @@
 \section{Results}\label{sec:results}
 
-All scores in this section are on the reference set (Section~\ref{sec:ref}): \NRefSpecs{}
-held-out official specifications, \NRefInScope{} of them in scope. Weighted accuracy is
-$\mathrm{acc}_w$ of equation~\eqref{eq:accw} under the equal split; brackets give
-\CfgCI\% intervals from \NBoot{} stratified bootstrap resamples. The NNLS split is reported
-where it changes a conclusion.
+This section takes the three questions in turn, and each subsection opens with its answer.
+In brief: transfer from non-Thai products alone gets an \NameEfive{} MLP to
+\AccWEfiveMLPZeroShot\% of the evaluated weight, and all official labels raise it to
+\AccWEfiveMLP\% (RQ1, Section~\ref{sec:rq1}). On official Thai text the LLMs are far ahead:
+\NameOpus{} reaches \AccWOpus\%, and a cascade from \NameEfive{} to \NameOpus{} scores
+\AccWCasEfiveMLPOpus\% at \CostPctCasEfiveMLPOpus\% of its cost (RQ2,
+Section~\ref{sec:rq2}). With \NameOpus's confusion matrix, headline year-on-year inflation
+would be misstated by \BpYoyRmseHeadlineOpus{} basis points, against
+\BpYoyRmseHeadlineBgeMLP{} to \BpYoyRmseHeadlineEfiveMLP{} for cheaper classifiers trained on
+all labels, and accuracy alone does not rank the methods by this error (RQ3,
+Section~\ref{sec:rq3}).
+
+All scores are on the reference set (Section~\ref{sec:ref}): \NRefSpecs{} held-out official
+specifications, \NRefInScope{} of them in scope. Weighted accuracy is $\mathrm{acc}_w$ of
+equation~\eqref{eq:accw} under the equal split; brackets give \CfgCI\% intervals from
+\NBoot{} bootstrap resamples that draw whole sub-items within each item
+(Section~\ref{sec:eval}). The NNLS split is reported where it changes a conclusion.
 
 \subsection{RQ1: cross-lingual transfer and the value of official labels}\label{sec:rq1}
 
