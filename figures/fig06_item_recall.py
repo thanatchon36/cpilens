@@ -6,6 +6,8 @@ from typing import Any
 
 import numpy as np
 import polars as pl
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch
 
 from cpilens.viz import names, select, style
 
@@ -34,6 +36,15 @@ def main() -> None:
     axes[0].set_ylabel("Recall (bars); cumulative CPI weight (line)")
     d = r.filter((pl.col("method") == cheap) & (pl.col("weight") > 0))
     low = d.filter(pl.col("recall") < 0.5)["weight"].sum() / d["weight"].sum()
+
+    def fam(m: str) -> str:  # "fine-tuned encoder", but "LLM prompting" keeps its acronym
+        f = names.FAMILY[select.family(m)]
+        return f if f.split()[0].isupper() else f[0].lower() + f[1:]
+
+    key = [Patch(color=style.FAMILY[select.family(m)]) for m in (cheap, best)]
+    key.append(Line2D([], [], color=style.MUTED, lw=1.0, marker=".", ms=3))
+    labels = [f"Recall, {names.method(m)} ({fam(m)})" for m in (cheap, best)]
+    labels.append("Cumulative evaluated CPI weight")
     style.finish(
         fig,
         f"{100 * low:.0f}% of evaluated CPI weight sits in items that {names.method(cheap)} "
@@ -41,8 +52,9 @@ def main() -> None:
         style.source(style.SOURCE_CPI, style.SOURCE_OFF, style.SOURCE_REF, style.SOURCE_CALC),
         "Bars: share of each item's held-out official specifications classified correctly; "
         "grey line: cumulative evaluated CPI weight in bar order. Items without specifications "
-        "are omitted. Bar colour marks the method family, as in the other figures "
-        f"({names.FAMILY[select.family(cheap)]}; {names.FAMILY[select.family(best)]}).",
+        "are omitted. Bar colours are the method families used in every figure.",
+        legend=(key, labels),
+        legend_cols=3,
     )
     style.save(fig, "fig06_item_recall", out)
 
