@@ -10,7 +10,13 @@ Counts are not typed here; they are in `results/data_summary.json` (written by
 | `taxonomy/thcpi_scope.csv` | The in-scope CPI items, their COICOP 2018 class and a short description. | MIT |
 | `taxonomy/off_categories_to_thcpi.csv` | Crosswalk from Open Food Facts category tags to CPI items (weak labels). | ODbL 1.0 (derived from the OFF taxonomy) |
 | `taxonomy/thcpi_*weights*.csv` | Official aggregate weights and estimated item weights. Item weights inside an official weight cell are **estimates** (equal split; NNLS), not official figures. | MIT (derived from TPSO publications) |
+| `data/reference_set.csv` | The held-out evaluation rows: specification ids, item codes and the sampling design, without the official text. | Attribution, non-commercial research use (derived from Ministry of Commerce open data; no upstream licence stated, see `data/SOURCES.md`) |
+| `data/manifest.csv` | URL and SHA-256 of every raw source file. | MIT |
 | `data/gold/sample.csv` | A stratified sample of Thai-market Open Food Facts products drawn for hand labelling. **Not labelled and not used in this version**; kept for a later one. | ODbL 1.0 |
+
+These files are also on the Hugging Face Hub as
+[`thanatchon36/cpilens-reference-set`](https://huggingface.co/datasets/thanatchon36/cpilens-reference-set),
+staged by `scripts/push_dataset.py`.
 
 The product corpus itself (`data/interim/`) is rebuilt from the public dumps by `make data`
 and is not committed. Attribution for everything derived from Open Food Facts:
