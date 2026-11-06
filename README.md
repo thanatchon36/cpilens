@@ -14,6 +14,7 @@
 📊 **[Figures](figures/out/)** ·
 📚 **[Documentation](https://thanatchon36.github.io/cpilens/)** ·
 🤗 **[Model on Hugging Face](https://huggingface.co/thanatchon36/cpilens-xlmr-thcpi)** ·
+🤗 **[Dataset on Hugging Face](https://huggingface.co/datasets/thanatchon36/cpilens-reference-set)** ·
 🧾 **[Data sources](data/SOURCES.md)**
 
 **How much does product classification cost in basis points?** Multilingual classification of
@@ -115,6 +116,10 @@ weights: Trade Policy and Strategy Office, Ministry of Commerce; price-collectio
 Ministry of Commerce open data. Every source, with URL, retrieval date, licence and checksum, is
 in [`data/SOURCES.md`](data/SOURCES.md); see also the [data card](docs/data_card.md) and the
 [model card](docs/model_card.md). No retailer website was scraped.
+
+The reference set and taxonomy tables are also on the Hugging Face Hub as
+[`thanatchon36/cpilens-reference-set`](https://huggingface.co/datasets/thanatchon36/cpilens-reference-set).
+They hold ids, item codes and the sampling design, not the official specification text.
 
 The BIS Innovation Hub's Project Spectrum is the closest prior work. Its results are cited from
 the public report ([`docs/spectrum_notes.md`](docs/spectrum_notes.md)) and are not directly
